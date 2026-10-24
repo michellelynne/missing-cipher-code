@@ -1,6 +1,6 @@
 ---
 name: maintenance-handoff-notes
-description: Turn recorded conversations with the people who know a product into organized handoff notes before it goes into maintenance mode, sorted into the inventory, disposition list, final design document, roadmap and communication plan, with every claim marked for verification while those people are still around. Use when a product is moving to maintenance mode, when someone who built a system is leaving or changing teams, or when someone has interview recordings or transcripts about a system to organize.
+description: Turn recorded conversations with the people who know a product into organized handoff notes before it goes into maintenance mode, sorted into the inventory, disposition list, final design document, roadmap, and communication plan, with every claim marked for verification while those people are still around. Use when a product is moving to maintenance mode, when someone who built a system is leaving or changing teams, or when someone has interview recordings or transcripts about a system to organize.
 ---
 
 # SKILL: Maintenance Handoff Notes
@@ -42,8 +42,8 @@ team has to do anyway:
 
 | Artifact | What to pull from the transcript |
 |---|---|
-| **Inventory** | Every running service, job, automation, alert and test mentioned, including manual instances and anything seasonal. Every workflow users rely on. Data rules and obligations. The people who support it and roughly how much time they spend. |
-| **Disposition list** | Anything the speaker said about what is low use and high upkeep, what could be automated, merged, or left alone. Map each to Deprecate, Automate, Consolidate or Maintain, marked as the speaker's view, not a decision. |
+| **Inventory** | Every running service, job, automation, alert, and test mentioned, including manual instances and anything seasonal. Every workflow users rely on. Data rules and obligations. The people who support it and roughly how much time they spend. |
+| **Disposition list** | Anything the speaker said about what is low use and high upkeep, what could be automated, merged, or left alone. Map each to Deprecate, Automate, Consolidate, or Maintain, marked as the speaker's view, not a decision. |
 | **Final design document** | How the product should run at its end state: what stays, how it runs, who supports it, onboarding, observability. |
 | **Roadmap** | Dependencies and sequencing the speaker mentioned, and anything that must happen before something else can be turned off. |
 | **Communication plan** | Who depends on the product, who needs to hear first, and what they will ask. |

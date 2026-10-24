@@ -1,6 +1,6 @@
 ---
 name: iac-syntax-translator
-description: Translate an infrastructure as code config from one tool's syntax into another, explain the target tool's idioms, and flag settings that do not map cleanly, without ever sending real infrastructure detail to a public model. Use when someone is switching between Terraform, CloudFormation, Ansible, Pulumi or similar, is learning a new IaC tool, or has a config in the wrong format.
+description: Translate an infrastructure as code config from one tool's syntax into another, explain the target tool's idioms, and flag settings that do not map cleanly, without ever sending real infrastructure detail to a public model. Use when someone is switching between Terraform, CloudFormation, Ansible, Pulumi, or similar, is learning a new IaC tool, or has a config in the wrong format.
 ---
 
 # SKILL: IaC Syntax Translator

@@ -38,7 +38,7 @@ while catching nothing.
 - **The failure cases they did not.** This is where the value is. Missing inputs, partial data,
   the downstream service being down, the same request arriving twice.
 - **Edge cases and unexpected data.** Empty, enormous, malformed, wrong encoding, wrong type.
-- **Resilience cases.** What happens under retry, timeout, partial failure.
+- **Resilience cases.** What happens under retry, timeout, and partial failure.
 
 Each test labeled with which scenario it belongs to, so the suite reads as a map of the behavior
 rather than a list.

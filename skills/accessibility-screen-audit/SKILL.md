@@ -34,11 +34,11 @@ the abstract is less useful than one ordered by how early in the experience it b
 The failures that cluster:
 
 - **Contrast** below the required ratio, especially secondary text and text over images.
-- **Colour as the only signal.** Status indicated purely by colour is invisible to a large number
+- **Color as the only signal.** Status indicated purely by color is invisible to a large number
   of users. Text or an icon has to carry it too.
 - **Missing or empty alternative text** on images that carry meaning, and alternative text on
   images that do not.
-- **Unlabelled controls.** Icon buttons with no accessible name are the standard offender.
+- **Unlabeled controls.** Icon buttons with no accessible name are the standard offender.
 - **Focus order** that does not follow the visual order, and focus that vanishes entirely.
 - **Keyboard traps,** anywhere focus can enter and not leave.
 - **Zoom and reflow.** Whether the page still works at high zoom without horizontal scrolling.
@@ -69,7 +69,7 @@ Run more than one scanner if possible. They disagree, and the disagreements are 
 > Audit it against [STANDARD AND LEVEL].
 >
 > For each failure, give the success criterion number, the exact element, one sentence on why it
-> fails, and a suggested code change. Put the failures a screen reader user would hit first.
+> fails, and a suggested code change. Put the failures a screen reader user would hit first at the top.
 >
 > Then tell me what you cannot determine from markup and styling alone, and what I need to check
 > by hand with a keyboard and a screen reader.

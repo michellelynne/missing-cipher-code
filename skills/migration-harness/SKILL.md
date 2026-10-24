@@ -1,6 +1,6 @@
 ---
 name: migration-harness
-description: Turn an agreed migration plan, its design decisions and its test approach into a reusable skill, so every engineer and every AI agent working on the migration follows the same style and parameters, then check new work against it. Use when a migration plan is settled and more than one person or agent will work on it, when someone asks to package a plan as a skill or harness, or when AI-assisted work on a migration keeps drifting from the plan.
+description: Turn an agreed migration plan, its design decisions, and its test approach into a reusable skill, so every engineer and every AI agent working on the migration follows the same style and parameters, then check new work against it. Use when a migration plan is settled and more than one person or agent will work on it, when someone asks to package a plan as a skill or harness, or when AI-assisted work on a migration keeps drifting from the plan.
 ---
 
 # SKILL: Migration Harness

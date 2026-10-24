@@ -1,6 +1,6 @@
 ---
 name: alert-digest-summarizer
-description: Turn a week of job alert emails into a short report of new senior openings grouped by company, dropping duplicates, reposts and roles at the wrong level, with a link to each posting and a list of anything that needs a closer look. Use when someone's job alerts are piling up, asks to summarize alert emails or job postings, or wants a weekly digest of openings at their target companies.
+description: Turn a week of job alert emails into a short report of new senior openings grouped by company, dropping duplicates, reposts, and roles at the wrong level, with a link to each posting and a list of anything that needs a closer look. Use when someone has job alerts piling up, asks to summarize alert emails or job postings, or wants a weekly digest of openings at their target companies.
 ---
 
 # SKILL: Alert Digest Summarizer
@@ -9,7 +9,7 @@ description: Turn a week of job alert emails into a short report of new senior o
 
 ## When to load this skill
 
-Load this skill once the reader's alerts are running and the results are arriving. Instead of
+Load this skill once the reader's alerts are running and the results are arriving. Instead of the reader
 checking fifty websites, the results come to them. The next problem is reading them: the same role
 shows up from three sources, half the hits are the wrong level, and the good ones get lost.
 
@@ -54,7 +54,7 @@ filtering the same junk every week.
 
 ## What to tell the reader
 
-- **Open the posting before you trust the summary.** Titles, levels and locations get misread.
+- **Open the posting before you trust the summary.** Titles, levels, and locations get misread.
 - **Never connect a tool to your email or Google account** unless you are comfortable with what it
   can see. Pasting the results is enough.
 - **AI won't reliably give the same answer every time.** If something looks off, check the source

@@ -41,7 +41,7 @@ checking the implementation, not the product.
 4. **Flag what to cut:**
    - **Duplicates,** several tests asserting the same behavior with different inputs that do not
      exercise anything new.
-   - **Framework tests,** asserting that the language, library or framework works.
+   - **Framework tests,** asserting that the language, library, or framework works.
    - **Mirror tests,** that restate the implementation line by line and will break on any refactor
      while catching nothing.
    - **Over-mocked tests,** where everything interesting is mocked away.

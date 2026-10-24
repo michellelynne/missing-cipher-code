@@ -1,6 +1,6 @@
 ---
 name: regional-communication-adapter
-description: Take an ask someone plans to make of their manager, explain how a manager in their region would likely receive it against directness, formality, hierarchy and timing, rewrite it to land locally, and flag anything reading as too aggressive or too passive. Use when someone is asking for a promotion, raise, project or role change, is working across cultures or with a manager in another country, or wants to know how a request will be heard.
+description: Take an ask someone plans to make of their manager, explain how a manager in their region would likely receive it against directness, formality, hierarchy, and timing, rewrite it to land locally, and flag anything reading as too aggressive or too passive. Use when someone is asking for a promotion, raise, project, or role change, is working across cultures or with a manager in another country, or wants to know how a request will be heard.
 ---
 
 # SKILL: Regional Communication Adapter
@@ -29,7 +29,7 @@ Four dimensions, which is what the reader is being asked to account for:
 intent. The whole point is how it is phrased.
 
 **Step 2. Get the region,** and separately, anything they know about the company's own culture.
-These are two different things and the second one often overrides the first. A US company's
+These are two different things, and the second one often overrides the first. A US company's
 office abroad may run on the parent culture, the local one, or an uneasy mixture.
 
 **Step 3. Explain how it would likely land,** walking the four dimensions and saying which

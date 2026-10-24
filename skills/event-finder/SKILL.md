@@ -27,12 +27,12 @@ minutes for pizza, leave when you want, and try again next month.
 **Recurring local groups:** name, focus, how often it meets, typical size, cost, link, and its most
 recent and upcoming events with dates.
 
-**Event aggregators:** newsletters, calendars and mailing lists that announce tech events locally,
+**Event aggregators:** newsletters, calendars, and mailing lists that announce tech events locally,
 with what each covers, how often it sends, cost, and the sign-up link. Only sources that have
 published in the last two months.
 
 **Conferences** in the next twelve months, if the reader wants them: date, location, ticket cost,
-whether registration is open, calls for speakers or volunteers, and scholarships, diversity grants
+whether registration is open, calls for speakers or volunteers, and scholarships, diversity grants,
 or discounted tickets with deadlines.
 
 **One commitment:** a single event to attend in the next month, and how long the reader plans to stay.
@@ -40,7 +40,7 @@ or discounted tickets with deadlines.
 ## The rule
 
 **Real groups only, nothing created.** Listings go stale and models invent plausible meetups. Every
-item has a link the reader can open. Anything the skill could not confirm is still active is flagged,
+item has a link the reader can open. Anything the skill could not confirm as still active is flagged,
 not listed as fact.
 
 ## Prompts the reader can run directly

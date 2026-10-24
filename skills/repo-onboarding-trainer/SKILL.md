@@ -1,6 +1,6 @@
 ---
 name: repo-onboarding-trainer
-description: Walk someone through an unfamiliar repository pitched at the experience they actually have, covering how the connected repos fit together to produce the product, then how to bring up a local environment, run the tests, and deploy a change, with unlimited repeat questions. Use when someone joins a team, inherits a service, has to work in a repo they have never seen, or found the documentation written for someone who already knows it.
+description: Walk someone through an unfamiliar repository pitched at the experience they actually have, covering how the connected repos fit together to produce the product, then how to bring up a local environment, run the tests, and deploy a change, with unlimited repeat questions. Use when someone joins a team, inherits a service, has to work in a repo they have never seen, or finds the documentation written for someone who already knows it.
 ---
 
 # SKILL: Repo Onboarding Trainer

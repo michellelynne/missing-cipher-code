@@ -1,6 +1,6 @@
 ---
 name: ai-task-decision-checklist
-description: Walk the three questions that decide whether to hand a task to AI, whether it can do the task well, whether redoing its work costs more than doing it yourself, and whether a secure tool is actually available, then say which kind of no you are dealing with. Use when someone is deciding whether to automate a task, wondering if an AI tool is worth it, or has been told a tool is not available at their company.
+description: Walk the three questions that decide whether to hand a task to AI (whether it can do the task well, whether redoing its work costs more than doing it yourself, and whether a secure tool is actually available), then say which kind of no you are dealing with. Use when someone is deciding whether to automate a task, wondering if an AI tool is worth it, or has been told a tool is not available at their company.
 ---
 
 # SKILL: AI Tool Decision Checklist
@@ -23,7 +23,7 @@ Be specific about this task rather than the category. Judge against what the rea
 produce, not against perfection. Consider whether the task has a verifiable right answer, how
 much context it needs that lives only in the reader's head, and whether a plausible-looking
 wrong answer would be spotted or shipped. The last one is the real risk: tasks where wrong
-output is obvious are safe to delegate, tasks where wrong output looks fine are not.
+output is obvious are safe to delegate; tasks where wrong output looks fine are not.
 
 **2. Will the reader spend more time redoing its work than doing the task themselves?**
 
@@ -59,7 +59,7 @@ A short verdict with the reasoning visible:
 | **Redo cost** | The comparison, with review time counted |
 | **Tool available** | Yes, no because nobody asked, no because it is blocked, or unknown |
 | **Verdict** | Delegate, delegate with review, split, or keep |
-| **If unknown** | The specific question to ask, and who to ask |
+| **If unknown** | The specific question to ask, and whom to ask |
 
 "Split" is often the right answer and gets overlooked. Many tasks divide into a mechanical part
 worth delegating and a judgment part worth keeping.
@@ -86,7 +86,7 @@ worth delegating and a judgment part worth keeping.
   no" is the difference between a request and a policy violation.
 - **Never route around a blocked tool.** Pasting work material into a personal account because
   the company tool was refused is the exact outcome the block exists to prevent.
-- **Recheck occasionally.** Both what the tools can do and what the organization allows move,
+- **Recheck occasionally.** What the tools can do and what the organization allows both change,
   and a no from last year is not evidence today.
 
 ## What this skill does not do

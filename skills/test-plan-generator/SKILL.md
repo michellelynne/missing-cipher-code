@@ -30,7 +30,7 @@ when they do.
 - Is this a frontend or backend feature?
 - How would users typically use this feature?
 - If backend, is it backward-compatible for anyone using the API?
-- Is there a command line interface that also needs testing?
+- Is there a command-line interface that also needs testing?
 - If frontend, which pages does it affect?
 - Does it appear in one place, or is it a repeated element?
 - What user interaction is possible but will result in an error?
@@ -82,8 +82,8 @@ anyone on the team can change the application with confidence because the right 
 > First ask me anything you need to know that I have not told you.
 >
 > Then give me a test plan organized by functional, non-functional, structural and code level,
-> infrastructure and reliability, and process-oriented testing. For each test, say what user-facing outcome it
-> protects.
+> infrastructure and reliability, and process-oriented testing. For each test, say what
+> user-facing outcome it protects.
 >
 > Recommend which to do manually first, which to automate once stable, and which should stay
 > manual. Flag any existing tests this feature could break.

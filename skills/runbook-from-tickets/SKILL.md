@@ -1,6 +1,6 @@
 ---
 name: runbook-from-tickets
-description: Read a set of resolved support tickets on a recurring issue and draft a runbook in the standard format, triggers, baseline context, actions, decisions, escalations and rollbacks, for the reader to edit and approve before publishing. Use when the same issue keeps coming back, when an alert has no runbook, or when someone wants to turn repeated support work into something anyone on call can follow.
+description: Read a set of resolved support tickets on a recurring issue and draft a runbook in the standard format (triggers, baseline context, actions, decisions, escalations, and rollbacks) for the reader to edit and approve before publishing. Use when the same issue keeps coming back, when an alert has no runbook, or when someone wants to turn repeated support work into something anyone on call can follow.
 ---
 
 # SKILL: Runbook from Tickets

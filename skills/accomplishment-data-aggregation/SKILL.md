@@ -1,6 +1,6 @@
 ---
 name: accomplishment-data-aggregation
-description: Pull a period of work together from tickets, merged pull requests, design docs, email and chat into one deduplicated list grouped by project, naming your role in each and flagging the items with no evidence of outcome. Use when someone is preparing for a performance review, building a brag sheet or promotion case, updating a resume, or cannot remember what they did last quarter.
+description: Pull a period of work together from tickets, merged pull requests, design docs, email, and chat into one deduplicated list grouped by project, naming your role in each and flagging the items with no evidence of outcome. Use when someone is preparing for a performance review, building a brag sheet or promotion case, updating a resume, or cannot remember what they did last quarter.
 ---
 
 # SKILL: Accomplishment Data Aggregation

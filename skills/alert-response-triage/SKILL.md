@@ -1,6 +1,6 @@
 ---
 name: alert-response-triage
-description: Help an on-call engineer respond to one alert that has no runbook, by reviewing the alert, the relevant code, data and logs to list likely causes and next debugging steps, then drafting a runbook entry once the issue is resolved. Use when an alert fires and nobody knows what it means, when a page has no linked runbook, when someone asks for help debugging an alert, or when turning a resolved page into a runbook.
+description: Help an on-call engineer respond to one alert that has no runbook, by reviewing the alert, the relevant code, data, and logs to list likely causes and next debugging steps, then drafting a runbook entry once the issue is resolved. Use when an alert fires and nobody knows what it means, when a page has no linked runbook, when someone asks for help debugging an alert, or when turning a resolved page into a runbook.
 ---
 
 # SKILL: Alert Response Triage
@@ -14,7 +14,7 @@ respond. If the engineer cannot figure out what to do, the alert is not useful, 
 it is.
 
 Runbooks are the classic answer. When there is no runbook, an assistant that can review the code,
-data and logs is a newer one. This skill is that assistant for one alert, and it leaves a runbook
+data, and logs is a newer one. This skill is that assistant for one alert, and it leaves a runbook
 behind so the next person does not start from zero.
 
 For reviewing a whole alert set, use `alert-response-audit` instead.

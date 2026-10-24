@@ -52,7 +52,7 @@ rather than application logic.
 has been done. That existing example is worth more than any general guidance, because it
 matches the team's conventions. Point at it and describe how it works.
 
-**Step 4. Say where the change belongs and why.** Not just the file, the position within it,
+**Step 4. Say where the change belongs and why.** Not just the file but the position within it,
 and the reason that position is the one consistent with everything around it.
 
 **Step 5. Draft the change in the codebase's own style,** following the pattern from step 3

@@ -16,7 +16,7 @@ an offer is normal.
 ## Why region drives this
 
 Many companies use cost of labor to decide the minimum they can offer, so the same title at
-the same company pays and benefits differently by location. Seniority moves the number a
+the same company pays differently and offers different benefits by location. Seniority moves the number a
 second time. A range quoted without both is not usable.
 
 ## Required inputs
@@ -69,7 +69,7 @@ For a comparison, add:
 ## What to tell the reader
 
 - **Treat every number as a starting point.** Benefit data is patchy, self-reported, and
-  ages quickly. Sanity-check against real listings and real salary data before setting a range
+  ages quickly. Double-check against real listings and real salary data before setting a range
   you would walk away over.
 - **Set the range, not the target.** The worksheet asks for an acceptable range so that a
   package can be compared as a whole. A company landing low on one benefit should land high on

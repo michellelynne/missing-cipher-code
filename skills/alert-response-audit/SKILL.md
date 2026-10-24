@@ -1,6 +1,6 @@
 ---
 name: alert-response-audit
-description: Audit an alert set for whether an on-call engineer could actually respond to each one, checking runbook coverage, first action, noise ratio and SLO connection, then give each alert a verdict of keep, tune, replace or delete. Use when alerts are noisy, when on-call is exhausting, when someone wants to reduce a pager rotation to what matters, or when running a periodic alert audit.
+description: Audit an alert set for whether an on-call engineer could actually respond to each one, checking runbook coverage, first action, noise ratio, and SLO connection, then give each alert a verdict of keep, tune, replace, or delete. Use when alerts are noisy, when on-call is exhausting, when someone wants to reduce a pager rotation to what matters, or when running a periodic alert audit.
 ---
 
 # SKILL: Alert Response Audit
@@ -39,7 +39,7 @@ regardless of how accurate it is.
 
 The question is not whether documentation exists. It is whether an on-call engineer can respond in
 a reasonable amount of time. A runbook is the classic answer; an assistant that can review the
-code, data and logs to help debug is a newer one, and for an alert with no runbook it may be the
+code, data, and logs to help debug is a newer one, and for an alert with no runbook it may be the
 faster path to a first action.
 
 **4. Noise check.** Alerts fired in thirty days, real incidents in thirty days, and the percentage
@@ -53,7 +53,7 @@ the clearest possible argument for deletion.
 | Verdict | Criteria |
 |---|---|
 | **Keep** | Symptom-based, documented response, low noise, tied to an SLO |
-| **Tune** | Directionally right, but the threshold, window or scope needs adjusting |
+| **Tune** | Directionally right, but the threshold, window, or scope needs adjusting |
 | **Replace** | Cause-based, should become a symptom-based or SLO-derived equivalent |
 | **Delete** | Adds no signal, has no documented response, or has never fired meaningfully |
 

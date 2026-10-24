@@ -1,6 +1,6 @@
 ---
 name: networking-prep
-description: Prepare for a networking event by drafting a short introduction in the "I do (x task) for (y people)" structure, a unique evergreen conversation question built on a genuine interest, and a few open-ended conversation starters that avoid yes/no questions, politics and asking for favors. Use before a meetup, conference or networking event, when someone says they never know what to say, or when working the Networking Worksheet's What Do You Do? and Unique Question sections.
+description: Prepare for a networking event by drafting a short introduction in the "I do (x task) for (y people)" structure, a unique evergreen conversation question built on a genuine interest, and a few open-ended conversation starters that avoid yes/no questions, politics, and asking for favors. Use before a meetup, conference, or networking event, when someone says they never know what to say, or when working the Networking Worksheet's What Do You Do? and Unique Question sections.
 ---
 
 # SKILL: Networking Prep
@@ -31,7 +31,7 @@ follow-up questions each invites.
 **A unique question.** "What do you do?" is what everyone asks, so it is boring, and in much of the
 world asking a stranger about work is rude. A unique question is built on one of the reader's genuine
 interests, is something anyone can have an opinion on without controversy, and is evergreen so it
-does not go stale. Travel, food and sports are good starting topics. The skill offers three
+does not go stale. Travel, food, and sports are good starting topics. The skill offers three
 candidates and a short sample exchange for the favorite.
 
 **Three conversation starters** tied to the event's topic, written as open questions.

@@ -62,7 +62,7 @@ options; knowing whether an option is any good takes the experience and context 
 and the tool does not. The reader's job shifts toward designing the structure the tool works
 inside.
 
-**Step 5. Say what changes if a step is handed over.** A step feeding another step means
+**Step 5. Say what changes if a step is handed over.** If a step feeds another step,
 handing it over changes what arrives downstream. Any drastic change to how the work runs has
 side effects, and they need addressing rather than discovering.
 

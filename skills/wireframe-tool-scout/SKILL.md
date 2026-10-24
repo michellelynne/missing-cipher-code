@@ -17,8 +17,8 @@ answer about whether it is ready.
 
 The book takes a deliberate position here: as of its writing, the author researched the
 commercially available AI wireframing tools and found the options so new that none worked well
-enough to recommend one. Rather than print a recommendation with a short shelf life, the reader
-is pointed at their own organization.
+enough to recommend one. Rather than print a recommendation with a short shelf life, the book
+points the reader at their own organization.
 
 This skill is the live version of that check. It runs the survey on the day it is asked, and it
 says how fresh the answer is.
@@ -62,7 +62,7 @@ Then:
 
 ## Prompt the reader can run directly
 
-> You are a research assistant. I am [DESCRIBE THE APPLICATION] and I need to produce
+> You are a research assistant. I am designing [DESCRIBE THE APPLICATION] and I need to produce
 > [SKETCHES / WIREFRAMES / MOCKUPS]. I design new applications about [HOW OFTEN].
 >
 > First, tell me whether I need a dedicated tool at all, given how often I do this and that I

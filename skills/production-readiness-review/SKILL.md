@@ -1,6 +1,6 @@
 ---
 name: production-readiness-review
-description: Audit a service against the eight production readiness standards, stable, reliable, scalable, fault-tolerant, performant, monitored, documented and ready for catastrophe, saying for each whether it is met, partly met or missing and what would move it up one level, then sort the gaps by impact rather than score. Use when someone is preparing a service for general availability, judging whether something is ready to launch, or filling in the productionizing worksheet.
+description: Audit a service against the eight production readiness standards (stable, reliable, scalable, fault-tolerant, performant, monitored, documented, and ready for catastrophe), saying for each whether it is met, partly met, or missing and what would move it up one level, then sort the gaps by impact rather than score. Use when someone is preparing a service for general availability, judging whether something is ready to launch, or filling in the productionizing worksheet.
 ---
 
 # SKILL: Production Readiness Review
@@ -21,22 +21,22 @@ eight on a first release; they are the direction of travel.
 |---|---|
 | **Stable** | The way changes reach production does not break the service |
 | **Reliable** | The service can be trusted by the clients and dependencies around it |
-| **Scalable** | Growth and reduction in traffic and data is expected and handled |
+| **Scalable** | Growth and reduction in traffic and data are expected and handled |
 | **Fault-tolerant** | A single failure does not take everything down |
 | **Performant** | It is fast enough for what it does, at a cost you can defend |
 | **Monitored** | You can see what the service is doing without being told |
 | **Documented** | The knowledge needed to run it is written down and actually used |
-| **Ready for Catastrophe** | The worst case has been thought through and practiced |
+| **Ready for catastrophe** | The worst case has been thought through and practiced |
 
 Source: Susan J. Fowler, *Production-Ready Microservices* (O'Reilly, 2016).
 
 ## How to score
 
-Zero is nothing in place, five is partly there, ten is fully handled and verified. Everything
+Zero is nothing in place, five is partly there, and ten is fully handled and verified. Everything
 between is a judgment call.
 
 **Be honest rather than generous.** A generous score produces a launch, and the launch produces
-the incident. Almost nothing scores ten across the board and it does not need to.
+the incident. Almost nothing scores ten across the board, and it does not need to.
 
 For each standard, produce:
 

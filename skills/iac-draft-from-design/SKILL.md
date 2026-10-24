@@ -24,7 +24,7 @@ That sentence is the whole posture of this skill. Every output says it.
    diagram described in words is fine.
 2. **The target tool.** Terraform, CloudFormation, Ansible, Pulumi, or another.
 3. **The cloud provider.**
-4. **Scale expectations,** roughly. Whether the API tier is one instance or many changes the
+4. **Scale expectations,** roughly. Whether the API tier is one instance or many affects the
    shape of the template.
 
 If the reader wants to compare tools before committing, generate the same design in two or

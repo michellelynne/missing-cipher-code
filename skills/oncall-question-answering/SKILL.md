@@ -18,7 +18,7 @@ This is only appropriate where all three hold:
 
 1. **Connected to documentation.** Grounded in the team's actual pages, not general knowledge
    about how systems like this usually work.
-2. **Likely to have correct answers.** Which depends entirely on whether the documentation is
+2. **Likely to have correct answers.** That depends entirely on whether the documentation is
    current. Thin or stale documentation produces a confident wrong answer, which under incident
    pressure is worse than no answer.
 3. **Remaining questions escalate easily to a human.** Escalation has to be one step, not a
@@ -51,7 +51,7 @@ from that rather than asking three questions first.
 ## The fifteen-minute rule
 
 A useful team norm this fits into: if there has been no progress on a ticket in fifteen minutes,
-ask someone else. It exists to stop an on-call engineer disappearing down a rabbit hole for an
+ask someone else. It exists to stop an on-call engineer from disappearing down a rabbit hole for an
 hour, and it works because the culture treats stopping to help as normal rather than as an
 interruption.
 

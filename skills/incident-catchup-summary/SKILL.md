@@ -1,6 +1,6 @@
 ---
 name: incident-catchup-summary
-description: Summarize a running incident for someone joining late, covering what happened, what has been tried, what has been ruled out and the current working theory, so responders are not answering the same question repeatedly. Use during an active incident when people keep joining the channel, or when someone needs to hand off an incident mid-flight.
+description: Summarize a running incident for someone joining late, covering what happened, what has been tried, what has been ruled out, and the current working theory, so responders are not answering the same question repeatedly. Use during an active incident when people keep joining the channel, or when someone needs to hand off an incident mid-flight.
 ---
 
 # SKILL: Incident Catch-Up Summary

@@ -1,6 +1,6 @@
 ---
 name: competitive-landscape-research
-description: Map the competitive landscape for a product idea in four passes, adjacent consumer apps, tools built for the trade, a summary memo naming the closest competitors and the failures, then business models and under-served segments, with every claim cited and nothing invented. Use when someone is researching competitors, validating a product idea, wondering whether something has been tried before, or doing the product manager work that landed on them.
+description: Map the competitive landscape for a product idea in four passes: adjacent consumer apps, tools built for the trade, a summary memo naming the closest competitors and the failures, then business models and underserved segments, with every claim cited and nothing invented. Use when someone is researching competitors, validating a product idea, wondering whether something has been tried before, or doing the product manager work that landed on them.
 ---
 
 # SKILL: Competitive Landscape Research
@@ -60,7 +60,7 @@ and dropped. That is a signal it is harder than it looks, and it is the single m
 thing this research can surface.
 
 **Pass 4. Business models and positioning.** Common models and price points, which customer
-segments look under-served, and where this product would sit.
+segments look underserved, and where this product would sit.
 
 ## Prompt the reader can run directly
 
@@ -90,7 +90,7 @@ Run these in order, correcting between passes.
 > I especially want to know if a feature I think is novel is one others attempted and dropped.
 
 > Given all of the above, what business models and price points are common? Which customer
-> segments look under-served? Where would you position this product?
+> segments look underserved? Where would you position this product?
 
 ## What to tell the reader
 

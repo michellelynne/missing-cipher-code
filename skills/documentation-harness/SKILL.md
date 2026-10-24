@@ -1,6 +1,6 @@
 ---
 name: documentation-harness
-description: Build a reusable documentation harness, a skill that carries a team's documentation standards, house terms, brevity limits and the context that lives outside the code, such as escalation paths and dependency owners, so AI-written documentation and code explanations stop being verbose and stop guessing. Use when AI-written docs are too long, when an assistant explains code without knowing the team's context, when someone wants AI to answer questions from the code instead of stored docs, or when setting up AI for a team.
+description: Build a reusable documentation harness, a skill that carries a team's documentation standards, house terms, brevity limits, and the context that lives outside the code, such as escalation paths and dependency owners, so AI-written documentation and code explanations stop being verbose and stop guessing. Use when AI-written docs are too long, when an assistant explains code without knowing the team's context, when someone wants AI to answer questions from the code instead of stored docs, or when setting up AI for a team.
 ---
 
 # SKILL: Documentation Harness
@@ -32,7 +32,7 @@ This one carries what a reader of documentation needs.
 |---|---|
 | **Audience** | Who reads the docs: engineers at every level, including someone who started this week. The goal is giving them the confidence to make changes. |
 | **Brevity limits** | Maximum length per doc type, a ban on restating the code, and "lead with what to do" for runbooks |
-| **Structure** | The team's templates: who, what, where, when, why and how for system docs; triggers, baseline context, actions, decisions, escalations and rollbacks for runbooks |
+| **Structure** | The team's templates: who, what, where, when, why, and how for system docs; triggers, baseline context, actions, decisions, escalations, and rollbacks for runbooks |
 | **House terms** | Names for services, teams, environments, and personas, so the AI uses the team's words |
 | **Context outside the code** | Escalation paths, dependency owners, vendor contracts, team conventions, undocumented business rules, and where the logs and dashboards live |
 | **Do not guess** | If the answer is not in the code or the harness, say so and name who to ask |

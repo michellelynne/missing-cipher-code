@@ -49,10 +49,10 @@ Finish this sentence: *this alert is being set up because otherwise [some bad ou
 user]*. An alert that cannot complete it is measuring a cause rather than a symptom, and belongs
 on a dashboard instead of in a pager.
 
-The related trap is threshold theatre. Eighty percent CPU sounds like a sensible alert until you
+The related trap is threshold theater. Eighty percent CPU sounds like a sensible alert until you
 notice that users suffer at fifty, or never notice at ninety-nine, or that an autoscaler is keyed
 to that number and handles it. Rate of change often matters more than the level: a disk at fifty
-percent filling fast is an emergency, at ninety percent filling slowly is next week's ticket.
+percent filling fast is an emergency; one at ninety percent filling slowly is next week's ticket.
 
 ## What this skill produces
 

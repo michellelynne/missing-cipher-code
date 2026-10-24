@@ -46,7 +46,7 @@ and the strength comes from selection and framing rather than invention.
 
 What that means in practice: lead with outcome rather than activity, use the organization's own
 language for what matters, and make the scope visible. "Led" and "contributed to" are different
-claims and the reader should be able to defend whichever one appears.
+claims, and the reader should be able to defend whichever one appears.
 
 ## Then the goals
 
@@ -55,7 +55,7 @@ records show, suggest goals to strive for next, inside the organization or in th
 community. For each goal, concrete steps.
 
 The progress monitor pairs with this: each step, the goal it serves, and where it currently stands.
-A class, a project, a book, a talk. This is what turns a review conversation from a defence of the
+A class, a project, a book, a talk. This is what turns a review conversation from a defense of the
 past into a plan.
 
 ## Prompt the reader can run directly
@@ -80,7 +80,7 @@ past into a plan.
 - **Defend every word.** This gets read in a room where the reader may be asked to expand on any
   line.
 - **Update it quarterly.** A brag sheet written once a year is written from memory, and memory
-  favours the recent.
+  favors the recent.
 - **Watch what is missing.** Work that cannot become a record may be work that does not show
   leadership. If it cannot go on the brag sheet, it may not be the right task.
 - **Bring the goals.** Arriving with a plan changes the nature of the conversation.

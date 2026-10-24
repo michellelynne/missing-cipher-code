@@ -48,7 +48,7 @@ with labels, in prose. This is deliberately not a visual design.
 **The states the page has to handle,** which is where most wireframes are thin: empty, loading,
 partial data, error, and the state where there is far more data than the design assumed.
 
-**Accessibility problems to resolve before building.** Contrast, anything signalled by color
+**Accessibility problems to resolve before building.** Contrast, anything signaled by color
 alone, focus order, controls without labels, images without meaningful alternative text, and
 whether the page still works at high zoom.
 

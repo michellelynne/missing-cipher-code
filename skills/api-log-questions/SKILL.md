@@ -77,7 +77,7 @@ stopped calling or may have stopped being logged.
 ## What this skill does not do
 
 It does not instrument the API, decide whether a change is safe, or notify anyone. It answers
-questions from logs that already exist and shows its working.
+questions from logs that already exist and shows its work.
 
 ---
 

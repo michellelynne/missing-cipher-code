@@ -29,7 +29,7 @@ whether the retry worked. Older systems are full of these.
 **Inconsistent timestamps across services.** Three services with three formats cannot be put in
 order with confidence, which means the sequence of events is guesswork.
 
-**Nothing shared to join on.** Without an identifier travelling across services, only someone who
+**Nothing shared to join on.** Without an identifier traveling across services, only someone who
 already knows the code can tell that four lines belong to one user's request.
 
 **Keys that differ per service.** The same concept named three ways cannot be filtered or counted

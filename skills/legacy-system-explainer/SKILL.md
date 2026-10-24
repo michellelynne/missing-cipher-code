@@ -69,7 +69,7 @@ explanation has missed something.
 - **The open questions are the deliverable.** Take them to whoever has been here longest.
 - **Do not let it recommend yet.** A migration plan built on a half-understood system is how
   rewrites fail.
-- **Consider packaging this for your team.** If several people will work on the migration, doing
+- **Consider packaging this for your team.** If several people will work on the migration, packaging
   the context once means everyone starts from the same understanding.
 
 ## What this skill does not do

@@ -1,6 +1,6 @@
 ---
 name: proposal-memo-drafting
-description: Work a project idea up into a proposal memo through a sequence of prompts, brainstorming the opportunity, drafting Background, Opportunity, Solution and ROI, retelling the pitch for each audience, and generating user stories, then hand it back for the reader to rewrite in their own voice. Use when someone is writing a proposal, pitching a project to leadership, filling in the Proposal Memo or User Stories worksheet, or needs to explain why an idea with good ROI has not been done yet.
+description: Work a project idea up into a proposal memo through a sequence of prompts, brainstorming the opportunity, drafting Background, Opportunity, Solution, and ROI, retelling the pitch for each audience, and generating user stories, then hand it back for the reader to rewrite in their own voice. Use when someone is writing a proposal, pitching a project to leadership, filling in the Proposal Memo or User Stories worksheet, or needs to explain why an idea with good ROI has not been done yet.
 ---
 
 # SKILL: Proposal Memo Drafting

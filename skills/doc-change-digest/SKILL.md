@@ -69,7 +69,7 @@ For the on-call mode:
 
 ## Pair it with the other decay controls
 
-A digest tells people what changed. It does not stop documentation going stale. The two mechanisms
+A digest tells people what changed. It does not stop documentation from going stale. The two mechanisms
 that do:
 
 - **Ownership.** Every page has someone responsible, with automated reminders when it goes too long

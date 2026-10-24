@@ -1,6 +1,6 @@
 ---
 name: frontend-tech-decisions
-description: Work through the architecture decisions a frontend project needs, giving two or three realistic options per decision with pros, cons, and the team size or timeline each suits, then one recommendation and its biggest risk. Use when someone is starting a frontend project, filling in the frontend decision worksheet, choosing a framework, bundler, rendering mode or testing stack, or inheriting a stack they need to understand.
+description: Work through the architecture decisions a frontend project needs, giving two or three realistic options per decision with pros, cons, and the team size or timeline each suits, then one recommendation and its biggest risk. Use when someone is starting a frontend project, filling in the frontend decision worksheet, choosing a framework, bundler, rendering mode, or testing stack, or inheriting a stack they need to understand.
 ---
 
 # SKILL: Frontend Tech-Decision Advisor

@@ -1,6 +1,6 @@
 ---
 name: success-statements
-description: Turn a list of projects and outcomes into short impact statements in the form I improved this thing by this measurable amount using this method, jargon-free, nothing invented, most impactful first, with anything that does not have the pieces flagged rather than padded. Use when someone is writing a brag sheet, resume bullets, performance review material, or needs to describe their work in language management understands.
+description: Turn a list of projects and outcomes into short impact statements in the form "I improved this thing by this measurable amount using this method," jargon-free, nothing invented, most impactful first, with anything that does not have the pieces flagged rather than padded. Use when someone is writing a brag sheet, resume bullets, performance review material, or needs to describe their work in language management understands.
 ---
 
 # SKILL: Success Statements

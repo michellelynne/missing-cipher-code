@@ -14,14 +14,14 @@ anything going to leadership. The draft has to exist first; this skill does not 
 
 ## Editor, not writer
 
-The book's position is precise and worth repeating to the reader: it is a better editor than it
+The book's position is precise and worth repeating to the reader: AI is a better editor than it
 is a writer. It can help with grammar, ideation, and shortening. It cannot write a book for
 you, but it can tell you when you are writing in the passive voice.
 
 Two reasons the distinction matters here.
 
 **The reader is building a leadership brand, not producing one document.** Memos accumulate into
-how people at the organization perceive them. A voice assembled by a tool is not theirs, and the
+how people at the organization perceive the reader. A voice assembled by a tool is not theirs, and the
 gap becomes obvious the moment they have to speak to the same material in a meeting.
 
 **It does not know the internal jargon.** Every organization has terms, systems, and shorthand
@@ -70,7 +70,7 @@ cut, so the reader can correct that judgment if it was wrong.
 > could be.
 >
 > Tell me where someone outside my team would get lost, and what question they would be left
-> with. Do not answer the question, just name it.
+> with. Do not answer the question; just name it.
 >
 > Tell me whether the most important point is high enough up.
 >

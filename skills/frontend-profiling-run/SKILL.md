@@ -41,7 +41,7 @@ Before profiling anything, narrow the problem. Slowness is rarely uniform.
 6. **Rank by risk and reward.** Least risky and highest reward first. The goal is real improvement
    without the engineers who own this surface having to come and find you.
 7. **Write a memo** describing the proposed changes and why.
-8. **Get a sanity check** from the team before implementing. A quick review of any large planned
+8. **Get a second opinion** from the team before implementing. A quick review of any large planned
    change is generally worth the ten minutes.
 9. **File the tickets and implement.**
 
@@ -82,7 +82,7 @@ fix the design and cache deliberately afterward.
 
 ## What to tell the reader
 
-- **Sanity-check big planned changes with the team.** Especially on a surface owned by other
+- **Double-check big planned changes with the team.** Especially on a surface owned by other
   engineers.
 - **Teaching the order of operations is the real setup cost.** Everything after is cheap.
 - **You get two wins.** The product gets faster and the reader gets better at debugging a part of

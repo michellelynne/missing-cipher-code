@@ -1,6 +1,6 @@
 ---
 name: documentation-drafting
-description: Draft documentation for a service or feature organized around who, what, where, when, why and how, ordered most important first, then require an edit pass that cuts a meaningful share of it before publishing. Use when someone needs to document a system, is writing a README or handover doc, or has generated documentation that is technically complete and unreadable.
+description: Draft documentation for a service or feature organized around who, what, where, when, why, and how, ordered most important first, then require an edit pass that cuts a meaningful share of it before publishing. Use when someone needs to document a system, is writing a README or handover doc, or has generated documentation that is technically complete and unreadable.
 ---
 
 # SKILL: Documentation Drafting
@@ -33,7 +33,7 @@ Six questions, from journalism, where they exist to make sure a story covers eve
 - Who can I contact with development questions?
 - Who can I contact for user support?
 - Who are the personas this was developed to serve?
-- Who do you inform of new updates?
+- Whom do you inform of new updates?
 
 **What happened?**
 - What was the original problem?

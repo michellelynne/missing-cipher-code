@@ -1,6 +1,6 @@
 ---
 name: talk-topic-brainstormer
-description: Turn the reader's recent work into candidate talk, blog or video topics using five brainstorming questions, pick the strongest for a specific audience, and draft a conference abstract or lightning talk outline for it. Use when someone wants to start speaking or writing, says they have nothing to say, needs a talk idea or a call for proposals abstract, or is working the Branding Worksheet's Content Creation section.
+description: Turn the reader's recent work into candidate talk, blog, or video topics using five brainstorming questions, pick the strongest for a specific audience, and draft a conference abstract or lightning talk outline for it. Use when someone wants to start speaking or writing, says they have nothing to say, needs a talk idea or a call-for-proposals abstract, or is working the Branding Worksheet's Content Creation section.
 ---
 
 # SKILL: Talk Topic Brainstormer
@@ -10,10 +10,10 @@ description: Turn the reader's recent work into candidate talk, blog or video to
 ## When to load this skill
 
 Load this skill when the reader wants to create content, whether a talk, blog post, newsletter,
-workshop or short video, and is stuck on what to say.
+workshop, or short video, and is stuck on what to say.
 
 The blocker heard most often is "I don't have anything to say." That is not true. Even people working
-on the same technology have different stories, and the way they tell the details, challenges and
+on the same technology have different stories, and the way they tell the details, challenges, and
 successes will be different. Dry information reads like a textbook; a story is what makes content.
 
 ## The brainstorming questions
@@ -58,9 +58,9 @@ reader does not promise results they cannot deliver.
 ## What to tell the reader
 
 - **Rewrite the abstract in your voice.** Reviewers read hundreds; yours should sound like a person.
-- **Check what you can share.** Strip confidential details about your employer's systems, customers
+- **Check what you can share.** Strip confidential details about your employer's systems, customers,
   and numbers, and ask if you are unsure.
-- **Start small.** Pick one topic and write a five-minute lightning talk, blog post or short video.
+- **Start small.** Pick one topic and write a five-minute lightning talk, blog post, or short video.
 - **Timebox it.** A little progress on a regular schedule adds up without burning you out.
 
 ## What this skill does not do

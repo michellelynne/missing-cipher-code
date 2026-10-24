@@ -73,13 +73,13 @@ query. Automated alerts are a floor, not a networking strategy.
 ## What to tell the reader
 
 - **Spot-check the mapping.** Open one live listing per company and confirm the title matches
-  before trusting the query. Leveling names change and this is the step that catches it.
+  before trusting the query. Leveling names change, and this is the step that catches it.
 - **Watch the first week.** A query returning nothing is usually wrong, not evidence the
   company is not hiring.
 - **Alerts buy back attention.** The point is not to check 50 sites. Spend that time on
   interview preparation instead.
 - **Alerts are the setup for the story.** "I set up an alert so I would know the moment you
-  posted a role I was qualified for" is a concrete answer to "why do you want to work here."
+  posted a role I was qualified for" is a concrete answer to "why do you want to work here?"
 
 ## What this skill does not do
 

@@ -1,6 +1,6 @@
 ---
 name: memo-newsletter-drafting
-description: Turn raw notes from a period into a team newsletter for management, drafting Key Insights as two paragraphs a VP could follow without knowing the technology, then sorting the rest into highlights, lowlights and key investments as one-line bullets. Use when someone owes a team update, wants leadership to know what their team shipped, or has a pile of notes and no draft.
+description: Turn raw notes from a period into a team newsletter for management, drafting Key Insights as two paragraphs a VP could follow without knowing the technology, then sorting the rest into highlights, lowlights, and key investments as one-line bullets. Use when someone owes a team update, wants leadership to know what their team shipped, or has a pile of notes and no draft.
 ---
 
 # SKILL: Memo Newsletter Drafting
@@ -66,8 +66,8 @@ Better to find that now than to be asked about it by a VP.
 >
 > Here are my raw notes from this time period: [PASTE]. My team is [TEAM AND WHAT IT DOES].
 >
-> Draft the Key Insights section as two paragraphs a VP would understand without needing to
-> understand the technology, but is interested in how it got done.
+> Draft the Key Insights section as two paragraphs for a VP who does not need to
+> understand the technology but is interested in how it got done.
 >
 > If multiple features affected the same result, roll that data up, then sort the rest into
 > highlights, lowlights, and key investments as one-line bullets.

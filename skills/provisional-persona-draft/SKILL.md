@@ -51,7 +51,7 @@ It is not a demographic bucket, an average, or a role title.
 1. **Get the product in one or two sentences,** plus the market or region it serves.
 2. **Get the roles.** Start from existing user stories and sort them by who is asking. Two stories
    that want opposite things usually mean two roles.
-3. **Draft the user types.** For each: demographics, daily context, motivations, pain points and
+3. **Draft the user types.** For each: demographics, daily context, motivations, pain points, and
    behaviors, every item marked supported by public evidence (with the source) or assumption.
 4. **Write one card per persona** in the fields above, keeping the marks.
 5. **Pick a primary persona.** One has to win. List the users decided against.

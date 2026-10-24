@@ -16,7 +16,7 @@ need a number to put in front of a manager who is asking what the tooling is buy
 
 ## Why the number matters
 
-The book's AI tool decision checklist asks three questions before handing a task to AI, and the
+The book's AI Tool Decision Checklist asks three questions before handing a task to AI, and the
 second one is whether redoing the work will cost more than doing the task. That question is
 usually answered by feeling. This skill answers it with two timestamps and an honest estimate.
 
