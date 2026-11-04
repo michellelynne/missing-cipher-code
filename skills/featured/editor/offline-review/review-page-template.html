@@ -1,0 +1,237 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{PAGE_TITLE}}</title><style>
+
+:root{--bg:#f7f5f0;--card:#fffdf9;--ink:#22201c;--muted:#6b665d;--line:#e3ded3;--accent:#2f5d50;--accent-soft:#e3eee9;--hand:#8a4b14;--hand-soft:#f6e9db;--script:#2b4f7a;--script-soft:#e1eaf5;--done:#9a958b;--mark:#fff1a8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#181715;--card:#211f1c;--ink:#ece8e0;--muted:#a39d92;--line:#36332e;--accent:#8cc5b2;--accent-soft:#233531;--hand:#e4ad78;--hand-soft:#3a2b1d;--script:#9cc0ea;--script-soft:#1e2b3b;--done:#6e695f;--mark:#5a4d12}}
+:root[data-theme="dark"]{--bg:#181715;--card:#211f1c;--ink:#ece8e0;--muted:#a39d92;--line:#36332e;--accent:#8cc5b2;--accent-soft:#233531;--hand:#e4ad78;--hand-soft:#3a2b1d;--script:#9cc0ea;--script-soft:#1e2b3b;--done:#6e695f;--mark:#5a4d12}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0 10px}
+header.top .wrap{padding-bottom:0}
+.crumbs{font-size:13px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:28px;line-height:1.2;margin:18px 0 8px}
+h2{font-family:Georgia,"Times New Roman",serif;font-size:21px;margin:34px 0 10px;padding-top:8px;border-top:2px solid var(--line)}
+h3{font-size:16px;margin:0 0 6px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.controls input[type=search]{flex:1 1 220px;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit}
+.controls select,.controls button,.btn{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
+.stats{font-size:13px;color:var(--muted);margin-top:6px}
+.intro{color:var(--muted)}
+article.f{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 14px 10px;margin:12px 0}
+article.f.st-fix{border-left:4px solid var(--accent)}
+article.f.st-skip{opacity:.6}
+article.f.st-done{opacity:.5}
+article.f ul{padding-left:18px;margin:6px 0}
+article.f li{margin:3px 0}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.badge{font-size:12px;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.badge.hand{background:var(--hand-soft);color:var(--hand)}
+.badge.script{background:var(--script-soft);color:var(--script)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--accent-soft);padding:1px 5px;border-radius:5px;word-break:break-word}
+pre{overflow-x:auto;background:var(--accent-soft);padding:10px;border-radius:8px}
+pre code{background:none;padding:0}
+.copy{margin-left:6px;font-size:12px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.rule{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+.rule label{font-size:13px;display:inline-flex;gap:4px;align-items:center;padding:3px 8px;border:1px solid var(--line);border-radius:999px;cursor:pointer}
+.rule input[type=radio]{margin:0}
+.rule textarea{flex:1 1 100%;min-height:34px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px;resize:vertical}
+.tablewrap{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft)}
+.hidden{display:none!important}
+mark{background:var(--mark);color:inherit}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:16px}
+.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;text-decoration:none;color:var(--ink)}
+.card .n{font-size:12px;color:var(--muted)}
+.card .t{font-weight:600;margin:4px 0}
+.card .c{font-size:13px;color:var(--muted)}
+.prog{height:6px;border-radius:3px;background:var(--line);margin-top:8px;overflow:hidden}
+.prog span{display:block;height:100%;background:var(--accent)}
+@media (max-width:640px){header.top{position:static}}
+.note{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0;font-size:14px}
+</style></head>
+<body data-code="{{PAGE_CODE}}">
+<!--
+  Review page template. One page per pass or section. Works with no internet: no web fonts,
+  no outside scripts, nothing loads from the network. Keep it that way.
+
+  Fill in every {{PLACEHOLDER}}, then:
+  - Add one <option> per chapter that has findings to the chapter filter.
+  - Add one <section class="grp"> per group of findings, each with an <h2>.
+  - Copy the example <article> once per finding. Every finding needs a unique id (the page code,
+    a dash, and a number, such as P1-12) used in id, data-id and the two radio names.
+  - data-label is Script (can be fixed by a script), Hand (the author fixes it by hand), or Mixed.
+  - data-ch is the chapter number, or several numbers separated by spaces for a cross-chapter finding.
+  - The Find string goes in both the <code> text and the Copy button's data-text, HTML-escaped,
+    copied exactly from the manuscript so it pastes straight into Find.
+  - Delete this comment and the example finding before delivering.
+-->
+<header class="top"><div class="wrap">
+<div class="crumbs"><a href="index.html">All sections</a> <a href="{{PREVIOUS_PAGE}}">Previous</a> <a href="{{NEXT_PAGE}}">Next</a><button class="btn" id="theme" type="button" style="margin-left:auto">Light / dark</button></div>
+<div class="controls">
+<input id="search-box" type="search" placeholder="Search this section" aria-label="Search this section">
+<select id="label-filter" aria-label="Filter by label"><option value="">Script and Hand</option><option>Script</option><option>Hand</option><option>Mixed</option></select>
+<select id="chapter-filter" aria-label="Filter by chapter"><option value="">All chapters</option><option value="1">Chapter 1</option></select>
+<select id="status-filter" aria-label="Filter by status"><option value="">Any status</option><option value="open">Not marked</option><option value="fix">Fix</option><option value="skip">Skip</option><option value="done">Done</option></select>
+<button id="export" type="button">Export my marks</button>
+</div>
+<div class="stats" id="stats" aria-live="polite"></div>
+</div></header>
+<main class="wrap">
+<h1>{{PAGE_TITLE}}</h1>
+<div class="intro"><p>{{WHAT_WAS_CHECKED}} {{TOTALS}} {{WHAT_COULD_NOT_BE_CHECKED}}</p></div>
+
+<section class="grp"><h2>{{GROUP_HEADING}}</h2>
+<article class="f" id="P1-1" data-id="P1-1" data-label="Hand" data-ch="1">
+<div class="badges"><span class="badge hand">Hand</span><span class="badge">Ch 1</span></div>
+<h3>P1-1. {{ONE_LINE_SUMMARY}}</h3>
+<ul>
+<li><strong>Chapter:</strong> 1 ({{SECTION_HEADING}})</li>
+<li><strong>Find:</strong> <code>{{SEARCH_STRING}}</code><button class="copy" type="button" data-text="{{SEARCH_STRING}}">Copy</button></li>
+<li><strong>Label:</strong> Hand</li>
+<li><strong>Problem:</strong> {{WHAT_IS_WRONG_AND_WHY}}</li>
+<li><strong>Fix:</strong> {{THE_SUGGESTED_CHANGE}}</li>
+</ul>
+<div class="rule"><label><input type="radio" name="r-P1-1" value="fix">Fix</label><label><input type="radio" name="r-P1-1" value="skip">Skip</label><label><input type="radio" name="r-P1-1" value="done">Done</label><textarea placeholder="Note (saved on this device)" aria-label="Note for P1-1"></textarea></div>
+</article>
+</section>
+</main>
+<script>
+(function () {
+  var storageKey = 'bookreview:' + document.body.dataset.code;
+  var marks = {};
+  try { marks = JSON.parse(localStorage.getItem(storageKey) || '{}') || {}; } catch (error) { marks = {}; }
+
+  function saveMarks() {
+    try { localStorage.setItem(storageKey, JSON.stringify(marks)); } catch (error) {}
+    updateStats();
+  }
+
+  function showMark(finding, mark) {
+    finding.classList.remove('st-fix', 'st-skip', 'st-done');
+    if (mark.v) { finding.classList.add('st-' + mark.v); }
+  }
+
+  var findings = Array.prototype.slice.call(document.querySelectorAll('article.f'));
+  findings.forEach(function (finding) {
+    var findingId = finding.dataset.id;
+    var mark = marks[findingId] || {};
+    finding.querySelectorAll('input[type=radio]').forEach(function (radio) {
+      if (mark.v === radio.value) { radio.checked = true; }
+      radio.addEventListener('change', function () {
+        mark.v = radio.value;
+        marks[findingId] = mark;
+        showMark(finding, mark);
+        saveMarks();
+      });
+    });
+    var noteBox = finding.querySelector('textarea');
+    if (mark.n) { noteBox.value = mark.n; }
+    noteBox.addEventListener('input', function () {
+      mark.n = noteBox.value;
+      marks[findingId] = mark;
+      saveMarks();
+    });
+    showMark(finding, mark);
+  });
+
+  document.querySelectorAll('button.copy').forEach(function (copyButton) {
+    copyButton.addEventListener('click', function () {
+      var textToCopy = copyButton.dataset.text;
+      function confirmCopied() {
+        copyButton.textContent = 'Copied';
+        setTimeout(function () { copyButton.textContent = 'Copy'; }, 1200);
+      }
+      function copyWithoutClipboardApi() {
+        var helperBox = document.createElement('textarea');
+        helperBox.value = textToCopy;
+        document.body.appendChild(helperBox);
+        helperBox.select();
+        try { document.execCommand('copy'); confirmCopied(); } catch (error) {}
+        document.body.removeChild(helperBox);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(confirmCopied, copyWithoutClipboardApi);
+      } else {
+        copyWithoutClipboardApi();
+      }
+    });
+  });
+
+  var searchBox = document.getElementById('search-box');
+  var labelFilter = document.getElementById('label-filter');
+  var chapterFilter = document.getElementById('chapter-filter');
+  var statusFilter = document.getElementById('status-filter');
+
+  function applyFilters() {
+    var searchTerm = (searchBox.value || '').toLowerCase().trim();
+    findings.forEach(function (finding) {
+      var mark = marks[finding.dataset.id] || {};
+      var visible = true;
+      if (searchTerm && finding.textContent.toLowerCase().indexOf(searchTerm) < 0) { visible = false; }
+      if (labelFilter.value && finding.dataset.label !== labelFilter.value) { visible = false; }
+      if (chapterFilter.value && (' ' + finding.dataset.ch + ' ').indexOf(' ' + chapterFilter.value + ' ') < 0) { visible = false; }
+      if (statusFilter.value === 'open' && mark.v) { visible = false; }
+      if (statusFilter.value && statusFilter.value !== 'open' && mark.v !== statusFilter.value) { visible = false; }
+      finding.classList.toggle('hidden', !visible);
+    });
+    var anyFilterOn = Boolean(searchTerm || labelFilter.value || chapterFilter.value || statusFilter.value);
+    document.querySelectorAll('section.grp').forEach(function (group) {
+      var hasVisibleFinding = group.querySelector('article.f:not(.hidden)') || !group.querySelector('article.f');
+      group.classList.toggle('hidden', !hasVisibleFinding && anyFilterOn);
+    });
+    updateStats();
+  }
+  [searchBox, labelFilter, chapterFilter, statusFilter].forEach(function (control) {
+    control.addEventListener('input', applyFilters);
+    control.addEventListener('change', applyFilters);
+  });
+
+  function updateStats() {
+    var totalCount = findings.length;
+    var markedCount = 0;
+    var shownCount = 0;
+    findings.forEach(function (finding) {
+      if ((marks[finding.dataset.id] || {}).v) { markedCount = markedCount + 1; }
+      if (!finding.classList.contains('hidden')) { shownCount = shownCount + 1; }
+    });
+    document.getElementById('stats').textContent = shownCount + ' shown of ' + totalCount + ' findings. ' + markedCount + ' marked.';
+  }
+
+  document.getElementById('export').addEventListener('click', function () {
+    var exportLines = ['Review marks: ' + document.title, ''];
+    findings.forEach(function (finding) {
+      var mark = marks[finding.dataset.id];
+      if (mark && (mark.v || mark.n)) {
+        var ruling = mark.v ? mark.v.toUpperCase() : 'NOTE';
+        var note = mark.n ? ' | ' + mark.n.replace(/\n/g, ' ') : '';
+        exportLines.push(finding.dataset.id + ': ' + ruling + note);
+      }
+    });
+    if (exportLines.length === 2) { exportLines.push('(nothing marked yet)'); }
+    var exportFile = new Blob([exportLines.join('\n')], { type: 'text/plain' });
+    var downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(exportFile);
+    downloadLink.download = document.body.dataset.code + '_marks.txt';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  });
+
+  var themeButton = document.getElementById('theme');
+  if (themeButton) {
+    themeButton.addEventListener('click', function () {
+      var rootElement = document.documentElement;
+      var currentTheme = rootElement.getAttribute('data-theme');
+      var isDark = currentTheme ? currentTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      rootElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    });
+  }
+
+  updateStats();
+})();
+</script>
+</body></html>

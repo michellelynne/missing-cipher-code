@@ -1,0 +1,91 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{REVIEW_TITLE}}</title><style>
+
+:root{--bg:#f7f5f0;--card:#fffdf9;--ink:#22201c;--muted:#6b665d;--line:#e3ded3;--accent:#2f5d50;--accent-soft:#e3eee9;--hand:#8a4b14;--hand-soft:#f6e9db;--script:#2b4f7a;--script-soft:#e1eaf5;--done:#9a958b;--mark:#fff1a8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#181715;--card:#211f1c;--ink:#ece8e0;--muted:#a39d92;--line:#36332e;--accent:#8cc5b2;--accent-soft:#233531;--hand:#e4ad78;--hand-soft:#3a2b1d;--script:#9cc0ea;--script-soft:#1e2b3b;--done:#6e695f;--mark:#5a4d12}}
+:root[data-theme="dark"]{--bg:#181715;--card:#211f1c;--ink:#ece8e0;--muted:#a39d92;--line:#36332e;--accent:#8cc5b2;--accent-soft:#233531;--hand:#e4ad78;--hand-soft:#3a2b1d;--script:#9cc0ea;--script-soft:#1e2b3b;--done:#6e695f;--mark:#5a4d12}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 80px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0 10px}
+header.top .wrap{padding-bottom:0}
+.crumbs{font-size:13px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:28px;line-height:1.2;margin:18px 0 8px}
+h2{font-family:Georgia,"Times New Roman",serif;font-size:21px;margin:34px 0 10px;padding-top:8px;border-top:2px solid var(--line)}
+h3{font-size:16px;margin:0 0 6px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.controls input[type=search]{flex:1 1 220px;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit}
+.controls select,.controls button,.btn{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
+.stats{font-size:13px;color:var(--muted);margin-top:6px}
+.intro{color:var(--muted)}
+article.f{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 14px 10px;margin:12px 0}
+article.f.st-fix{border-left:4px solid var(--accent)}
+article.f.st-skip{opacity:.6}
+article.f.st-done{opacity:.5}
+article.f ul{padding-left:18px;margin:6px 0}
+article.f li{margin:3px 0}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.badge{font-size:12px;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.badge.hand{background:var(--hand-soft);color:var(--hand)}
+.badge.script{background:var(--script-soft);color:var(--script)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;background:var(--accent-soft);padding:1px 5px;border-radius:5px;word-break:break-word}
+pre{overflow-x:auto;background:var(--accent-soft);padding:10px;border-radius:8px}
+pre code{background:none;padding:0}
+.copy{margin-left:6px;font-size:12px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.rule{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+.rule label{font-size:13px;display:inline-flex;gap:4px;align-items:center;padding:3px 8px;border:1px solid var(--line);border-radius:999px;cursor:pointer}
+.rule input[type=radio]{margin:0}
+.rule textarea{flex:1 1 100%;min-height:34px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px;resize:vertical}
+.tablewrap{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft)}
+.hidden{display:none!important}
+mark{background:var(--mark);color:inherit}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:16px}
+.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;text-decoration:none;color:var(--ink)}
+.card .n{font-size:12px;color:var(--muted)}
+.card .t{font-weight:600;margin:4px 0}
+.card .c{font-size:13px;color:var(--muted)}
+.prog{height:6px;border-radius:3px;background:var(--line);margin-top:8px;overflow:hidden}
+.prog span{display:block;height:100%;background:var(--accent)}
+@media (max-width:640px){header.top{position:static}}
+.note{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0;font-size:14px}
+</style></head>
+<body>
+<!--
+  Review index template. The first page of the review pack: one card per review page, with a
+  progress bar that fills as the author marks findings. Works with no internet.
+
+  Fill in every {{PLACEHOLDER}}. Copy the example card once per review page; data-code must match
+  that page's <body data-code>, and data-n is its number of findings. Delete this comment before
+  delivering.
+-->
+<main class="wrap">
+<h1>{{REVIEW_TITLE}}</h1>
+<p class="intro">{{WHAT_WAS_REVIEWED_AND_WHEN}} {{TOTAL_FINDINGS}} findings across {{PAGE_COUNT}} pages. Everything here works with no internet.</p>
+<div class="note"><strong>How to use it.</strong> Each finding has a search string with a Copy button, a Script or Hand label, and a suggested fix. Mark each one Fix, Skip or Done and add a note. Marks save in this browser on this device. When you are back online, press <em>Export my marks</em> on each page and send the text files back. The Fix items can then be turned into scripts or a change list. Nothing here changes your manuscript.</div>
+<div class="note"><strong>What was not checked:</strong> {{WHAT_COULD_NOT_BE_CHECKED}}</div>
+<div class="cards">
+<a class="card" href="{{PAGE_FILE}}" data-code="{{PAGE_CODE}}" data-n="{{FINDING_COUNT}}"><div class="n">{{FINDING_COUNT}} findings</div><div class="t">{{PAGE_TITLE}}</div><div class="c">{{ONE_LINE_DESCRIPTION}}</div><div class="prog"><span style="width:0%"></span></div></a>
+</div>
+</main>
+<script>
+(function () {
+  document.querySelectorAll('a.card[data-code]').forEach(function (card) {
+    var findingCount = parseInt(card.dataset.n, 10);
+    var markedCount = 0;
+    try {
+      var marks = JSON.parse(localStorage.getItem('bookreview:' + card.dataset.code) || '{}');
+      Object.keys(marks).forEach(function (findingId) {
+        if (marks[findingId] && marks[findingId].v) { markedCount = markedCount + 1; }
+      });
+    } catch (error) {}
+    var progressBar = card.querySelector('.prog span');
+    if (progressBar && findingCount) { progressBar.style.width = Math.round(100 * markedCount / findingCount) + '%'; }
+    if (markedCount) { card.querySelector('.n').textContent = findingCount + ' findings, ' + markedCount + ' marked'; }
+  });
+})();
+</script>
+</body></html>
