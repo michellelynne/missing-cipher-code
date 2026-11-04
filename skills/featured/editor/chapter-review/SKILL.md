@@ -76,8 +76,8 @@ changed. If they do not, ask the questions below.
 12. **How would you like the findings delivered?** Offer two options:
     - **In the conversation**, one pass at a time.
     - **As an offline review pack**: HTML pages the author can open in any browser with no internet,
-      to mark each finding Fix, Skip, or Done and export the marks (see **Offline review pack**
-      below). Useful for working through findings on a plane or away from the computer.
+      to mark each finding Fix, Skip, or Done and export the marks. Built by the `offline-review`
+      skill. Useful for working through findings on a plane or away from the computer.
 
 Confirm the answers back in a short list before starting Pass 0 or Pass 1.
 
@@ -138,58 +138,9 @@ could cause problems:
 
 ## Offline review pack
 
-When the author chooses an offline review pack, run every pass as written, then deliver the
-findings as a folder of HTML pages instead of in the conversation. Build them from the two
-templates in the `offline-review` folder that ships with these skills:
-`review-index-template.html` and `review-page-template.html`. The comments at the top of each
-template say how to fill it in.
-
-**What goes in the pack**
-
-- **One page per pass** (for a book review, one page per section), named with a number and a short
-  name in reading order, such as `01-style-and-prose.html`. Each page gets a short code (`P1`, `P2`)
-  in `<body data-code>`. Number findings with that code (`P1-1`, `P1-2`), so the exported marks
-  point straight back to them.
-- **An index page** (`index.html`) with one card per page, its finding count, and a progress bar
-  that fills as the author marks findings.
-- **Each finding** as one card with the same fields as in the conversation: chapter and section, the
-  search string with a Copy button, a label (**Script** if a script can make the change, **Hand**
-  if the author has to make it, **Mixed** if both), the problem, and the fix. Group findings under
-  headings by style guide section or check, and set the chapter filter to the chapters that have
-  findings.
-- **An intro on every page** saying what was checked, the totals, and what could not be checked
-  (text in images, pages that blocked automated checks). These become Hand checks.
-
-**Rules for the pages**
-
-- **Works with no internet.** No web fonts, no outside scripts or stylesheets, no images loaded
-  from the network. Everything is inline in each file. Before delivering, open every page in a
-  browser with the network blocked and confirm it loads, marking works, a mark survives a reload,
-  and export downloads a file.
-- **Marks stay on the author's device.** Marks and notes save in that browser only. Say so in the
-  delivery message, and say that clearing browser data or switching devices loses them.
-- **Escape everything.** Search strings and manuscript text are HTML-escaped. A search string must
-  still match the manuscript exactly once it is pasted into Find.
-- **Accessible.** Every control has a label, the page works with a keyboard, and light and dark
-  themes both have readable contrast.
-- **Nothing changes the manuscript.** The pack only records decisions.
-
-**Delivering it.** Zip the folder and send it, or save it to the location the author chose. Tell
-the author to unzip it, open `index.html`, and press **Export my marks** on each page when done.
-
-**Coming back with marks.** Each export is a text file with one line per marked finding, such as
-`P1-12: FIX | keep the second sentence`. When the author sends the files back:
-
-1. Match every line to its finding by ID. List any ID that does not match.
-2. Treat each note as an instruction that overrides the suggested fix.
-3. Check every FIX search string against the current manuscript, since the author may have edited
-   since the pack was built. Report any string that no longer matches exactly once.
-4. Apply the FIX items using the method chosen in setup (see **Making changes**), after a backup.
-   For Google Docs, that is one Apps Script per batch, delivered as text to paste.
-5. Report what was applied, what was skipped, and what is still open. SKIP and DONE need no action.
-
-If the review is run again later, carry forward the marks the author already made rather than
-asking again, and mark new findings as new.
+When the author chooses an offline review pack, run every pass as written, then hand the findings
+to the `offline-review` skill, which builds the pack and later applies the marks the author
+exports. Use one page per pass.
 
 ---
 

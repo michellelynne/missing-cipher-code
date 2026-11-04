@@ -1,7 +1,8 @@
 # Offline review pack
 
-Templates the chapter and book review skills use to deliver findings as HTML pages that work with
-no internet, so a review can be worked through on a plane or away from the computer.
+A skill that delivers the findings from `chapter-review` or `book-review` as HTML pages that work
+with no internet, so a review can be worked through on a plane or away from the computer. The
+instructions are in [`SKILL.md`](SKILL.md); these are the templates it fills in.
 
 | File | What it is |
 |---|---|

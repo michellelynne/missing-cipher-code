@@ -56,9 +56,9 @@ apply any checks the file turned off or changed. If they do not, ask the questio
    chooses (same three options). Confirm the backup exists before editing.
 10. **How would you like the findings delivered?** In the conversation, one section at a time, or
     as an offline review pack: HTML pages that work with no internet, one per section plus an
-    index, where the author marks each finding Fix, Skip, or Done and exports the marks. Build and
-    process the pack as described under **Offline review pack** in `chapter-review`, with one page
-    per section and the chapter filter covering every chapter with findings.
+    index, where the author marks each finding Fix, Skip, or Done and exports the marks. Hand the
+    findings to the `offline-review` skill, with one page per section and the chapter filter
+    covering every chapter with findings.
 
 Confirm the answers back in a short list before starting.
 

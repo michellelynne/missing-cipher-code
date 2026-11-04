@@ -1,6 +1,6 @@
 # The Editor
 
-Two AI skills and a style guide template that review a book manuscript the way a careful editor
+Three AI skills and a style guide template that review a book manuscript the way a careful editor
 would. They grew out of editing *The Missing Cipher* and work for any book, fiction or nonfiction.
 
 | File | What it does |
@@ -8,7 +8,7 @@ would. They grew out of editing *The Missing Cipher* and work for any book, fict
 | [`chapter-review/`](chapter-review/SKILL.md) | Reviews one chapter in passes: style guide and prose habits, house style and figures, editorial flags (facts, structure, voice, print risk, accessibility), and deliverables such as endnotes and the chapter title. Every finding comes with a search string and a fix. |
 | [`book-review/`](book-review/SKILL.md) | Checks what only shows across the whole manuscript: repeated stories and phrases, cross-references between chapters, first use of terms, chapter format drift, transitions, and the running example or story bible. |
 | [`style-guide-template.md`](style-guide-template.md) | A starting style guide for both skills to check against, based on the *Chicago Manual of Style*. Fill in the brackets and delete the sections your book does not use. |
-| [`offline-review/`](offline-review/) | Templates for the offline review pack: HTML pages you can open with no internet to mark each finding Fix, Skip, or Done and export your marks. |
+| [`offline-review/`](offline-review/SKILL.md) | Turns the findings from either review into an offline review pack: HTML pages you can open with no internet to mark each finding Fix, Skip, or Done and export your marks. Send the marks back and it applies the Fix items. |
 
 ## How it works
 
@@ -30,13 +30,11 @@ would. They grew out of editing *The Missing Cipher* and work for any book, fict
 
 ## Installing
 
-Copy both skill folders into your assistant's skills folder, and put the `offline-review` folder
-inside `chapter-review` so the templates travel with the skill. For Claude Code that is
-`~/.claude/skills/`, or `.claude/skills/` inside a project:
+Unzip `editor-skill.zip` and copy the three skill folders into your assistant's skills folder. For
+Claude Code that is `~/.claude/skills/`, or `.claude/skills/` inside a project:
 
 ```bash
-cp -r chapter-review book-review ~/.claude/skills/
-cp -r offline-review ~/.claude/skills/chapter-review/
+cd editor && mkdir -p ~/.claude/skills && cp -r chapter-review book-review offline-review ~/.claude/skills/
 ```
 
 Keep `style-guide-template.md` with your manuscript and fill it in. Then ask for a chapter review
