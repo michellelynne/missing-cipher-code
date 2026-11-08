@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars -- this file is joined with the Apps Script files into one bundle by google-docs.test.cjs, which uses these names. */
 // Minimal stand-ins for the parts of DocumentApp, DriveApp, Utilities, Logger the engine uses.
 var ElementType = { BODY_SECTION: 'BODY_SECTION', PARAGRAPH: 'PARAGRAPH', LIST_ITEM: 'LIST_ITEM', TEXT: 'TEXT', INLINE_IMAGE: 'INLINE_IMAGE' };
 function TextNode(paragraph, text) { this.paragraph = paragraph; this.text = text; this.links = {}; }
@@ -47,7 +48,7 @@ Body.prototype.findText = function (pattern, from) {
 };
 var backups = [];
 var DOCS = {};
-function makeFile(name, body) {
+function makeFile(name) {
   return { getName: function () { return name; }, getId: function () { return name; }, getLastUpdated: function () { return 'today'; },
     makeCopy: function (copyName) { backups.push(copyName); } };
 }

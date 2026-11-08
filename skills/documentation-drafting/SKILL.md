@@ -29,6 +29,7 @@ deliberate: ask for concision explicitly, set a length limit, and cut afterward.
 Six questions, from journalism, where they exist to make sure a story covers everything essential.
 
 **Who was involved?**
+
 - Who developed this originally?
 - Who can I contact with development questions?
 - Who can I contact for user support?
@@ -36,6 +37,7 @@ Six questions, from journalism, where they exist to make sure a story covers eve
 - Whom do you inform of new updates?
 
 **What happened?**
+
 - What was the original problem?
 - What is the main goal of the product?
 - What are all the workflows and features?
@@ -43,20 +45,24 @@ Six questions, from journalism, where they exist to make sure a story covers eve
 - What is the current service level agreement?
 
 **Where did it take place?**
+
 - Where are all the technical pieces: repositories, build pipelines, logs, test suites, external
   configuration?
 
 **When did it happen?**
+
 - When was it originally developed, and what was the timeline?
 - Was it rushed, or developed with more lax deadlines?
 - When was the latest update?
 
 **Why did it happen?**
+
 - Why was this the solution chosen?
 - Why were other solutions not used?
 - Why did the developers make these technical choices?
 
 **How did it happen?**
+
 - How does the system work?
 - How do you install it?
 - How do you build and test locally?

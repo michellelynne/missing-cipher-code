@@ -127,7 +127,7 @@ var EditorEngine = (function () {
   }
 
   function sameText(first, second) {
-    return first.replace(/ /g, ' ') === second.replace(/ /g, ' ');
+    return first.replace(/\u00A0/g, ' ') === second.replace(/\u00A0/g, ' ');
   }
 
   /** Every exact-case match of the text inside the chapter. */

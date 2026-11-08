@@ -35,6 +35,7 @@ Ask for all three before answering. Do not guess any of them.
 (percent of salary, days per year, dollars per year, weeks).
 
 **A note on what moves it,** covering the two levers separately:
+
 - how this region compares to the national or regional baseline, and why
 - how the range shifts between mid-level and senior
 

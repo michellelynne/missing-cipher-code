@@ -10,7 +10,7 @@ var WordCountTool = (function () {
 
   /** Words are runs of letters or digits, with apostrophes and hyphens inside them allowed. */
   function countWords(text) {
-    var words = text.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu);
+    var words = text.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu);
     return words === null ? 0 : words.length;
   }
 

@@ -1,0 +1,17 @@
+{
+  // Prose files: long lines, inline HTML, and repeated headings across sections are intended.
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD033": false,
+    "MD024": { "siblings_only": true },
+    "MD036": false,
+    "MD041": false,
+    // Lists numbered from 0 (Pass 0) and tables written compactly are intended.
+    "MD029": false,
+    "MD060": false,
+    // Example quotes are separate blockquotes on purpose.
+    "MD028": false
+  },
+  "ignores": ["dist/**", "node_modules/**", "skills/editor/evals/**"]
+}

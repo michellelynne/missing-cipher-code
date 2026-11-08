@@ -3,3 +3,4 @@ __pycache__/
 .google-docs-bundle.cjs
 .DS_Store
 node_modules/
+dist/

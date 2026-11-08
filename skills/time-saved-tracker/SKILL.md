@@ -83,7 +83,7 @@ lookup" is useful. A number alone is not.
 
 Offer to append each run to a log, so the reader accumulates evidence rather than anecdotes:
 
-```
+```text
 DATE | TASK | MANUAL EST (min) | ASSISTED (min) | REVIEW (min) | NET SAVED (min) | VERDICT
 ```
 

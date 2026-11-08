@@ -37,6 +37,7 @@ immediately.
 about to touch.
 
 For each change:
+
 - What changed, in one line
 - Whether it reflects a system change or a correction to the documentation, because those mean
   different things
