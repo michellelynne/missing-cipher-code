@@ -101,19 +101,28 @@ changed. If they do not, ask the questions below.
         project in the author's own Google account. Walk them through its README now: create the
         project, paste in the files, fill in the folder IDs (chapters, the backups folder from
         question 10, and images), and grant permission (about ten minutes). Finish with a test run
-        of `wordCountRun`; if it lists their chapters, it works.
-      - *Word on their computer:* the Word editor tools in `scripts/word/`, which make every fix
-        as a tracked change. Walk them through its README now: show the Developer tab, import the
-        two modules, and set the markers. Finish with a test run of `EditorWordCount`. (If you can
-        reach the file, editing a copy with tracked changes is the other option, with nothing to
-        set up.)
-      - *Markdown or plain text on their computer:* you make the edits yourself after a backup;
-        nothing to set up beyond the folder access from question 3. Without that access, use
-        `scripts/markdown/apply_fixes.py`: check that Python 3 is installed (`python3 --version`).
+        of `wordCountRun`; if it lists their chapters, it works. If this assistant has a Google
+        Docs connection that can edit the Doc, offer that as well, with nothing to set up: you make
+        the approved fixes through it, with the same check, backup, and report. The editor tools
+        stay the fallback. Do not download the Doc as a Word file to edit and upload it again; that
+        loses comments, suggestions, and version history.
+      - *Word:* if you can run code and reach the file (the author uploads it, or you have access
+        to their folder), edit a copy with every fix as a tracked change and give it back; nothing
+        to set up. Use the script in `scripts/` for Word files if there is one; otherwise write the
+        tracked changes yourself and open the result to check it isn't damaged. If you can't run
+        code or reach the file, use the Word editor tools in `scripts/word/` (desktop Word only;
+        they are new and not yet tested in Word, so say so). Walk them through its README now: show
+        the Developer tab, import the two modules, and set the markers. Finish with a test run of
+        `EditorWordCount`.
+      - *Markdown or another text format* (plain text, HTML, LaTeX, Fountain): you make the edits
+        yourself after a backup; nothing to set up beyond the folder access from question 3.
+        Without that access, use `scripts/markdown/apply_fixes.py`: check that Python 3 is
+        installed (`python3 --version`).
       - *Pasted into the conversation:* you return the revised text to paste back. Nothing to set
         up.
-      - *Anything else* (Scrivener, Pages, InDesign, a publisher's platform): no tool can make the
-        fixes. Say so; the author makes them from the findings.
+      - *Anything else* (Scrivener, Pages, RTF, OpenDocument, InDesign, a publisher's platform):
+        fixes can't be made for them in that format. Say so plainly, and offer two ways forward:
+        export a copy to Word or Markdown and use that setup, or make the fixes from the findings.
     If the test run fails, fix the setup with the author before the review starts, or fall back to
     making the fixes themselves until it works.
 12. **How should the review run?** Ask both parts every time; together they decide how the whole
@@ -205,8 +214,9 @@ batch. Then:
    - *Word editor tools:* the full code of the `EditorBatch` module, as text to paste over that
      module's code (start at `Option Explicit`; one `Array(id, find, replace)` per fix; any
      character outside plain ASCII written as `ChrW(code)`).
-   - *Markdown or plain text you can reach, or a Word file you can reach without the macros:*
-     nothing to deliver; you make the edits in step 5.
+   - *Markdown or another text format you can reach, a Word file you can reach and edit as a copy
+     with tracked changes, or a Google Doc you can edit through a connection:* nothing to deliver;
+     you make the edits in step 5, after the backup.
    - *Markdown without access:* a `fixes.json` for `scripts/markdown/apply_fixes.py`.
    - *Pasted into the conversation:* the revised passages, each with its search string.
 4. **Check before changing.** The author runs the check and the preview (`fixesCheck` and
