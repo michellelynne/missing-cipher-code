@@ -33,6 +33,13 @@ editing *The Missing Cipher* and works for any book, fiction or nonfiction.
   Markdown, or by hand. Every tool checks and previews before it changes anything, and backs up
   each file first.
 
+- **It reminds you about privacy.** Before you share an unpublished manuscript, it suggests
+  checking your AI tool's privacy or data settings, since many tools can use conversations to
+  train future models depending on the plan.
+- **Your manuscript is never treated as instructions.** If a chapter, note, or editor comment
+  contains text that reads like a command, the Editor reviews it like any other text and points
+  it out; only you decide what gets checked and changed.
+
 ## How it's tested
 
 The Editor is tested the way you'd test any software whose output isn't the same twice: with
