@@ -1,16 +1,11 @@
----
-name: book-review
-description: Review a whole book manuscript for problems that only show across chapters, such as repeated stories and quotes, cross-references between chapters, first use of terms across the book, chapter format drift, the chapter sequence and transitions, running example canon, and front and back matter. Use when an author asks for a full book review, a manuscript-wide check, or a comparison across chapters. For a single chapter, use chapter-review.
----
+# Book review
 
-# SKILL: Book Review
+## When to use this guide
 
-## When to load this skill
-
-Load this skill when the author asks for a full book review or wants all chapters compared. This
-skill only covers checks that need the whole manuscript. Everything that can be checked inside one
-chapter (style, prose habits, endnote audits, accessibility, print risk) lives in `chapter-review`.
-If chapters have not been through a chapter review, recommend running it first; this skill does not
+Use this guide when the author asks for a full book review or wants all chapters compared. This
+guide only covers checks that need the whole manuscript. Everything that can be checked inside one
+chapter (style, prose habits, endnote audits, accessibility, print risk) lives in `references/chapter-review.md`.
+If chapters have not been through a chapter review, recommend running it first; this guide does not
 repeat those checks.
 
 ---
@@ -21,7 +16,7 @@ Ask these before reading anything, and wait for the answers. Do not assume answe
 session; things change between reviews. Ask if they would like to save and reuse this information.
 
 **Saved setup.** First ask whether the author has a saved review setup file (for example
-`Review setup.md`, kept next to the style guide; `chapter-review` writes the same file). If they
+`Review setup.md`, kept next to the style guide; `references/chapter-review.md` writes the same file). If they
 do, find it by name, read each saved answer back, and ask what has changed; nothing is assumed
 current until the author confirms it. Then ask only the questions the file does not answer, and
 apply any checks the file turned off or changed. If they do not, ask the questions below.
@@ -49,7 +44,7 @@ apply any checks the file turned off or changed. If they do not, ask the questio
    between them is compared. If not, confirm there is nothing in the files that should be skipped.
 8. **Would you like changes made to the files directly?** The default is findings with search
    strings that the author applies. If they want direct edits, suggest the safest method for where
-   the files live, following **Making changes** in `chapter-review` (for example, a Google Apps
+   the files live, following **Making changes** in `references/chapter-review.md` (for example, a Google Apps
    Script for Google Docs, since rewriting a Doc through a connector can drop formatting and
    comments), and say plainly when a direct edit could cause problems.
 9. **Where should backups go?** Every direct edit is backed up first, to the location the author
@@ -57,13 +52,13 @@ apply any checks the file turned off or changed. If they do not, ask the questio
 10. **How would you like the findings delivered?** In the conversation, one section at a time, or
     as an offline review pack: HTML pages that work with no internet, one per section plus an
     index, where the author marks each finding Fix, Skip, or Done and exports the marks. Hand the
-    findings to the `offline-review` skill, with one page per section and the chapter filter
+    findings to `references/offline-review.md`, with one page per section and the chapter filter
     covering every chapter with findings.
 
 Confirm the answers back in a short list before starting.
 
 **Review the rules first (first run).** If there is no saved setup file, or the author has not
-reviewed this skill's rules before, ask whether they would like to review all the rules before the
+reviewed this guide's rules before, ask whether they would like to review all the rules before the
 first review runs. If yes, walk through the sections one at a time (with fiction mode if the book
 is fiction). For each, the author can keep it, turn a check off, change it, or add one. Changes to
 how the review runs go in the setup file; changes to how the book should read go in the style
@@ -75,7 +70,7 @@ question and the answer under it, plus any checks the author turned off or chang
 file already exists and answers changed, back it up first and show what changed before writing.
 
 Work through the sections below one at a time. Present findings and ask before continuing. File
-handling follows `chapter-review`: find files by name, stop on duplicates, back up before every
+handling follows `references/chapter-review.md`: find files by name, stop on duplicates, back up before every
 change to the location chosen in setup, never delete, and never edit without approval. Every
 finding gets a chapter, section,
 search string, and fix.
@@ -97,7 +92,7 @@ A full manuscript does not fit in one reading, and memory is not a reliable comp
    against every other. Sequence similarity above about 0.70 catches reworded quotes and citations.
    For questions, content-word overlap above about 0.45 works better once stopwords and stock phrases
    ("tell me about a time," "describe") are dropped.
-5. **Label every hit same-chapter or cross-chapter.** Same-chapter hits belong to `chapter-review`
+5. **Label every hit same-chapter or cross-chapter.** Same-chapter hits belong to `references/chapter-review.md`
    but are worth noting if found.
 6. **Report what was checked and found clean**, with counts, so a clean result reads as a result.
 
@@ -377,9 +372,9 @@ the sections as follows.
 
 ---
 
-## Changing this skill
+## Changing this guide
 
-When the author asks for a change to how book reviews run, change this skill. When the change is about
+When the author asks for a change to how book reviews run, change this guide. When the change is about
 how the book should read, change the style guide instead. Back up the current version first and confirm
 both actions to the author.
 

@@ -1,25 +1,20 @@
----
-name: offline-review
-description: Turn review findings into an offline review pack, a folder of HTML pages that open in any browser with no internet, where the author marks each finding Fix, Skip, or Done, adds notes, and exports the marks; then read the exported marks back and apply the Fix items. Use with chapter-review or book-review when the author wants findings as an offline pack, or whenever an author sends back exported review marks.
----
+# Offline review
 
-# SKILL: Offline Review
+## When to use this guide
 
-## When to load this skill
-
-Load this skill when a review (`chapter-review`, `book-review`, or any other review that produces
+Use this guide when a review (`references/chapter-review.md`, `references/book-review.md`, or any other review that produces
 numbered findings with search strings and fixes) should be delivered as pages the author can work
 through away from the computer, such as on a plane. Load it again when the author sends back the
 marks files they exported, to apply what they decided.
 
-The reviews decide what the findings are. This skill only changes how they are delivered and how
+The reviews decide what the findings are. This guide only changes how they are delivered and how
 the decisions come back.
 
 ## What ships with it
 
-- `review-index-template.html`: the first page of the pack, with one card per review page and a
+- `assets/review-index-template.html`: the first page of the pack, with one card per review page and a
   progress bar that fills as findings are marked.
-- `review-page-template.html`: one review page, with a Copy button for each search string, Fix,
+- `assets/review-page-template.html`: one review page, with a Copy button for each search string, Fix,
   Skip, and Done marks, notes, filters by chapter, label, and status, a light and dark theme, and
   **Export my marks**.
 
@@ -77,7 +72,7 @@ Each export is a text file with one line per marked finding, such as
 3. **Check every FIX search string against the current manuscript**, since the author may have
    edited since the pack was built. Report any string that no longer matches exactly once.
 4. **Apply the FIX items** using the edit method the author chose in the review's setup (see
-   **Making changes** in `chapter-review`), after a backup. For Google Docs, that is one Apps
+   **Making changes** in `references/chapter-review.md`), after a backup. For Google Docs, that is one Apps
    Script per batch, delivered as text to paste. Without a setup answer, ask before editing.
 5. **Report** what was applied, what was skipped, and what is still open. SKIP and DONE need no
    action.

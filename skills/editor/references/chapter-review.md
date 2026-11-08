@@ -1,15 +1,10 @@
----
-name: chapter-review
-description: Run a structured, multi-pass editorial review of a single book chapter against the book's style guide, covering style, prose habits, structure, facts and citations, accessibility, print risk, and the chapter's required elements, with every finding given a search string and a fix. Use when an author asks to review, edit, proofread, or check a chapter, or to work through editor notes on a chapter. For checks across the whole manuscript, use book-review.
----
+# Chapter review
 
-# SKILL: Chapter Review
+## When to use this guide
 
-## When to load this skill
-
-Load this skill when the author asks to review a single chapter, run a chapter review, or work
+Use this guide when the author asks to review a single chapter, run a chapter review, or work
 through editor notes on a chapter. Checks that need every chapter at once (repeats across chapters,
-first use across the book, the chapter sequence) live in `book-review`.
+first use across the book, the chapter sequence) live in `references/book-review.md`.
 
 ---
 
@@ -46,7 +41,7 @@ changed. If they do not, ask the questions below.
    Every style rule this review checks comes from the style guide.
 5. **Does the book use interview quotes** (quotes from people the author interviewed, checked
    against transcripts or notes)? If yes, ask where the transcripts are, using the same three
-   options. If no, skip every part of this skill marked *Interview quotes only*. Quotations from
+   options. If no, skip every part of this guide marked *Interview quotes only*. Quotations from
    published sources are checked either way.
 6. **Is there anything to keep track of while reviewing?** For example a glossary, a figure or
    image list, a Further Reading list, a quote log, a canon file for a running example, a story
@@ -76,8 +71,7 @@ changed. If they do not, ask the questions below.
 12. **How would you like the findings delivered?** Offer two options:
     - **In the conversation**, one pass at a time.
     - **As an offline review pack**: HTML pages the author can open in any browser with no internet,
-      to mark each finding Fix, Skip, or Done and export the marks. Built by the `offline-review`
-      skill. Useful for working through findings on a plane or away from the computer.
+      to mark each finding Fix, Skip, or Done and export the marks. Built by `references/offline-review.md`. Useful for working through findings on a plane or away from the computer.
 
 Confirm the answers back in a short list before starting Pass 0 or Pass 1.
 
@@ -96,7 +90,7 @@ the style guide, the chapter format, interview quotes and transcripts, tracking 
 habits, the optional inputs, the boundary markers, the edit method, the backups location, how
 findings are delivered, and any checks the author turned off or changed. Leave out answers that
 belong to this chapter only. If a setup file already exists and answers changed, back it up first
-and show what changed before writing. `book-review` reads the same file.
+and show what changed before writing. `references/book-review.md` reads the same file.
 
 ---
 
@@ -139,7 +133,7 @@ could cause problems:
 ## Offline review pack
 
 When the author chooses an offline review pack, run every pass as written, then hand the findings
-to the `offline-review` skill, which builds the pack and later applies the marks the author
+to `references/offline-review.md`, which builds the pack and later applies the marks the author
 exports. Use one page per pass.
 
 ---
@@ -242,7 +236,7 @@ Run these checks as part of the pass:
    in the chapter; the full form used after the acronym is established; and wrong casing in the
    expansion. When an acronym is undefined, give the expansion and a plain definition with the flag.
    Where earlier-chapter evidence is missing or doubtful, say so and leave the cross-chapter call to
-   `book-review`.
+   `references/book-review.md`.
 3. **Defined terms.** Each is bold on its defining sentence and nowhere else in the chapter, and
    never in quotation marks.
 4. **Audience and person.** Flag every place the "you" drifts off the core reader (suggest a
@@ -351,7 +345,7 @@ Surface these for the author's review; do not insert changes. Number every flag.
 9. **Cross-references and deferrals inside the chapter:** every "later in this chapter," "the next
    section," and named figure, table, or worksheet resolves to something that exists and covers what
    was promised. Flag vague deferrals that name no destination ("later in the book"). References to
-   other chapters are listed for `book-review`, which resolves them against the whole manuscript.
+   other chapters are listed for `references/book-review.md`, which resolves them against the whole manuscript.
 10. **Closing:** the chapter ends with the closing section the format requires, under its fixed
     label, doing all of its jobs (for a Summary: recap, why it matters, and the handoff to the next
     chapter). Name any job that is missing. A closing passage with no heading or a variant heading
@@ -527,9 +521,9 @@ Re-check against everything flagged:
 
 ---
 
-## Changing this skill or the style guide
+## Changing this guide or the style guide
 
-When the author asks for a change to how reviews run, change this skill. When the change is about how
+When the author asks for a change to how reviews run, change this guide. When the change is about how
 the book should read, change the style guide instead. Either way: back up the current version, make
 the change, and confirm both actions to the author.
 
