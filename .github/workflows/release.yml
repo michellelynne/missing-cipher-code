@@ -1,0 +1,54 @@
+name: Release
+
+# Every push to main that changes a skill publishes a release named by date, with one ZIP per
+# skill, an all-skills ZIP, and checksums. Download links use /releases/latest/download/<name>.zip,
+# so they always point at the newest release.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/**"
+      - "tools/build_release.py"
+  workflow_dispatch:
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+
+  release:
+    needs: tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build the ZIPs
+        run: python tools/build_release.py
+
+      - name: Record where the ZIPs came from (build provenance)
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*.zip"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release_date="$(date -u +%Y-%m-%d)"
+          release_tag="$release_date"
+          release_number=2
+          while gh release view "$release_tag" > /dev/null 2>&1; do
+            release_tag="$release_date.$release_number"
+            release_number=$((release_number + 1))
+          done
+          gh release create "$release_tag" dist/*.zip dist/SHA256SUMS.txt \
+            --title "Skills $release_tag" \
+            --notes "Skills as of $release_tag. Download one skill, all of them (all-skills.zip), or the Editor (editor.zip). See CHANGELOG.md for what changed." \
+            --latest
