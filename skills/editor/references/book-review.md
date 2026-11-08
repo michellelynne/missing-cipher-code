@@ -22,7 +22,7 @@ current until the author confirms it. Then ask only the questions the file does 
 apply any checks the file turned off or changed. If they do not, ask the questions below.
 
 1. **Is the book fiction or nonfiction?** For fiction, run the sections as written with the
-   changes under **Fiction mode** below, and ask for the story bible in question 6.
+   changes under **Fiction mode** below, and ask for the continuity guide in question 6.
 2. **Where is the manuscript?** Offer three options:
    - **A Google Drive folder.** Ask for the link or name, list its contents, and confirm which file
      is each chapter and which are front and back matter.
@@ -38,7 +38,7 @@ apply any checks the file turned off or changed. If they do not, ask the questio
 5. **Does the book use interview quotes?** If yes, ask where the transcripts and any quote log are.
    If no, skip every part marked *Interview quotes only*.
 6. **What tracking files exist?** For example a glossary, figure list, Further Reading list, tools
-   list, canon file for a running example, story bible (fiction), or ideas list. Ask where each lives.
+   list, canon file for a running example, continuity guide (fiction), or ideas list. Ask where each lives.
 7. **Do the chapter files use boundary markers, or should each whole file be read?** If they use
    markers (for example `[START CHAPTER]` and `[END CHAPTER]`), ask what they are; only text
    between them is compared. If not, confirm there is nothing in the files that should be skipped.
@@ -206,9 +206,9 @@ Check every chapter against the chapter format the author gave in setup.
 
 ---
 
-## Section 5: Running example or story bible *(if the book has one)*
+## Section 5: Running example or continuity guide *(if the book has one)*
 
-For fiction, this section checks the story bible; see **Fiction mode** for the full list.
+For fiction, this section checks the continuity guide; see **Fiction mode** for the full list.
 
 Every detail of the running example established anywhere is locked canon. Build an index across all
 chapters and check it against the canon file:
@@ -334,8 +334,8 @@ the sections as follows.
   epigraphs or quoted material), and tool coverage (Section 10).
 - **Section 2 adds:** the same description, image, or simile reused across chapters, and character
   tics and gestures tallied per character across the book.
-- **Section 5 becomes the story bible check.** Build one index from every chapter and check it
-  against the story bible:
+- **Section 5 becomes the continuity guide check.** Build one index from every chapter and check it
+  against the continuity guide:
   - **Characters:** names, nicknames and who uses them, ages advancing correctly with the timeline,
     physical details, relationships, jobs and history, and speech habits.
   - **Timeline:** one dated list of scenes across the book. Flag impossible sequences, wrong days of
@@ -345,7 +345,7 @@ the sections as follows.
     learned yet, or forgetting something they learned.
   - **Places, objects, and world rules:** layouts and distances, where each object was last seen,
     and every place a world rule bends without a reason on the page.
-  Report each drift with every variant and where it appears. Where the story bible is silent, ask
+  Report each drift with every variant and where it appears. Where the continuity guide is silent, ask
   rather than pick a winner, and propose the addition.
 - **Section 6 becomes setups and payoffs:** every question, promise, clue, and object the story
   raises is paid off or deliberately left open, and every payoff was set up. List open threads by

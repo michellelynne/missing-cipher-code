@@ -318,10 +318,10 @@ Describe each one the book uses: heading, format, and count. For example:
 Chicago is the usual reference for fiction too. Most of this guide still applies; the sections on
 citations, Further Reading, worksheets, learning lists, and tools usually do not.
 
-### Story bible
+### Continuity guide
 
 Details established anywhere in the manuscript are locked canon unless the author changes them on
-purpose. The story bible is: [file name]. It records:
+purpose. The continuity guide is: [file name]. It records:
 
 - **Characters:** full name and every nickname and who uses it, age and birthday (ages advance
   with the timeline), physical details (eyes, hair, height, scars, handedness), family and

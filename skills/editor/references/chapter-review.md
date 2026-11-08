@@ -21,7 +21,7 @@ chapter, and whether it has come back from an editor). Apply any checks the file
 changed. If they do not, ask the questions below.
 
 1. **Is the book fiction or nonfiction?** For fiction, the review runs in fiction mode (see
-   **Fiction mode** below), and question 6 asks for the story bible.
+   **Fiction mode** below), and question 6 asks for the continuity guide.
 2. **What is the required chapter format?** Ask this before anything else about the files. Ask for
    the sections every chapter has, which are required, their order and headings, any end-of-chapter
    elements (questions, exercises, worksheets, rubrics), and anything else the author wants
@@ -46,7 +46,7 @@ changed. If they do not, ask the questions below.
 6. **Is there anything to keep track of while reviewing?** For example a glossary, a figure or
    image list, a Further Reading list, a quote log, a canon file for a running example, a story
    bible (fiction), a tools list, or a list of ideas the author is collecting. For fiction, if
-   there is no story bible yet, offer to start one from this chapter. For each one, ask where it
+   there is no continuity guide yet, offer to start one from this chapter. For each one, ask where it
    lives and whether this review should propose additions to it. Keep these as the tracking files
    for this review.
 7. **What habits or common issues do you know you have?** For example too many rhetorical
@@ -382,7 +382,7 @@ Surface these for the author's review; do not insert changes. Number every flag.
     than having one right answer; and every major section is reachable. Report as a table:
     question, purpose, verdict (keep, rewrite, cut, or new), and the wording.
 21. **Running example continuity** *(if the author tracks a canon file; in fiction mode this becomes
-    the story bible check)*: check every detail of the running example (names, screens, people,
+    the continuity guide check)*: check every detail of the running example (names, screens, people,
     roles, data, numbers, timeline) against the canon file. A match needs no action. A conflict is
     flagged with both forms and a question. A new detail is proposed as an addition with where it
     first appears. Confirm the numbers add up. Check role words in both directions per the style
@@ -472,7 +472,7 @@ style guide's Fiction section first; it holds the rules these checks use.
 - **Show versus tell.** Emotions named that the scene already shows, and emotions named that the
   scene never earns.
 - **Distinct voices.** Characters who sound the same, and a character whose speech habits drift
-  from the story bible.
+  from the continuity guide.
 - **Repeated beats.** Gestures and tics counted per character (nods, sighs, smiles, looks).
 - **Grammar inside dialogue** is voice: fragments, slang, and dialect are not flagged unless they
   are inconsistent for that character.
@@ -488,7 +488,7 @@ style guide's Fiction section first; it holds the rules these checks use.
   won). Flag scenes where nothing changes, and scene breaks that do not follow the style guide.
 - **Pacing:** long stretches of summary, backstory, or description that stall the scene, and
   chapter endings with no reason to turn the page.
-- **Story bible continuity (replaces 21).** Check every detail in the chapter against the story
+- **Continuity guide continuity (replaces 21).** Check every detail in the chapter against the story
   bible: character names and nicknames, ages (advancing with the timeline), physical details,
   relationships, jobs, and speech habits; dates, days of the week, seasons, weather, travel and
   healing times; places and layouts; who has which object and where it was last seen; world rules;
@@ -498,7 +498,7 @@ style guide's Fiction section first; it holds the rules these checks use.
   bad light, and real places described as the scene of a crime.
 
 **Pass 5 changes:** endnotes and missing learning elements are off unless the book has them.
-Tracked items include the story bible additions.
+Tracked items include the continuity guide additions.
 
 ---
 

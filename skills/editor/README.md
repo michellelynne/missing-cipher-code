@@ -7,7 +7,7 @@ editing *The Missing Cipher* and works for any book, fiction or nonfiction.
 |---|---|
 | [`SKILL.md`](SKILL.md) | The skill itself. It reads the request and opens the guide the task needs. |
 | [`references/chapter-review.md`](references/chapter-review.md) | Reviews one chapter in passes: style guide and prose habits, house style and figures, editorial flags (facts, structure, voice, print risk, accessibility), and deliverables such as endnotes and the chapter title. Every finding comes with a search string and a fix. |
-| [`references/book-review.md`](references/book-review.md) | Checks what only shows across the whole manuscript: repeated stories and phrases, cross-references between chapters, first use of terms, chapter format drift, transitions, and the running example or story bible. |
+| [`references/book-review.md`](references/book-review.md) | Checks what only shows across the whole manuscript: repeated stories and phrases, cross-references between chapters, first use of terms, chapter format drift, transitions, and the running example or continuity guide. |
 | [`references/offline-review.md`](references/offline-review.md) | Turns the findings from either review into an offline review pack: HTML pages you can open with no internet to mark each finding Fix, Skip, or Done and export your marks. Send the marks back and it applies the Fix items. The page templates are in [`assets/`](assets/). |
 | [`style-guide-template.md`](style-guide-template.md) | A starting style guide for both reviews to check against, based on the *Chicago Manual of Style*. Fill in the brackets and delete the sections your book does not use. |
 
@@ -21,7 +21,7 @@ editing *The Missing Cipher* and works for any book, fiction or nonfiction.
 - **You can review the rules first.** On the first run it offers to walk through every check so
   you can turn off or change what does not fit your book.
 - **Fiction mode.** For fiction, it adds checks for point of view, tense, dialogue, filter words,
-  and pacing, and checks continuity against your story bible.
+  and pacing, and checks continuity against your continuity guide.
 - **Review anywhere.** Findings can come as an offline review pack: pages that work on a plane,
   where you mark each finding Fix, Skip, or Done, add notes, and export your marks. Send the marks
   back and the Fix items get applied.
