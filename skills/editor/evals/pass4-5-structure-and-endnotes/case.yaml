@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: pass4-5-structure-and-endnotes
+expected_outcome: |
+  Pass 4 and Pass 5 reports that catch the planted structural, accuracy, print-risk,
+  accessibility, and endnote problems in Chapter 4.
+context:
+  scaffold_script: place-files.sh

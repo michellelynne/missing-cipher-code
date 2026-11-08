@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: fiction-pov-dialogue-and-continuity
+expected_outcome: |
+  A fiction-mode Pass 1 and continuity guide check on Chapter 7 that catches the planted point-of-
+  view, tense, dialogue, filter-word, repeated-beat, and continuity problems.
+context:
+  scaffold_script: place-files.sh

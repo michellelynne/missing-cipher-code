@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: pass0-editor-pass
+expected_outcome: |
+  A Pass 0 action sheet that classifies every editor change against the current chapter, catches
+  the edits the editor got wrong, responds to every comment, ignores extraction noise, and stops
+  before Pass 1.
+context:
+  scaffold_script: place-files.sh

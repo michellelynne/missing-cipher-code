@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: pass1-clean-chapter-stays-quiet
+expected_outcome: |
+  A short Pass 1 report on a chapter that already follows the style guide. The review reports few
+  or no findings, and does not flag the patterns the style guide says are not defects.
+context:
+  scaffold_script: place-files.sh

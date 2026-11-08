@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: pass1-catches-planted-prose-issues
+expected_outcome: |
+  A Pass 1 report on Chapter 3 that catches the planted style-guide and prose problems inside the
+  chapter markers, gives every finding a search string and a fix, leaves the author's notes
+  outside the markers alone, and does not flag the approved exception.
+context:
+  scaffold_script: place-files.sh

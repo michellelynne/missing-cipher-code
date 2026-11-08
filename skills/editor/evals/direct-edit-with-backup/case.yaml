@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: direct-edit-with-backup
+expected_outcome: |
+  Pass 1 findings in the conversation, with exactly the four approved fixes applied to the chapter
+  file after a timestamped backup, nothing outside the chapter markers touched, every other
+  finding left unapplied, and no file deleted.
+context:
+  scaffold_script: place-files.sh

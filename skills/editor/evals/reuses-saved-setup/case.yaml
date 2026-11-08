@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: reuses-saved-setup
+expected_outcome: |
+  The skill reads the saved setup back, asks what has changed, asks only what the file does not
+  answer (including the pace, which the older file lacks, and whether the chapter has come back
+  from an editor), keeps the turned-off checks off, and waits before reviewing.
+context:
+  scaffold_script: place-files.sh
