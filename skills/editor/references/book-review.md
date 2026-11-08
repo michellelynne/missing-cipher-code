@@ -42,20 +42,26 @@ apply any checks the file turned off or changed. If they do not, ask the questio
 7. **Do the chapter files use boundary markers, or should each whole file be read?** If they use
    markers (for example `[START CHAPTER]` and `[END CHAPTER]`), ask what they are; only text
    between them is compared. If not, confirm there is nothing in the files that should be skipped.
-8. **Would you like changes made to the files directly?** The default is findings with search
-   strings that the author applies. If they want direct edits, suggest the safest method for where
-   the files live, following **Making changes** in `references/chapter-review.md` (for example, a Google Apps
-   Script for Google Docs, since rewriting a Doc through a connector can drop formatting and
-   comments), and say plainly when a direct edit could cause problems.
+8. **Do you want approved fixes made for you, or will you make them yourself?** Ask and set it up
+   exactly as in `references/chapter-review.md` setup question 11, for where the manuscript lives (question 2):
+   the editor tools in `scripts/` for Google Docs and Word, finished with a test
+   run; direct edits for Markdown you can reach; or fixes by hand. Batches follow **When a batch of
+   fixes is ready** in `references/chapter-review.md`.
 9. **Where should backups go?** Every direct edit is backed up first, to the location the author
    chooses (same three options). Confirm the backup exists before editing.
-10. **How would you like the findings delivered?** In the conversation, one section at a time, or
-    as an offline review pack: HTML pages that work with no internet, one per section plus an
-    index, where the author marks each finding Fix, Skip, or Done and exports the marks. Hand the
-    findings to `references/offline-review.md`, with one page per section and the chapter filter
-    covering every chapter with findings.
+10. **How should the review run?** Ask both parts every time. They work the same way as in
+    `references/chapter-review.md` (see its **Review mode**), with sections in place of passes, and any
+    combination works:
+    - **Pace:** **all at once** (every section back to back with no stops; questions are collected
+      rather than stopping the run, and nothing is written until approved) or **one section at a
+      time** (stop after each section and wait; never run ahead, even when the author mentions
+      being away, but offer to switch to all at once).
+    - **Delivery:** **in the conversation**, or **exported** as an offline review pack built by the
+      `references/offline-review.md`, with one page per section and the chapter filter covering every
+      chapter with findings. When exported, the conversation gets only the pack's location, counts
+      per section, and what could not be checked.
 
-Confirm the answers back in a short list before starting.
+Confirm the answers back in a short list, including the pace and delivery, before starting.
 
 **Review the rules first (first run).** If there is no saved setup file, or the author has not
 reviewed this guide's rules before, ask whether they would like to review all the rules before the
@@ -69,7 +75,7 @@ reviews. If yes, ask where (the same three options), and write a setup file with
 question and the answer under it, plus any checks the author turned off or changed. If a setup
 file already exists and answers changed, back it up first and show what changed before writing.
 
-Work through the sections below one at a time. Present findings and ask before continuing. File
+Work through the sections below at the pace and with the delivery chosen in setup. File
 handling follows `references/chapter-review.md`: find files by name, stop on duplicates, back up before every
 change to the location chosen in setup, never delete, and never edit without approval. Every
 finding gets a chapter, section,

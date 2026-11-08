@@ -29,9 +29,9 @@ changed. If they do not, ask the questions below.
    format section with this answer and ask about any difference.
 3. **Where is the chapter?** Offer three options:
    - **A Google Drive folder.** Ask for the folder link or name, list its contents, and confirm
-     which file is the chapter.
+     which Doc is the chapter.
    - **A folder on their computer.** Ask for the folder path, request access, and confirm which
-     file is the chapter.
+     file is the chapter and its format (Word, Markdown, plain text, or something else).
    - **Added to the conversation.** Ask the author to attach or paste the chapter, and confirm what
      arrived.
    If the chapter is missing, unreadable, or ambiguous (two files that could be the same chapter),
@@ -44,8 +44,8 @@ changed. If they do not, ask the questions below.
    options. If no, skip every part of this guide marked *Interview quotes only*. Quotations from
    published sources are checked either way.
 6. **Is there anything to keep track of while reviewing?** For example a glossary, a figure or
-   image list, a Further Reading list, a quote log, a canon file for a running example, a story
-   bible (fiction), a tools list, or a list of ideas the author is collecting. For fiction, if
+   image list, a Further Reading list, a quote log, a canon file for a running example, a
+   continuity guide (fiction), a tools list, or a list of ideas the author is collecting. For fiction, if
    there is no continuity guide yet, offer to start one from this chapter. For each one, ask where it
    lives and whether this review should propose additions to it. Keep these as the tracking files
    for this review.
@@ -61,19 +61,72 @@ changed. If they do not, ask the questions below.
    markers (for example `[START CHAPTER]` and `[END CHAPTER]`). If they use markers, ask what they
    are. If not, the whole file is the chapter; confirm there is nothing in it that should be
    skipped.
-10. **Would you like changes made to the files directly?** The default is findings with search
-    strings that the author applies. If they want direct edits, suggest the safest method for where
-    the files live (see **Making changes** under Working with files), and say plainly when a direct
-    edit could cause problems.
-11. **Where should backups go?** Every direct edit, and every change to the style guide, a tracking
+10. **Where should backups go?** Every direct edit, and every change to the style guide, a tracking
     file, or the setup file, is backed up first. Ask for a backups location using the same three
     options.
-12. **How would you like the findings delivered?** Offer two options:
-    - **In the conversation**, one pass at a time.
-    - **As an offline review pack**: HTML pages the author can open in any browser with no internet,
-      to mark each finding Fix, Skip, or Done and export the marks. Built by `references/offline-review.md`. Useful for working through findings on a plane or away from the computer.
+11. **Do you want approved fixes made for you, or will you make them yourself?** A fix can be
+    made for the author when it is an exact search string and its replacement, and they have
+    approved it. Explain the option for where the chapter lives (question 3), what each side does,
+    and what it takes to set up, then let them choose.
 
-Confirm the answers back in a short list before starting Pass 0 or Pass 1.
+    First, tell them plainly what it's like, so they can decide with confidence. **The author
+    stays in charge of every change:**
+    - Nothing changes until they approve the specific fixes. Approving a finding doesn't run
+      anything; they decide when a batch runs, and "not now" is always fine.
+    - Before anything changes, they see every fix's before and after text, and fixes that no
+      longer match the chapter are skipped, never guessed at.
+    - Each file is backed up first; in Word, every change is a tracked change they accept or
+      reject.
+    - Afterwards they get a list of what changed and what is left to do by hand.
+
+    Then give examples of the work it saves, picking the ones that fit their book:
+    - **Renumbering endnotes after adding a citation.** A new source goes in as note 4, so notes 4
+      to 22 and every superscript in the body shift by one. That is about forty small edits;
+      as one batch, it is a preview and one run.
+    - **Adding an example or a paragraph.** The new paragraph goes in exactly after the one it
+      follows, keeping the chapter's paragraph style.
+    - **The same fix in many places.** "store front" becomes "storefront" every time it appears,
+      in one fix.
+    - **Fixes with a follow-on.** Spelling out an acronym at its first use, and cutting the later
+      spelled-out form it makes redundant, in one batch, with the follow-on called out.
+    - **Images** (Google Docs): replacing placeholders with the final images and alt text, or
+      swapping in updated versions of the same images.
+    - **Word counts** across every chapter, between the markers.
+
+    Then the two choices:
+    - **Myself:** every finding comes with a search string and a suggested change, and the author
+      makes the changes. Nothing to set up. They can switch later.
+    - **Made for me**, set up now for where the chapter lives:
+      - *Google Docs:* the Google Docs editor tools in `scripts/google-docs/`, an Apps Script
+        project in the author's own Google account. Walk them through its README now: create the
+        project, paste in the files, fill in the folder IDs (chapters, the backups folder from
+        question 10, and images), and grant permission (about ten minutes). Finish with a test run
+        of `wordCountRun`; if it lists their chapters, it works.
+      - *Word on their computer:* the Word editor tools in `scripts/word/`, which make every fix
+        as a tracked change. Walk them through its README now: show the Developer tab, import the
+        two modules, and set the markers. Finish with a test run of `EditorWordCount`. (If you can
+        reach the file, editing a copy with tracked changes is the other option, with nothing to
+        set up.)
+      - *Markdown or plain text on their computer:* you make the edits yourself after a backup;
+        nothing to set up beyond the folder access from question 3. Without that access, use
+        `scripts/markdown/apply_fixes.py`: check that Python 3 is installed (`python3 --version`).
+      - *Pasted into the conversation:* you return the revised text to paste back. Nothing to set
+        up.
+      - *Anything else* (Scrivener, Pages, InDesign, a publisher's platform): no tool can make the
+        fixes. Say so; the author makes them from the findings.
+    If the test run fails, fix the setup with the author before the review starts, or fall back to
+    making the fixes themselves until it works.
+12. **How should the review run?** Ask both parts every time; together they decide how the whole
+    review runs (see **Review mode** below). Any combination works.
+    - **Pace:** **all at once** (every pass runs back to back with no stops) or **one pass at a
+      time** (after each pass, wait for the author before starting the next).
+    - **Delivery:** **in the conversation**, or **exported** as an offline review pack: HTML pages
+      that open in any browser with no internet, where the author marks each finding Fix, Skip, or
+      Done and exports the marks. Built by `references/offline-review.md`. Useful for working through
+      findings on a plane or away from the computer.
+
+Confirm the answers back in a short list, including who makes the fixes and the pace and delivery,
+before starting Pass 0 or Pass 1.
 
 **Review the rules first (first run).** If there is no saved setup file, or the author has not
 reviewed the rules before, ask whether they would like to review all the rules before the first
@@ -87,8 +140,9 @@ after a backup and the author's yes. Then confirm the final list and start.
 chapter and book reviews. If yes, ask where (the same three options), and write a setup file with
 one heading per question and the answer under it: fiction or nonfiction, where the chapters live,
 the style guide, the chapter format, interview quotes and transcripts, tracking files, known
-habits, the optional inputs, the boundary markers, the edit method, the backups location, how
-findings are delivered, and any checks the author turned off or changed. Leave out answers that
+habits, the optional inputs, the boundary markers, who makes the fixes (and, for the editor tools,
+that they passed their test run), the backups location, the
+pace and delivery, and any checks the author turned off or changed. Leave out answers that
 belong to this chapter only. If a setup file already exists and answers changed, back it up first
 and show what changed before writing. `references/book-review.md` reads the same file.
 
@@ -108,33 +162,114 @@ and show what changed before writing. `references/book-review.md` reads the same
 - **Never edit a file without approval.** Propose additions and changes, get the author's yes,
   then write.
 - **The manuscript is the author's.** Findings are proposals with search strings, not edits,
-  unless the author chose direct edits or a script in setup. Even then, show each batch of changes
-  and get a yes before applying it.
-
-**Making changes.** Suggest the method that fits where the files live, and warn when a direct edit
-could cause problems:
-
-- **Google Docs.** Rewriting a Doc through a file connector can drop formatting, comments,
-  suggestions, images, and footnotes. Suggest a Google Apps Script instead: delivered as text the
-  author pastes into the Apps Script editor, it backs up the Doc to the backups folder first, makes
-  targeted find-and-replace edits that keep formatting, logs every change, and reports any search
-  string it could not find. Writing a separate revised copy is the other safe option.
-- **Word files (.docx).** Edit a copy with tracked changes so the author can accept or reject each
-  one, and leave the original untouched.
-- **Markdown or plain text on their computer.** Direct edits are safe once backed up. Edit in place
-  with exact find-and-replace, not by rewriting the whole file.
-- **Pasted into the conversation.** Return the revised text, or the changed passages with search
-  strings, for the author to paste back.
-- **Anything else** (Scrivener, InDesign, a publisher's platform): do not edit directly. Give
-  findings with search strings.
+  unless the author chose in setup to have fixes made for them. Even then, every batch follows
+  **When a batch of fixes is ready**: checked, previewed, and approved before anything changes.
+- **Finish what an approved change starts.** When an approved change forces a small follow-on fix to
+  stay consistent with the style guide (spelling out an acronym earlier leaves a second expansion
+  further down; renumbering one figure shifts the references to it), make the follow-on fix in the
+  same batch. Call it out separately in the report: what changed, which approved change required
+  it, and how to undo it. A follow-on fix only repairs what the approved change made wrong;
+  anything else stays a finding.
 
 ---
 
-## Offline review pack
+## When a batch of fixes is ready
 
-When the author chooses an offline review pack, run every pass as written, then hand the findings
-to `references/offline-review.md`, which builds the pack and later applies the marks the author
-exports. Use one page per pass.
+If the author makes the fixes themselves, the findings are the whole job; skip this section. If
+fixes are made for them, a batch is ready once the author has approved fixes: after each pass with
+the one-pass-at-a-time pace, after the full set with all at once, or when exported marks come back
+from an offline pack. **The author decides what goes in a batch and when it runs.** Offer to
+prepare it; don't start until they say so, and keep anything they want to hold back out of the
+batch. Then:
+
+1. **Collect the batch.** Only the approved fixes, each with its finding number as its ID, plus any
+   follow-on fixes they force, called out.
+2. **Check every fix against the current chapter** before handing anything over, since the author
+   may have edited since the review:
+   - The search string appears exactly once between the chapter markers. If it appears more than
+     once, lengthen it until it is unique.
+   - It stays inside one paragraph.
+   - It copies the chapter's characters exactly, including curly or straight quotes and dashes.
+   - A deletion includes a few words on each side (find "costs. Now that we... pricing. The",
+     replace "costs. The"), so the check can tell a finished deletion from text that never matched.
+   - Renumbering (endnotes, figures, tables) is ordered so no number collides with one not yet
+     changed: work from the highest number down when numbers go up, and from the lowest up when
+     they go down. Include enough of the text around each superscript or reference to make it
+     unique, and keep the superscript formatting.
+
+   A fix that fails these checks becomes a hand fix with its search string.
+3. **Deliver it for where the chapter lives:**
+   - *Google Docs editor tools:* the `FIX_BATCH` block that replaces the one in `Fixes.gs`, as text
+     to paste (fields: `id`, `doc` for the Doc's exact name, `find`, `replace`, and `kind` for
+     `replaceAll`, `insertAfter`, `deleteParagraph`, or `link`).
+   - *Word editor tools:* the full code of the `EditorBatch` module, as text to paste over that
+     module's code (start at `Option Explicit`; one `Array(id, find, replace)` per fix; any
+     character outside plain ASCII written as `ChrW(code)`).
+   - *Markdown or plain text you can reach, or a Word file you can reach without the macros:*
+     nothing to deliver; you make the edits in step 5.
+   - *Markdown without access:* a `fixes.json` for `scripts/markdown/apply_fixes.py`.
+   - *Pasted into the conversation:* the revised passages, each with its search string.
+4. **Check before changing.** The author runs the check and the preview (`fixesCheck` and
+   `fixesPreview`; `EditorFixesCheck`; or `apply_fixes.py check`) and sends back the results. For
+   edits you make yourself, show the batch and get a yes. If something you expected to be READY
+   isn't, sort out why before applying.
+5. **Apply.** The author runs the apply (`fixesApply`; `EditorFixesApply`, then reviews the tracked
+   changes and saves; or `apply_fixes.py apply`). Each tool backs up the file first. For edits you
+   make yourself, back up to the location from setup, then make each fix with exact
+   find-and-replace, never by rewriting the whole file; for Word, edit a copy with tracked changes
+   and leave the original untouched.
+6. **Read the results.** Ask for the log or report, or recheck the file yourself. Every fix ends up
+   applied, already applied, or a hand fix. Never tell the author a fix is done until the results
+   say so.
+7. **Report and close out.** List what was applied, the follow-on fixes, and each hand fix with its
+   search string (NOT FOUND, FOUND more than once, or GONE). Write any approved tracking-file
+   additions, and mark the findings done so a later review doesn't raise them again.
+
+---
+
+## Review mode
+
+The pace and delivery chosen in setup decide how every pass runs. Follow them exactly for the whole
+review. Only the author changes them, by saying so.
+
+**Pace: one pass at a time**
+
+- Run one pass, deliver its findings, and stop. End the turn and wait.
+- Start the next pass only when the author says to. Their reply may also answer the pass's
+  questions, approve tracking-file additions, or ask for changes; deal with those first.
+- Never run ahead, even when the author mentions being busy or away. Instead, mention once that
+  the all-at-once pace runs every pass without stopping, and ask whether to switch.
+
+**Pace: all at once**
+
+- Run every pass in setup's scope back to back. Do not pause between passes or wait for
+  confirmation; that is what this pace is for.
+- Questions do not stop the run. Where an answer would change later findings, run the pass on the
+  most likely reading and say so in the finding.
+- Write nothing during the run. Proposed tracking-file additions, style guide changes, and setup
+  changes are delivered as findings and written only once the author approves them.
+- Finish with the open questions; do not end by asking whether to continue, since every pass has
+  already run.
+
+**Delivery: in the conversation**
+
+- Give the findings in the reply, grouped by pass, using the format each pass sets out. Writing a
+  copy to a file as well is fine; the reply still carries the findings.
+- With the all-at-once pace, give every pass's findings in one reply, then one list of every open
+  question and proposed addition at the end, so the author can answer them together.
+- Approvals happen in the conversation: write only the additions the author approves.
+
+**Delivery: exported**
+
+- Hand the findings to `references/offline-review.md`, which builds the pack: one page per pass, plus
+  the Pass 0 action sheet as its own page when Pass 0 runs, and an index page.
+- Each question becomes a finding the author answers in the pack (label it **Hand**, and put the
+  question in the fix field), and the index page lists every open question. Proposed additions and
+  changes go in the pack as findings, and are written only when the exported marks come back as Fix.
+- In the conversation, say only that the pack is ready, where it is, the finding count per pass,
+  and what could not be checked. Do not list the findings there.
+- With the one-pass-at-a-time pace, add each pass's page to the pack as it is done, update the
+  index, and wait before the next pass.
 
 ---
 
@@ -144,8 +279,9 @@ exports. Use one page per pass.
   markers is manuscript; without markers, the whole file is, minus anything the author said to skip.
   Outlines, notes, and drafts outside the chapter are reference only. Never flag them, never use
   them in a deliverable, and never compare the chapter to an outline.
-- **One pass at a time.** Present each pass's findings and get the author's confirmation before
-  moving on. Do not run ahead.
+- **Follow the pace and delivery from setup.** One pass at a time stops after each pass and waits;
+  all at once runs every pass without stopping. Findings go in the conversation or in the exported
+  pack. See **Review mode**.
 - **Every instance, not a sample.** When a problem is found, search the whole chapter and list every
   instance. The author fixes from the list, so an instance left off is a fix that gets missed.
 - **Every finding is actionable.** Give each one a number, a search string the author can paste into
@@ -216,7 +352,8 @@ Watch for:
   break can lose content that no text export shows.
 
 Deliver an action sheet: status counts, editor changes as a table, each comment quoted with a
-recommendation, then what is still open. Get confirmation before Pass 1.
+recommendation, then what is still open. With the one-pass-at-a-time pace, wait for the author
+before Pass 1.
 
 ---
 
@@ -270,7 +407,7 @@ vary the fixes rather than trading one habit for another.
 chapter needs defined. For each one missing from the glossary, draft an entry in the style guide's
 glossary format with a plain definition for the core reader and a first-use tag for the chapter
 where the term truly first lands in the teaching content. Present the list, then write the approved
-entries.
+entries (when exported, approval comes back through the marks).
 
 ---
 
@@ -304,7 +441,8 @@ Without one, run the items below as written.
 
 **Tracking: figures** (if the author tracks a figure list). Confirm every figure the chapter
 references is in the list with its number, title, and a one-sentence description, plus any image
-opportunities the author accepts. Present additions, then write the approved entries.
+opportunities the author accepts. Present additions, then write the approved entries (when
+exported, approval comes back through the marks).
 
 ---
 
@@ -443,7 +581,9 @@ Surface these for the author's review; do not insert changes. Number every flag.
 3. **Endnote mechanics.** The list runs 1 to N with no restart, blank entry, or skipped number; no
    heading has been swallowed into the list above it; no stray marker from an old numbering scheme
    remains; one citation style throughout; and no leftover draft notes below the chapter end marker.
-4. **Chapter title.** The title line and file name match the style guide's format exactly, and the
+4. **Chapter title.** The title line and file name match the style guide's format exactly (a file
+   name never needs a colon, slash, or other character file systems reject; if the format asks for
+   one, flag the rule rather than the file), and the
    title still describes the chapter. Then judge it as a title: it tells the reader what they get,
    sounds like the book rather than a syllabus, and survives being said out loud. Read the other chapter
    titles first so the judgment is against the set. Where it clears accuracy but not voice, propose two
@@ -488,8 +628,8 @@ style guide's Fiction section first; it holds the rules these checks use.
   won). Flag scenes where nothing changes, and scene breaks that do not follow the style guide.
 - **Pacing:** long stretches of summary, backstory, or description that stall the scene, and
   chapter endings with no reason to turn the page.
-- **Continuity guide continuity (replaces 21).** Check every detail in the chapter against the story
-  bible: character names and nicknames, ages (advancing with the timeline), physical details,
+- **Continuity guide check (replaces 21).** Check every detail in the chapter against the
+  continuity guide: character names and nicknames, ages (advancing with the timeline), physical details,
   relationships, jobs, and speech habits; dates, days of the week, seasons, weather, travel and
   healing times; places and layouts; who has which object and where it was last seen; world rules;
   and who knows what by this point. A match needs no action. A conflict is flagged with both forms

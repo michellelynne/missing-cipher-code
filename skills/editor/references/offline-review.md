@@ -71,9 +71,10 @@ Each export is a text file with one line per marked finding, such as
 2. **Treat each note as an instruction** that overrides the suggested fix.
 3. **Check every FIX search string against the current manuscript**, since the author may have
    edited since the pack was built. Report any string that no longer matches exactly once.
-4. **Apply the FIX items** using the edit method the author chose in the review's setup (see
-   **Making changes** in `references/chapter-review.md`), after a backup. For Google Docs, that is one Apps
-   Script per batch, delivered as text to paste. Without a setup answer, ask before editing.
+4. **Apply the FIX items** if the author chose in the review's setup to have fixes made for them,
+   following **When a batch of fixes is ready** in `references/chapter-review.md` (for Google Docs or Word, one
+   batch for the editor tools in `scripts/`). If they make fixes themselves, list the FIX
+   items with their search strings. Without a setup answer, ask before editing.
 5. **Report** what was applied, what was skipped, and what is still open. SKIP and DONE need no
    action.
 

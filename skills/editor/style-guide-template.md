@@ -152,7 +152,9 @@ Fill this in for the book. The review skills check every chapter against it.
 
 - **Chapter title line:** [for example, the chapter number, a space, and the title, in Title
   style: "10 Building the Shelter"].
-- **Chapter file name:** [for example, "Chapter N: Title," matching the title text exactly].
+- **Chapter file name:** [for example, "Chapter N Title," matching the title text exactly]. Leave
+  out colons, slashes, and question marks: Windows does not allow them in file names, and Mac and
+  cloud sync tools swap them for other characters, so a file named with one never matches the rule.
 - **Chapter start and end markers:** [how the manuscript marks where a chapter begins and ends;
   anything outside them is notes, not manuscript].
 - **Sections in order** (mark each required or optional):
