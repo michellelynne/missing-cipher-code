@@ -1,0 +1,71 @@
+name: Editor evals
+
+# Model evals cost money, so they run only when started by hand from the Actions tab.
+# Needs the repository secret ANTHROPIC_API_KEY.
+on:
+  workflow_dispatch:
+    inputs:
+      case:
+        description: "Case name or glob (leave empty for every case)"
+        required: false
+        default: ""
+      runs:
+        description: "Runs per case"
+        required: false
+        default: "3"
+      max_cost_usd:
+        description: "Stop when the run reaches this cost in US dollars"
+        required: false
+        default: "25"
+
+permissions:
+  contents: read
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Claude Code
+        run: npm install --global @anthropic-ai/claude-code
+
+      - name: Run the Editor evals, with and without the skill
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CASE_FILTER: ${{ inputs.case }}
+          RUNS_PER_CASE: ${{ inputs.runs }}
+          MAX_COST_USD: ${{ inputs.max_cost_usd }}
+        run: |
+          case_arguments=()
+          if [ -n "$CASE_FILTER" ]; then
+            case_arguments=(--case "$CASE_FILTER")
+          fi
+          claude plugin eval skills/editor "${case_arguments[@]}" \
+            --runs "$RUNS_PER_CASE" \
+            --max-cost-usd "$MAX_COST_USD" \
+            --scaffold --trust-plugin --allow-tools Write Edit Bash \
+            --no-publish --threshold 0 \
+            --output-dir eval-results \
+            --report eval-results/report.html
+
+      - name: Cost and speed table
+        if: always()
+        run: |
+          if [ -f eval-results/aggregate-result.json ]; then
+            python tools/eval_cost_report.py eval-results/aggregate-result.json >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-results
+          path: eval-results/
