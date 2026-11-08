@@ -1,0 +1,118 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "missing-cipher",
+  "description": "AI skills from The Missing Cipher: The Field Guide for Senior Software Engineers, by Michelle Brenner.",
+  "owner": {
+    "name": "Michelle Brenner",
+    "url": "https://www.michellebrenner.com"
+  },
+  "plugins": [
+    {
+      "name": "missing-cipher-skills",
+      "displayName": "The Missing Cipher skills",
+      "description": "60 AI skills, one for each place the book tells engineers to use AI.",
+      "category": "productivity",
+      "keywords": [
+        "career",
+        "senior engineer",
+        "system design",
+        "incident response",
+        "documentation"
+      ],
+      "skills": [
+        "./skills/accessibility-screen-audit",
+        "./skills/accessibility-standards-lookup",
+        "./skills/accomplishment-data-aggregation",
+        "./skills/ai-interview-readiness",
+        "./skills/ai-job-tool-scout",
+        "./skills/ai-task-decision-checklist",
+        "./skills/ai-test-triage",
+        "./skills/alert-context-harness",
+        "./skills/alert-digest-summarizer",
+        "./skills/alert-response-audit",
+        "./skills/alert-response-triage",
+        "./skills/alternative-solution-explorer",
+        "./skills/api-log-questions",
+        "./skills/brag-sheet-compiler",
+        "./skills/codebase-explainer",
+        "./skills/company-list-filtering",
+        "./skills/competitive-landscape-research",
+        "./skills/design-round-exploration",
+        "./skills/doc-change-digest",
+        "./skills/documentation-drafting",
+        "./skills/documentation-harness",
+        "./skills/event-alert-query",
+        "./skills/event-finder",
+        "./skills/feasibility-spike-scoping",
+        "./skills/follow-up-drafter",
+        "./skills/frontend-profiling-run",
+        "./skills/frontend-tech-decisions",
+        "./skills/iac-draft-from-design",
+        "./skills/iac-syntax-translator",
+        "./skills/incident-catchup-summary",
+        "./skills/interest-to-company-research",
+        "./skills/job-alert-query-builder",
+        "./skills/learn-while-delegating",
+        "./skills/legacy-system-explainer",
+        "./skills/log-story-review",
+        "./skills/maintenance-handoff-notes",
+        "./skills/memo-editing",
+        "./skills/memo-newsletter-drafting",
+        "./skills/migration-candidate-ranking",
+        "./skills/migration-harness",
+        "./skills/migration-tdd-scaffolding",
+        "./skills/networking-prep",
+        "./skills/oncall-question-answering",
+        "./skills/per-persona-documentation",
+        "./skills/pr-documentation-updates",
+        "./skills/production-readiness-review",
+        "./skills/proposal-memo-drafting",
+        "./skills/provisional-persona-draft",
+        "./skills/regional-benefit-benchmarking",
+        "./skills/regional-communication-adapter",
+        "./skills/repo-onboarding-trainer",
+        "./skills/runbook-from-tickets",
+        "./skills/success-statements",
+        "./skills/talk-topic-brainstormer",
+        "./skills/tech-evaluation-variations",
+        "./skills/test-plan-generator",
+        "./skills/time-saved-tracker",
+        "./skills/unfamiliar-codebase-changes",
+        "./skills/wireframe-tool-scout",
+        "./skills/workflow-process-mapping"
+      ],
+      "source": "./",
+      "author": {
+        "name": "Michelle Brenner",
+        "url": "https://www.michellebrenner.com"
+      },
+      "homepage": "https://themissingcipher.com/resources/skills/",
+      "repository": "https://github.com/michellelynne/missing-cipher-code",
+      "license": "CC-BY-4.0"
+    },
+    {
+      "name": "book-editor",
+      "displayName": "The Editor",
+      "description": "Reviews any book manuscript, chapter by chapter or across the whole book, with fixes you approve.",
+      "category": "writing",
+      "keywords": [
+        "editing",
+        "manuscript",
+        "book",
+        "proofreading",
+        "style guide"
+      ],
+      "skills": [
+        "./skills/editor"
+      ],
+      "source": "./",
+      "author": {
+        "name": "Michelle Brenner",
+        "url": "https://www.michellebrenner.com"
+      },
+      "homepage": "https://themissingcipher.com/resources/skills/",
+      "repository": "https://github.com/michellelynne/missing-cipher-code",
+      "license": "CC-BY-4.0"
+    }
+  ]
+}
