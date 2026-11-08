@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: word-tracked-changes-copy
+expected_outcome: |
+  The approved fixes are made in a copy of the Word file as tracked changes, after a backup,
+  with the original file left unchanged and a report of what was applied.
+context:
+  scaffold_script: place-files.sh
