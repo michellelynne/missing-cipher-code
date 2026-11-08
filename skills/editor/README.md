@@ -72,11 +72,19 @@ report.
 Each case lives in `evals/<case>/`: the request (`prompt.md`), the expected outcome
 (`case.yaml`), one file per check (`graders/`), and the input files (`files/`). The layout is the
 one `claude plugin eval` reads, so with Claude Code you can run every case, with and without the
-skill, from the `editor` folder:
+skill, from the top of the repository:
 
 ```bash
-claude plugin eval . --scaffold --allow-tools Write,Edit,Bash
+claude plugin eval skills/editor --scaffold --allow-tools Write Edit Bash --no-publish
 ```
+
+Each case runs 3 times with the skill and 3 times without it, on your own Claude account, so a full
+run takes a while and uses your plan or API credit. To try one case first, add
+`--case unsupported-format-scrivener --runs 1`. Results and an HTML report go to
+`skills/editor/evals/results/`. `--scaffold` copies each case's input files into a temporary
+folder, and `--allow-tools` lets the Editor read and write files there; nothing in the repository
+changes. To turn the results into a cost and speed table:
+`python3 tools/eval_cost_report.py skills/editor/evals/results/<run>/aggregate-result.json`.
 
 Checks that can be verified from files (was a backup made, and is it identical to the original?)
 are checked by script; the rest are judged against the outputs with quoted evidence.
