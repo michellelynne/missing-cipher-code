@@ -20,6 +20,8 @@ SKILL_LINE_LIMIT = 500
 FRONTMATTER_PATTERN = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
 # Paths inside a skill, written in backticks, such as `references/book-review.md` or `scripts/word/`.
 SKILL_PATH_PATTERN = re.compile(r"`((?:references|scripts|assets|tests|evals)/[^`\s*<>]*)`")
+# Folders that aren't ours to check: installed packages, build output, and eval inputs.
+SKIPPED_FOLDERS = {".git", "node_modules", "dist", "evals"}
 MARKDOWN_LINK_PATTERN = re.compile(r"\]\(([^)\s]+)\)")
 # Words that should not appear in what a skill tells the assistant. Install examples in READMEs may name tools.
 BANNED_IN_SKILL_TEXT = {
@@ -75,7 +77,7 @@ def check_skill(skill_folder, problems):
 
 def check_markdown_links(problems):
     for markdown_path in sorted(REPO_FOLDER.glob("**/*.md")):
-        if ".git" in markdown_path.parts or "evals" in markdown_path.parts:
+        if SKIPPED_FOLDERS.intersection(markdown_path.relative_to(REPO_FOLDER).parts):
             continue
         for link_target in MARKDOWN_LINK_PATTERN.findall(markdown_path.read_text(encoding="utf-8")):
             if link_target.startswith(("http://", "https://", "mailto:", "#")):

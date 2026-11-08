@@ -99,12 +99,14 @@ back into the skill and into harder test cases.
 
 ## Installing
 
-Copy the `editor` folder into your assistant's skills folder. For Claude Code that is
-`~/.claude/skills/`, or `.claude/skills/` inside a project:
+- **Chat apps that take a skill upload:** download
+  [editor.zip](https://github.com/michellelynne/missing-cipher-code/releases/latest/download/editor.zip)
+  and upload it as a skill. Check your tool's own guide for where skills go.
+- **Claude Code:** `/plugin marketplace add michellelynne/missing-cipher-code`, then
+  `/plugin install book-editor@missing-cipher`. Or copy the folder:
+  `cp -r skills/editor ~/.claude/skills/`.
 
-```bash
-mkdir -p ~/.claude/skills && cp -r skills/editor ~/.claude/skills/
-```
+The editor tools in `scripts/` come along inside the skill.
 
 Keep `style-guide-template.md` with your manuscript and fill it in. Then ask for a chapter review
 or a book review in your own words. Run the chapter review on each chapter before the book
