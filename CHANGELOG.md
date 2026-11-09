@@ -40,6 +40,10 @@ Releases are named by date. Each entry lists what changed for people using the s
 - New home: this repository, `missing-cipher-code`.
 - Install every skill in Claude Code from the plugin catalog, or download one ZIP per skill.
 - Checks, linters, and tests run on every push; releases publish automatically.
+- Run the Editor evals with one command, `tools/run_evals.py`: every case, or only the ones that
+  failed or are new. It measures how much of a Claude subscription the run uses and writes a
+  results page anyone can read, with each run's usage, cost, and time and estimates for a full run.
+- The Google Docs and Markdown fix tools take an `after` option, for a line repeated word for word.
 
 ## 2026-11-04
 

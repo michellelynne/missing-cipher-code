@@ -3,6 +3,6 @@ name: google-docs-fix-batch
 expected_outcome: |
   The approved fixes come back as a FIX_BATCH to paste into the Google Docs editor tools, with
   every search string matching the chapter exactly once, the second of three "Count it twice." lines
-  made unique with context, and the author told to run the check and preview before applying.
+  picked out with surrounding text or the after option, and the author told to run the check and preview before applying.
 context:
   scaffold_script: place-files.sh

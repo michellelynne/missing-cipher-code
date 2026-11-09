@@ -49,7 +49,7 @@ def build_google_docs_case():
         "google-docs-fix-batch",
         """The approved fixes come back as a FIX_BATCH to paste into the Google Docs editor tools, with
 every search string matching the chapter exactly once, the second of three "Count it twice." lines
-made unique with context, and the author told to run the check and preview before applying.""",
+picked out with surrounding text or the after option, and the author told to run the check and preview before applying.""",
         "My chapter is a Google Doc named \"" + CHAPTER_NAME + "\". I already set up the Google Docs editor tools "
         "and the test run worked. I've exported the Doc as Markdown so you can read the current text (attached).\n\n"
         + COMMON_SETUP + "- Fixes: made for me with the Google Docs editor tools. Backups go in my Drive backups folder (already in Settings.gs).\n\n"
