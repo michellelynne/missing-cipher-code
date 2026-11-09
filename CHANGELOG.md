@@ -22,10 +22,11 @@ Releases are named by date. Each entry lists what changed for people using the s
   like a command is pointed out, never followed.
 - Chapter file names never need a colon or slash.
 
-### Code examples
+### Case study reference
 
-- **Chapter 4's code, ready to run.** The infrastructure plan in Terraform, Ansible, and
-  CloudFormation, hardened (IMDSv2, private subnets for the API and database, health-checked
+- **Renovation Revolution's code and infrastructure, ready to run**, in
+  `case-study-reference/`, with a `case-study-reference.zip` in every release. The
+  infrastructure plan in Terraform, Ansible, and CloudFormation, hardened (IMDSv2, private subnets for the API and database, health-checked
   instances, a pinned PostgreSQL version) and checked to build the same thing.
 - **The Contractors API in REST, gRPC, and GraphQL**, served by one Python server with shared
   rules, idempotent retries, paging, a PostgreSQL schema, and a demo page. Example requests in

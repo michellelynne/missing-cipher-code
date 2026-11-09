@@ -7,4 +7,4 @@ dist/
 skills/*/evals/results/
 skills/editor/rerun-evals/
 .pytest_cache/
-examples/**/server/generated/
+case-study-reference/code/server/generated/

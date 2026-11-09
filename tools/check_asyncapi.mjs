@@ -1,5 +1,5 @@
 // Checks an AsyncAPI file with the official parser. tools/check_examples.py runs this.
-//   node tools/check_asyncapi.mjs examples/chapter-4/api/messaging/asyncapi.yaml
+//   node tools/check_asyncapi.mjs case-study-reference/code/messaging/asyncapi.yaml
 // Needs npm install first, for @asyncapi/parser.
 
 import { Parser, fromFile } from "@asyncapi/parser";

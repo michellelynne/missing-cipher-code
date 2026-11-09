@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: Renovation Revolution API (Chapter 4 examples)
+  title: Renovation Revolution API (case study reference)
   version: 1.0.0
   description: >
-    The REST examples from Chapter 4, written so tools can check them the way protoc checks the gRPC
+    The REST version of the Renovation Revolution case study, written so tools can check them the way protoc checks the gRPC
     version. The Contractors calls match the gRPC and GraphQL versions call for call. The Orders, Rooms,
     and Webhooks calls belong to the server-to-client and system-to-system examples.
 servers:

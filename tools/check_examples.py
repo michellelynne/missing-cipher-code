@@ -1,6 +1,5 @@
-"""Checks the code examples in examples/ so the published versions stay correct and in step.
-
-Run it from the repo folder after changing any file in examples/:
+"""Checks the case study reference in case-study-reference/ so the published versions stay correct
+and in step. Run it from the repo folder after changing any file there:
 
     python3 tools/check_examples.py
 
@@ -14,16 +13,16 @@ It does two things.
      GraphQL          graphql-core
      REST (OpenAPI)   openapi-spec-validator
      Messaging        the official AsyncAPI parser (tools/check_asyncapi.mjs, after npm install)
-     API server       its own tests (examples/chapter-4/api/server/tests), which run every request in
+     API server       its own tests (case-study-reference/code/server/tests), which run every request in
                       the example files and check every response against openapi.yaml and asyncapi.yaml
 
    Install them with:
      pip install python-hcl2 ansible ansible-lint cfn-lint graphql-core openapi-spec-validator
-     pip install -r examples/chapter-4/api/server/requirements.txt
+     pip install -r case-study-reference/code/server/requirements.txt
      npm install
    Terraform itself comes from https://developer.hashicorp.com/terraform/install
 
-2. Reads the Terraform, Ansible, and CloudFormation versions of the Chapter 4 infrastructure into the
+2. Reads the Terraform, Ansible, and CloudFormation versions of the case study's infrastructure into the
    same shape and compares them setting by setting (ports, sources, sizes, names, the HTTPS redirect,
    scaling limits, database settings). The Terraform is the one printed in the book, so it is the
    reference; any difference in the other two is a failure.
@@ -39,9 +38,9 @@ import tempfile
 from pathlib import Path
 
 REPO_FOLDER = Path(__file__).resolve().parent.parent
-CHAPTER_FOUR_FOLDER = REPO_FOLDER / "examples" / "chapter-4"
-IAC_FOLDER = CHAPTER_FOUR_FOLDER / "infrastructure-as-code"
-API_FOLDER = CHAPTER_FOUR_FOLDER / "api"
+CASE_STUDY_FOLDER = REPO_FOLDER / "case-study-reference"
+IAC_FOLDER = CASE_STUDY_FOLDER / "infrastructure"
+API_FOLDER = CASE_STUDY_FOLDER / "code"
 TERRAFORM_PATH = IAC_FOLDER / "terraform" / "main.tf"
 ANSIBLE_PATH = IAC_FOLDER / "ansible" / "playbook.yml"
 CLOUDFORMATION_PATH = IAC_FOLDER / "cloudformation" / "template.yaml"
@@ -168,7 +167,7 @@ def check_api_server():
         import starlette  # noqa: F401
     except ImportError as missing_module:
         skipped.append("API server tests (" + str(missing_module) + ")")
-        print("  skip API server tests (pip install -r examples/chapter-4/api/server/requirements.txt)")
+        print("  skip API server tests (pip install -r case-study-reference/code/server/requirements.txt)")
         return
     completed = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider"],
                                cwd=server_folder, capture_output=True, text=True)

@@ -19,9 +19,9 @@ node skills/editor/tests/google-docs.test.cjs
 python3 -m unittest discover --start-directory skills/editor/tests --pattern "test_*.py"
 ```
 
-## Changing a code example
+## Changing the case study reference
 
-- Run `python3 tools/check_examples.py`. [examples/README.md](examples/README.md#check-your-changes)
+- Run `python3 tools/check_examples.py`. [case-study-reference/README.md](case-study-reference/README.md#check-your-changes)
   lists what to install; anything missing is skipped and named at the end.
 - Change Terraform, Ansible, and CloudFormation together. The check fails when they stop
   building the same thing.

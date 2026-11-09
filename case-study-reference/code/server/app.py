@@ -1,4 +1,4 @@
-"""Runs every Chapter 4 API example at once, sharing one Contractors Directory:
+"""Runs every Renovation Revolution API example at once, sharing one Contractors Directory:
 
   Demo page            http://localhost:8000/demo        (try every style from the browser)
   REST and messaging   http://localhost:8000/api/...    (openapi.yaml)

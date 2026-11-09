@@ -1,7 +1,7 @@
 # The Missing Cipher: code and AI skills
 
 [![Tests](https://github.com/michellelynne/missing-cipher-code/actions/workflows/tests.yml/badge.svg)](https://github.com/michellelynne/missing-cipher-code/actions/workflows/tests.yml)
-[![Code examples](https://github.com/michellelynne/missing-cipher-code/actions/workflows/examples.yml/badge.svg)](https://github.com/michellelynne/missing-cipher-code/actions/workflows/examples.yml)
+[![Case study reference](https://github.com/michellelynne/missing-cipher-code/actions/workflows/examples.yml/badge.svg)](https://github.com/michellelynne/missing-cipher-code/actions/workflows/examples.yml)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](LICENSE)
 
 Companion code for *The Missing Cipher: The Field Guide for Senior Software Engineers* by
@@ -11,8 +11,8 @@ Michelle Brenner (Packt). Everything here is free to use under [CC BY 4.0](LICEN
 |---|---|
 | [`skills/`](skills/) | 60 AI skills, one for each place the book tells you to use AI. Start with the [skills index](skills/README.md). |
 | [`skills/editor/`](skills/editor/) | The Editor: an AI skill that reviews any book manuscript, chapter by chapter or across the whole book, with fixes you approve. |
-| [`examples/`](examples/) | Working code from the book: Chapter 4's infrastructure in Terraform, Ansible, and CloudFormation, and its API in REST, gRPC, and GraphQL with a server you can run. Start with the [examples index](examples/README.md). |
-| [`tools/`](tools/) | Scripts that check the skills and the code examples, build the plugin catalog and release ZIPs, and report eval cost and speed. |
+| [`case-study-reference/`](case-study-reference/) | Code and infrastructure for Renovation Revolution, the book's case study: the infrastructure in Terraform, Ansible, and CloudFormation, and the API in REST, gRPC, and GraphQL with a server you can run. Start with its [README](case-study-reference/README.md). |
+| [`tools/`](tools/) | Scripts that check the skills and the case study reference, build the plugin catalog and release ZIPs, and report eval cost and speed. |
 
 ## Installing the skills
 
@@ -49,7 +49,7 @@ installing anything.
   treated as untrusted input.
 - Every push runs the [Tests workflow](.github/workflows/tests.yml): skill checks, the plugin
   catalog, linters, and the editor tool tests.
-- Every change to the code examples runs the [Code examples workflow](.github/workflows/examples.yml):
+- Every change to the case study reference runs the [Case study reference workflow](.github/workflows/examples.yml):
   real Terraform, Ansible, and CloudFormation linters, the API server's tests against PostgreSQL
   and a browser, and a Docker build.
 - The Editor's model evals compare runs with and without the skill. See

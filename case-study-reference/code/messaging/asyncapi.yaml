@@ -1,6 +1,6 @@
 asyncapi: 3.1.0
 info:
-  title: Renovation Revolution messaging (Chapter 4 examples)
+  title: Renovation Revolution messaging (case study reference)
   version: 1.0.0
   description: >
     The messages that aren't request and response: a queue for commands, an event bus for results,

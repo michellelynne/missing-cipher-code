@@ -1,4 +1,4 @@
--- The tables behind the Contractors Directory API (Chapter 4), for PostgreSQL 16 or newer.
+-- The tables behind the Contractors Directory API (Renovation Revolution), for PostgreSQL 16 or newer.
 --
 -- The example server keeps its data in memory so it runs with nothing installed. This is how you'd
 -- store the same data for real, with the rules the server checks written into the database too,
