@@ -56,3 +56,21 @@ jobs:
 
       - name: Release ZIPs build
         run: python tools/build_release.py
+
+  oldest-python:
+    # macOS still ships Python 3.9, so the scripts authors run must work on it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Scripts run on Python 3.9
+        run: |
+          python -m compileall -q tools skills/editor/scripts skills/editor/evals/tools
+          python tools/check_skills.py
+          python tools/build_catalog.py --check
+          python tools/run_evals.py --dry-run
+          python -m unittest discover --start-directory skills/editor/tests --pattern "test_*.py"

@@ -402,8 +402,8 @@ score without it: what the skill contributes beyond what the model already does.
 
     parts.append("<h2>Runs and plan usage</h2><table><tr><th>Started</th><th>What ran</th><th>Sessions</th><th>Minutes</th>"
                  "<th>Tokens</th><th>At API prices</th><th>Weekly limit</th><th>5-hour session</th></tr>")
-    for run, described in zip(runs, described_runs, strict=True):
-        run_folder = run.get("folder")
+    for run_index, described in enumerate(described_runs):
+        run_folder = runs[run_index].get("folder")
         what_ran = (str(described["cases"]) + " cases &times; " + described["runs_per_case"] + " run(s), " +
                     escape(", ".join(short_model_name(model) for model in described["models"]) or "model not recorded"))
         week_text = "&mdash;" if described["week_change"] is None else "{:+d} points".format(described["week_change"])
