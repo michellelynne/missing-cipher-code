@@ -1,6 +1,6 @@
 """Turns eval results into a short, readable HTML page anyone can follow.
 
-Usage: python3 tools/eval_summary.py [<aggregate-result.json> ...] [--output page.html]
+Usage: python3 tools/eval_summary.py [<aggregate-result.json> ...] [--plan "Claude Max 5x"] [--output page.html]
 
 tools/run_evals.py writes this page after every run, so you rarely need to run this yourself.
 With no files, it reads every run in skills/editor/evals/results/ and writes eval-summary.html
@@ -25,6 +25,8 @@ EVALS_FOLDER = REPOSITORY_FOLDER / "skills" / "editor" / "evals"
 RESULTS_FOLDER = EVALS_FOLDER / "results"
 USAGE_FILE_NAME = "plan-usage.json"
 OLD_USAGE_LOG_NAME = "plan-usage.csv"
+# The plan the usage was measured on. Set it with --plan, for example --plan "Claude Max 5x".
+DEFAULT_PLAN = "Claude Max"
 # The share of a 5-hour session above which an estimate warns that a run may hit the limit.
 SESSION_WARNING_POINTS = 80
 WITH_ARM = "with"
@@ -166,7 +168,7 @@ def load_runs(results_folder=RESULTS_FOLDER, result_paths=None):
         result = json.loads(result_path.read_text(encoding="utf-8"))
         usage_path = result_path.with_name(USAGE_FILE_NAME)
         usage = json.loads(usage_path.read_text(encoding="utf-8")) if usage_path.exists() else matching_old_usage(result, old_rows)
-        runs.append({"result": result, "usage": usage})
+        runs.append({"result": result, "usage": usage, "folder": result_path.parent})
     runs.sort(key=lambda run: run["result"].get("startedAt", ""))
     return runs
 
@@ -212,32 +214,54 @@ def short_model_name(model):
 
 
 def estimates(described_runs, case_count):
-    """Plan usage and tokens per session for each model, and what full runs would take."""
+    """Tokens, cost, and plan usage per session for each model, and what full runs would take.
+
+    Plan usage is measured only on some runs. For a model with no measured run, usage is scaled
+    from the measured model by cost per session, since plan limits track how much work a model
+    does; those rows are marked as scaled.
+    """
     by_model = {}
     for described in described_runs:
         if len(described["models"]) != 1 or described["sessions"] == 0:
             continue
-        totals = by_model.setdefault(described["models"][0], {"sessions": 0, "tokens": 0, "usage_sessions": 0,
-                                                             "week_points": 0, "session_points": 0, "session_sessions": 0})
+        totals = by_model.setdefault(described["models"][0], {"sessions": 0, "tokens": 0, "cost": 0, "usage_sessions": 0,
+                                                             "week_points": 0, "session_points": 0, "session_sessions": 0,
+                                                             "usage_cost": 0})
         totals["sessions"] = totals["sessions"] + described["sessions"]
         totals["tokens"] = totals["tokens"] + described["tokens"]
+        totals["cost"] = totals["cost"] + described["cost"]
         if described["week_change"] is not None:
             totals["usage_sessions"] = totals["usage_sessions"] + described["sessions"]
+            totals["usage_cost"] = totals["usage_cost"] + described["cost"]
             totals["week_points"] = totals["week_points"] + described["week_change"]
         if described["session_change"] is not None:
             totals["session_sessions"] = totals["session_sessions"] + described["sessions"]
             totals["session_points"] = totals["session_points"] + described["session_change"]
+
+    measured_models = [model for model, totals in by_model.items() if totals["usage_sessions"] and totals["usage_cost"]]
+    reference_model = max(measured_models, key=lambda model: by_model[model]["usage_sessions"]) if measured_models else None
     rows = []
     for model, totals in sorted(by_model.items()):
         tokens_each = totals["tokens"] / totals["sessions"]
+        cost_each = totals["cost"] / totals["sessions"]
         week_each = totals["week_points"] / totals["usage_sessions"] if totals["usage_sessions"] else None
         session_each = totals["session_points"] / totals["session_sessions"] if totals["session_sessions"] else None
+        basis = "measured"
+        if week_each is None and reference_model is not None:
+            reference = by_model[reference_model]
+            reference_cost_each = reference["usage_cost"] / reference["usage_sessions"]
+            scale = cost_each / reference_cost_each
+            week_each = reference["week_points"] / reference["usage_sessions"] * scale
+            if reference["session_sessions"]:
+                session_each = reference["session_points"] / reference["session_sessions"] * scale
+            basis = "scaled from " + short_model_name(reference_model) + " by cost per session (x{:.1f})".format(scale)
         for label, runs_per_case in (("Every case once", 1), ("Every case 3 times (the default)", 3)):
             sessions = case_count * 2 * runs_per_case
             rows.append({"model": model, "label": label, "sessions": sessions, "tokens": tokens_each * sessions,
+                         "cost": cost_each * sessions,
                          "week": None if week_each is None else week_each * sessions,
                          "session": None if session_each is None else session_each * sessions,
-                         "measured_sessions": totals["usage_sessions"]})
+                         "basis": basis})
     return rows
 
 
@@ -325,7 +349,7 @@ def pass_count_text(passed, total):
     return str(passed) + " of " + str(total)
 
 
-def build_page(runs):
+def build_page(runs, plan=DEFAULT_PLAN):
     result_files = [run["result"] for run in runs]
     described_runs = [describe_run(run) for run in runs]
     cases = [summarize_case(case) for case in latest_cases(result_files)]
@@ -378,12 +402,16 @@ score without it: what the skill contributes beyond what the model already does.
 
     parts.append("<h2>Runs and plan usage</h2><table><tr><th>Started</th><th>What ran</th><th>Sessions</th><th>Minutes</th>"
                  "<th>Tokens</th><th>At API prices</th><th>Weekly limit</th><th>5-hour session</th></tr>")
-    for described in described_runs:
+    for run, described in zip(runs, described_runs, strict=True):
+        run_folder = run.get("folder")
         what_ran = (str(described["cases"]) + " cases &times; " + described["runs_per_case"] + " run(s), " +
                     escape(", ".join(short_model_name(model) for model in described["models"]) or "model not recorded"))
         week_text = "&mdash;" if described["week_change"] is None else "{:+d} points".format(described["week_change"])
         session_text = "&mdash;" if described["session_change"] is None else "{:+d} points".format(described["session_change"])
-        parts.append('<tr><td class="value">' + escape(described["started"]) + "</td><td>" + what_ran + "</td><td>" +
+        report_link = ""
+        if run_folder is not None and (run_folder / "report.html").exists():
+            report_link = ' <a href="' + escape(run_folder.name) + '/report.html">detailed report</a>'
+        parts.append('<tr><td class="value">' + escape(described["started"]) + report_link + "</td><td>" + what_ran + "</td><td>" +
                      str(described["sessions"]) + "</td><td>" + str(described["minutes"]) + "</td><td>" +
                      tokens_text(described["tokens"]) + "</td><td>${:.2f}".format(described["cost"]) + "</td><td>" +
                      week_text + "</td><td>" + session_text + "</td></tr>")
@@ -396,20 +424,33 @@ score without it: what the skill contributes beyond what the model already does.
 
     estimate_rows = estimates(described_runs, len(all_case_names()))
     if estimate_rows:
-        parts.append("<h2>What a run takes</h2>"
-                     '<p class="muted small">Estimated from the runs above, per model, for all ' + str(len(all_case_names())) +
-                     " cases with and without the Editor.</p><table><tr><th>Model</th><th>Run</th><th>Sessions</th>"
-                     "<th>Tokens</th><th>Weekly limit</th><th>5-hour session</th></tr>")
+        parts.append("<h2>What a run takes (estimates)</h2>"
+                     '<p class="muted small">For all ' + str(len(all_case_names())) + " cases, with and without the Editor, on "
+                     + escape(plan) + ". Points are percentage points of the plan&rsquo;s weekly limit and of one 5-hour "
+                     "session.</p><table><tr><th>Model</th><th>Run</th><th>Sessions</th><th>Tokens</th><th>At API prices</th>"
+                     "<th>Weekly limit</th><th>5-hour session</th></tr>")
         for row in estimate_rows:
             session_text = points_text(row["session"]) + ("" if row["session"] is None else " points")
             if row["session"] is not None and row["session"] >= SESSION_WARNING_POINTS:
-                session_text = session_text + ' <span class="warn">may hit the limit; start in a fresh session or use --rerun</span>'
+                session_text = session_text + ' <span class="warn">' + ("more than one session; " if row["session"] > 100 else "may hit the limit; ") + "split it with --rerun or start in a fresh session</span>"
             parts.append("<tr><td>" + escape(short_model_name(row["model"])) + "</td><td>" + escape(row["label"]) + "</td><td>" +
-                         str(row["sessions"]) + "</td><td>" + tokens_text(row["tokens"]) + "</td><td>" +
-                         points_text(row["week"]) + ("" if row["week"] is None else " points") + "</td><td>" + session_text + "</td></tr>")
+                         str(row["sessions"]) + "</td><td>" + tokens_text(row["tokens"]) + "</td><td>${:.0f}".format(row["cost"]) +
+                         "</td><td>" + points_text(row["week"]) + ("" if row["week"] is None else " points") + "</td><td>" +
+                         session_text + "</td></tr>")
         parts.append("</table>")
-        parts.append('<p class="muted small">Plan estimates use the sessions where usage was measured. They get better with '
-                     "every run, and a model with no measured run shows tokens only.</p>")
+        bases = sorted({short_model_name(row["model"]) + ": " + row["basis"] for row in estimate_rows})
+        parts.append('<p class="muted small">How these are estimated: tokens and cost come from the sessions each model has '
+                     "run so far. Plan usage per session is " + escape("; ".join(bases)) + ". Plan limits track how much work "
+                     "a model does, so a model that costs more per session uses more of the plan; that scaling is an "
+                     "estimate until a run on that model is measured. <code>/usage</code> shows whole percentages, so "
+                     "every plan figure is approximate.</p>")
+        parts.append('<div class="explain"><strong>About the plan.</strong> These numbers were measured on ' + escape(plan) +
+                     ". Claude&rsquo;s paid plans share one usage pool between the Claude apps and Claude Code, with a limit "
+                     "per 5-hour session and a weekly limit. Max comes in two tiers: Max 5x ($100 a month) gives five times "
+                     "Pro&rsquo;s usage per session, and Max 20x ($200 a month) gives twenty times. So a run that uses 10 "
+                     "points of a 5-hour session on Max 5x would use about 50 on Pro and about 2.5 on Max 20x. The weekly "
+                     "limits don&rsquo;t scale by exactly the same factors, so treat weekly figures on other plans as rough. "
+                     "With an API key instead of a plan, runs are billed at the API prices shown.</div>")
 
     parts.append("<h2>Checks that didn&rsquo;t always pass with the Editor</h2>")
     any_failures = False
@@ -470,6 +511,11 @@ def main():
         output_index = arguments.index("--output")
         output_path = Path(arguments[output_index + 1])
         arguments = arguments[:output_index] + arguments[output_index + 2:]
+    plan = DEFAULT_PLAN
+    if "--plan" in arguments:
+        plan_index = arguments.index("--plan")
+        plan = arguments[plan_index + 1]
+        arguments = arguments[:plan_index] + arguments[plan_index + 2:]
     if arguments:
         result_paths = [Path(argument) for argument in arguments]
         runs = load_runs(result_paths[0].parent.parent, result_paths)
@@ -479,7 +525,7 @@ def main():
         output_path = output_path or RESULTS_FOLDER / "eval-summary.html"
     if not runs:
         raise SystemExit("No results yet. Run: python3 tools/run_evals.py")
-    output_path.write_text(build_page(runs), encoding="utf-8")
+    output_path.write_text(build_page(runs, plan), encoding="utf-8")
     print("Wrote", output_path)
 
 

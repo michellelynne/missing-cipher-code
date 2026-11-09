@@ -161,6 +161,10 @@ explains how to read it and covers every run so far:
 - estimates of what a full run takes on each model, including a warning when a run may hit the
   5-hour usage limit
 
+Each run also links to Claude Code's own detailed report for that run, with every prompt,
+transcript, and grader verdict. To name your Claude plan on the page, add
+`--plan "Claude Max 5x"` (or set `EVAL_PLAN_NAME` once in your shell).
+
 **Plan usage is measured for you.** On a Claude subscription, the script reads Claude Code's
 `/usage` screen before and after the run (about a minute in all) and saves the change with the
 run. It needs `expect`, which comes with macOS. Don't use Claude for anything else during a run,
@@ -168,7 +172,6 @@ since that counts too. With an API key there's no plan to measure, and the page 
 instead. Add `--no-usage` to skip it. Want usage measured for something other than the evals?
 [Open an issue](https://github.com/michellelynne/missing-cipher-code/issues).
 
-Claude Code's own detailed report for each run is in `skills/editor/evals/results/<time>/`.
 Results are ignored by git, so a run never gets committed by accident.
 
 **`--rerun`** picks the cases that scored below 100% with the Editor, had a run that errored, or
