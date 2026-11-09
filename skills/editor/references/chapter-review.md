@@ -69,8 +69,10 @@ changed. If they do not, ask the questions below.
     approved it. Explain the option for where the chapter lives (question 3), what each side does,
     and what it takes to set up, then let them choose.
 
-    First, tell them plainly what it's like, so they can decide with confidence. **The author
-    stays in charge of every change:**
+    First, tell them plainly what it's like, so they can decide with confidence. Always include
+    this sentence, even when setup is shortened: "Nothing changes until you approve the specific
+    fixes, and you choose when each batch runs." Then, as space allows, **the author stays in
+    charge of every change:**
     - Nothing changes until they approve the specific fixes. Approving a finding doesn't run
       anything; they decide when a batch runs, and "not now" is always fine.
     - Before anything changes, they see every fix's before and after text, and fixes that no
@@ -197,7 +199,10 @@ batch. Then:
    may have edited since the review:
    - The search string appears exactly once between the chapter markers. If it appears more than
      once, lengthen it until it is unique.
-   - It stays inside one paragraph.
+   - It stays inside one paragraph. When the same text is a whole paragraph more than once (a
+     refrain, a repeated line) and can't be lengthened, add `after`: text that appears once, in an
+     earlier paragraph. The fix changes the first match after that paragraph. The Google Docs and
+     Markdown tools support `after`; with the Word macros it stays a hand fix.
    - It copies the chapter's characters exactly, including curly or straight quotes and dashes.
    - A deletion includes a few words on each side (find "costs. Now that we... pricing. The",
      replace "costs. The"), so the check can tell a finished deletion from text that never matched.
@@ -209,8 +214,22 @@ batch. Then:
    A fix that fails these checks becomes a hand fix with its search string.
 3. **Deliver it for where the chapter lives:**
    - *Google Docs editor tools:* the `FIX_BATCH` block that replaces the one in `Fixes.gs`, as text
-     to paste (fields: `id`, `doc` for the Doc's exact name, `find`, `replace`, and `kind` for
-     `replaceAll`, `insertAfter`, `deleteParagraph`, or `link`).
+     to paste, in exactly this shape (an object with `name` and a `fixes` list, declared with
+     `var`):
+
+     ```javascript
+     var FIX_BATCH = {
+       name: 'Chapter 2, Pass 1 approved fixes',
+       fixes: [
+         { id: 'P1-4', doc: 'Chapter 2 Opening Day', find: 'In order to open on time', replace: 'To open on time' },
+         { id: 'P1-9', doc: 'Chapter 2 Opening Day', find: 'Keep going.', replace: 'Keep baking.', after: 'The second batch came out flat.' }
+       ]
+     };
+     ```
+
+     Fields: `id`, `doc` for the Doc's exact name, `find`, `replace`, an optional `after`, and
+     `kind` only for `replaceAll`, `insertAfter`, `deleteParagraph`, or `link` (leave it out for a
+     plain replace).
    - *Word editor tools:* the full code of the `EditorBatch` module, as text to paste over that
      module's code (start at `Option Explicit`; one `Array(id, find, replace)` per fix; any
      character outside plain ASCII written as `ChrW(code)`).
@@ -295,7 +314,11 @@ review. Only the author changes them, by saying so.
 - **Every instance, not a sample.** When a problem is found, search the whole chapter and list every
   instance. The author fixes from the list, so an instance left off is a fix that gets missed.
 - **Every finding is actionable.** Give each one a number, a search string the author can paste into
-  Find, and the suggested change. A flag with no fix stalls.
+  Find, and the suggested change. A flag with no fix stalls. When another finding's change already
+  fixes it, still give its search string and say which finding covers it ("covered by #9"). A
+  finding that needs the author's answer first gives its search string and the question. Counts
+  and summaries (how many rhetorical questions per section) aren't findings; put them under the
+  findings they support.
 - **Fixes follow the style guide.** Check every suggested rewrite against the style guide's prose
   patterns before presenting it. If it ends on a preposition, adds filler, or trades one pattern for
   another, rewrite it again.

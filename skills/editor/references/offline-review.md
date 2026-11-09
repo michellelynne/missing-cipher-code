@@ -34,6 +34,8 @@ Run the review as written first. Then build the pack from its findings.
   with that code (`P1-1`, `P1-2`), so the exported marks point straight back to them. Use codes that
   will not collide with another pack the author is working through at the same time.
 - **An index page** (`index.html`) with one card per page, its finding count, and a progress bar.
+- **A plain-text copy** (`findings.md`) with every finding in the same order and with the same
+  numbers, search strings, and fixes, for printing, a screen reader, or sending to an editor.
 - **Each finding** as one card with the same fields the review uses: chapter and section, the search
   string with a Copy button, a label (**Script** if a script can make the change, **Hand** if the
   author has to make it, **Mixed** if both), the problem, and the fix. Group findings under
