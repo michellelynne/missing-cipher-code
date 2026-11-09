@@ -1,0 +1,637 @@
+# The Contractors API in GraphQL. Every request here runs against the example server in server/,
+# and every response is what it really sends back; server/tests/test_example_files.py checks that.
+#
+# Run them in order with the REST Client extension for VS Code, which reads the query, a blank line,
+# then the variables. Or open http://localhost:8000/graphql in a browser and paste them in.
+# Start the server first (python3 server/app.py). The IDs c_8f3a2b and c_51d2e0 stand for the two
+# profiles the first two requests create; put in the IDs your server sends back.
+
+@baseUrl = http://localhost:8000
+
+### Create Contractor Profile
+# The email and phone number aren't in the input. They come from sign-in.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer contractor-token
+X-Request-Type: GraphQL
+
+mutation CreateContractorProfile($input: CreateContractorProfileInput!) {
+  createContractorProfile(input: $input) {
+    contractorId
+    companyName
+    services
+    serviceArea
+    availability
+    insuranceExpiresOn
+    reviews {
+      authorName
+      body
+      rating
+    }
+  }
+}
+
+{
+  "input": {
+    "companyName": "Acme Renovations",
+    "services": ["Painting", "Flooring"],
+    "serviceArea": "Los Angeles, CA",
+    "availability": "OPEN",
+    "insuranceExpiresOn": "2027-03-31"
+  }
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "createContractorProfile": {
+#       "contractorId": "c_8f3a2b",
+#       "companyName": "Acme Renovations",
+#       "services": ["Painting", "Flooring"],
+#       "serviceArea": "Los Angeles, CA",
+#       "availability": "OPEN",
+#       "insuranceExpiresOn": "2027-03-31",
+#       "reviews": []
+#     }
+#   }
+# }
+
+### Create a Second Profile
+# Signed in as a different contractor, so the directory has two profiles to list.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer second-contractor-token
+X-Request-Type: GraphQL
+
+mutation CreateContractorProfile($input: CreateContractorProfileInput!) {
+  createContractorProfile(input: $input) {
+    contractorId
+    companyName
+  }
+}
+
+{
+  "input": {
+    "companyName": "Bright Kitchen & Bath",
+    "services": ["Kitchen Remodel", "Bathroom Remodel"],
+    "serviceArea": "Los Angeles, CA",
+    "availability": "OPEN"
+  }
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "createContractorProfile": {
+#       "contractorId": "c_51d2e0",
+#       "companyName": "Bright Kitchen & Bath"
+#     }
+#   }
+# }
+
+### Get Contractor Profile
+# Ask for only the fields this screen shows.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer homeowner-token
+X-Request-Type: GraphQL
+
+query ContractorProfile($contractorId: ID!) {
+  contractorProfile(contractorId: $contractorId) {
+    companyName
+    services
+    availability
+    reviews {
+      rating
+    }
+  }
+}
+
+{
+  "contractorId": "c_8f3a2b"
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "contractorProfile": {
+#       "companyName": "Acme Renovations",
+#       "services": ["Painting", "Flooring"],
+#       "availability": "OPEN",
+#       "reviews": []
+#     }
+#   }
+# }
+
+### List Contractors for the Directory
+# Takes the same filters the directory offers.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer homeowner-token
+X-Request-Type: GraphQL
+
+query ContractorDirectory($service: String, $serviceArea: String, $availability: Availability) {
+  contractorProfiles(service: $service, serviceArea: $serviceArea, availability: $availability) {
+    contractorProfiles {
+      contractorId
+      companyName
+      availability
+    }
+    nextPageToken
+  }
+}
+
+{
+  "service": "Kitchen Remodel",
+  "serviceArea": "Los Angeles, CA",
+  "availability": "OPEN"
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "contractorProfiles": {
+#       "contractorProfiles": [
+#         {
+#           "contractorId": "c_51d2e0",
+#           "companyName": "Bright Kitchen & Bath",
+#           "availability": "OPEN"
+#         }
+#       ],
+#       "nextPageToken": null
+#     }
+#   }
+# }
+
+### List One Page at a Time
+# nextPageToken comes back until the last page, where it's null.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer homeowner-token
+X-Request-Type: GraphQL
+
+query ContractorDirectoryPage($pageSize: Int, $pageToken: String) {
+  contractorProfiles(serviceArea: "Los Angeles, CA", pageSize: $pageSize, pageToken: $pageToken) {
+    contractorProfiles {
+      contractorId
+      companyName
+    }
+    nextPageToken
+  }
+}
+
+{
+  "pageSize": 1
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "contractorProfiles": {
+#       "contractorProfiles": [
+#         {
+#           "contractorId": "c_8f3a2b",
+#           "companyName": "Acme Renovations"
+#         }
+#       ],
+#       "nextPageToken": "b2Zmc2V0OjE="
+#     }
+#   }
+# }
+
+### Get the Next Page
+# Send the nextPageToken from the previous response as pageToken.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer homeowner-token
+X-Request-Type: GraphQL
+
+query ContractorDirectoryPage($pageSize: Int, $pageToken: String) {
+  contractorProfiles(serviceArea: "Los Angeles, CA", pageSize: $pageSize, pageToken: $pageToken) {
+    contractorProfiles {
+      contractorId
+      companyName
+    }
+    nextPageToken
+  }
+}
+
+{
+  "pageSize": 1,
+  "pageToken": "b2Zmc2V0OjE="
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "contractorProfiles": {
+#       "contractorProfiles": [
+#         {
+#           "contractorId": "c_51d2e0",
+#           "companyName": "Bright Kitchen & Bath"
+#         }
+#       ],
+#       "nextPageToken": null
+#     }
+#   }
+# }
+
+### Update Contractor Profile
+# Fields left out of the input stay as they are. Send insuranceExpiresOn as null to clear it.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer contractor-token
+X-Request-Type: GraphQL
+
+mutation UpdateContractorProfile($contractorId: ID!, $input: UpdateContractorProfileInput!) {
+  updateContractorProfile(contractorId: $contractorId, input: $input) {
+    contractorId
+    availability
+  }
+}
+
+{
+  "contractorId": "c_8f3a2b",
+  "input": {
+    "availability": "LIMITED"
+  }
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "updateContractorProfile": {
+#       "contractorId": "c_8f3a2b",
+#       "availability": "LIMITED"
+#     }
+#   }
+# }
+
+### Create Review
+# The reviewer comes from sign-in. The Idempotency-Key header makes it safe to retry: any unique string
+# works, like a UUID, and a retry with the same key and request gets this same result back.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer homeowner-token
+Idempotency-Key: 5b0f3c1e-8a4d-4f7e-9c2b-1d6e7a8f9b30
+X-Request-Type: GraphQL
+
+mutation CreateReview($contractorId: ID!, $input: CreateReviewInput!) {
+  createReview(contractorId: $contractorId, input: $input) {
+    authorName
+    body
+    rating
+  }
+}
+
+{
+  "contractorId": "c_8f3a2b",
+  "input": {
+    "rating": 5,
+    "body": "They found the leak behind the tile and fixed it the same day."
+  }
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "createReview": {
+#       "authorName": "Hana Okafor",
+#       "body": "They found the leak behind the tile and fixed it the same day.",
+#       "rating": 5
+#     }
+#   }
+# }
+
+### Retry the Same Review
+# The connection dropped before the response arrived, so the app sends the same request again.
+# It gets the saved result back, and no second review is added.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer homeowner-token
+Idempotency-Key: 5b0f3c1e-8a4d-4f7e-9c2b-1d6e7a8f9b30
+X-Request-Type: GraphQL
+
+mutation CreateReview($contractorId: ID!, $input: CreateReviewInput!) {
+  createReview(contractorId: $contractorId, input: $input) {
+    authorName
+    body
+    rating
+  }
+}
+
+{
+  "contractorId": "c_8f3a2b",
+  "input": {
+    "rating": 5,
+    "body": "They found the leak behind the tile and fixed it the same day."
+  }
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "createReview": {
+#       "authorName": "Hana Okafor",
+#       "body": "They found the leak behind the tile and fixed it the same day.",
+#       "rating": 5
+#     }
+#   }
+# }
+
+### Error: A Field Is Missing or Malformed
+# Errors come back in errors, with extensions.code. When nothing at all could be returned (data is null),
+# this server also answers HTTP 400; otherwise it answers 200, so always check errors.
+# Expect: 400
+POST {{baseUrl}}/graphql
+Authorization: Bearer homeowner-token
+X-Request-Type: GraphQL
+
+mutation CreateContractorProfile($input: CreateContractorProfileInput!) {
+  createContractorProfile(input: $input) {
+    contractorId
+  }
+}
+
+{
+  "input": {
+    "companyName": "",
+    "services": [],
+    "serviceArea": "Los Angeles, CA",
+    "availability": "OPEN",
+    "insuranceExpiresOn": "next March"
+  }
+}
+
+# Response: 400 Bad Request
+#
+# {
+#   "data": null,
+#   "errors": [
+#     {
+#       "message": "Some fields aren't valid: companyName, services, insuranceExpiresOn",
+#       "locations": [
+#         {
+#           "line": 2,
+#           "column": 3
+#         }
+#       ],
+#       "path": ["createContractorProfile"],
+#       "extensions": {
+#         "code": "BAD_USER_INPUT",
+#         "fieldErrors": [
+#           {
+#             "field": "companyName",
+#             "message": "This field is required."
+#           },
+#           {
+#             "field": "services",
+#             "message": "This field is required."
+#           },
+#           {
+#             "field": "insuranceExpiresOn",
+#             "message": "Use a date like 2027-03-31."
+#           }
+#         ]
+#       }
+#     }
+#   ]
+# }
+
+### Error: Not Signed In
+# Expect: 200
+POST {{baseUrl}}/graphql
+X-Request-Type: GraphQL
+
+query ContractorProfile($contractorId: ID!) {
+  contractorProfile(contractorId: $contractorId) {
+    companyName
+  }
+}
+
+{
+  "contractorId": "c_8f3a2b"
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "contractorProfile": null
+#   },
+#   "errors": [
+#     {
+#       "message": "Sign in first. Send your token as Authorization: Bearer <token>.",
+#       "locations": [
+#         {
+#           "line": 2,
+#           "column": 3
+#         }
+#       ],
+#       "path": ["contractorProfile"],
+#       "extensions": {
+#         "code": "UNAUTHENTICATED"
+#       }
+#     }
+#   ]
+# }
+
+### Error: Not Allowed
+# Signed in as the other contractor, who doesn't own this profile.
+# Expect: 400
+POST {{baseUrl}}/graphql
+Authorization: Bearer second-contractor-token
+X-Request-Type: GraphQL
+
+mutation UpdateContractorProfile($contractorId: ID!, $input: UpdateContractorProfileInput!) {
+  updateContractorProfile(contractorId: $contractorId, input: $input) {
+    availability
+  }
+}
+
+{
+  "contractorId": "c_8f3a2b",
+  "input": {
+    "availability": "BOOKED"
+  }
+}
+
+# Response: 400 Bad Request
+#
+# {
+#   "data": null,
+#   "errors": [
+#     {
+#       "message": "Only the profile's owner can change it.",
+#       "locations": [
+#         {
+#           "line": 2,
+#           "column": 3
+#         }
+#       ],
+#       "path": ["updateContractorProfile"],
+#       "extensions": {
+#         "code": "FORBIDDEN"
+#       }
+#     }
+#   ]
+# }
+
+### Error: Not Found
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer homeowner-token
+X-Request-Type: GraphQL
+
+query ContractorProfile($contractorId: ID!) {
+  contractorProfile(contractorId: $contractorId) {
+    companyName
+  }
+}
+
+{
+  "contractorId": "c_000000"
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "contractorProfile": null
+#   },
+#   "errors": [
+#     {
+#       "message": "There's no contractor profile with the ID c_000000.",
+#       "locations": [
+#         {
+#           "line": 2,
+#           "column": 3
+#         }
+#       ],
+#       "path": ["contractorProfile"],
+#       "extensions": {
+#         "code": "NOT_FOUND"
+#       }
+#     }
+#   ]
+# }
+
+### Error: Already Exists
+# Each user can have one contractor profile.
+# Expect: 400
+POST {{baseUrl}}/graphql
+Authorization: Bearer contractor-token
+X-Request-Type: GraphQL
+
+mutation CreateContractorProfile($input: CreateContractorProfileInput!) {
+  createContractorProfile(input: $input) {
+    contractorId
+  }
+}
+
+{
+  "input": {
+    "companyName": "Acme Renovations West",
+    "services": ["Painting"],
+    "serviceArea": "Pasadena, CA",
+    "availability": "OPEN"
+  }
+}
+
+# Response: 400 Bad Request
+#
+# {
+#   "data": null,
+#   "errors": [
+#     {
+#       "message": "You already have a contractor profile: c_8f3a2b.",
+#       "locations": [
+#         {
+#           "line": 2,
+#           "column": 3
+#         }
+#       ],
+#       "path": ["createContractorProfile"],
+#       "extensions": {
+#         "code": "ALREADY_EXISTS"
+#       }
+#     }
+#   ]
+# }
+
+### Error: Idempotency Key Reused
+# The same key with a different request. Use a new key for each new request.
+# Expect: 400
+POST {{baseUrl}}/graphql
+Authorization: Bearer homeowner-token
+Idempotency-Key: 5b0f3c1e-8a4d-4f7e-9c2b-1d6e7a8f9b30
+X-Request-Type: GraphQL
+
+mutation CreateReview($contractorId: ID!, $input: CreateReviewInput!) {
+  createReview(contractorId: $contractorId, input: $input) {
+    authorName
+    body
+    rating
+  }
+}
+
+{
+  "contractorId": "c_8f3a2b",
+  "input": {
+    "rating": 4,
+    "body": "They found the leak behind the tile and fixed it the same day."
+  }
+}
+
+# Response: 400 Bad Request
+#
+# {
+#   "data": null,
+#   "errors": [
+#     {
+#       "message": "This idempotency key was already used for a different request. Use a new key for each new request.",
+#       "locations": [
+#         {
+#           "line": 2,
+#           "column": 3
+#         }
+#       ],
+#       "path": ["createReview"],
+#       "extensions": {
+#         "code": "IDEMPOTENCY_KEY_REUSED"
+#       }
+#     }
+#   ]
+# }
+
+### Delete Contractor Profile
+# Returns the ID of the deleted profile.
+# Expect: 200
+POST {{baseUrl}}/graphql
+Authorization: Bearer second-contractor-token
+X-Request-Type: GraphQL
+
+mutation DeleteContractorProfile($contractorId: ID!) {
+  deleteContractorProfile(contractorId: $contractorId)
+}
+
+{
+  "contractorId": "c_51d2e0"
+}
+
+# Response: 200 OK
+#
+# {
+#   "data": {
+#     "deleteContractorProfile": "c_51d2e0"
+#   }
+# }

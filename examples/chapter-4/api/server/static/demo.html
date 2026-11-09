@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Renovation Revolution API demo</title>
+  <style>
+    :root { --navy: #003049; --teal: #0E6E6E; --paper: #F6F8F9; --rule: #D5DEE3; --red: #B92D28; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; color: var(--navy); background: var(--paper); line-height: 1.5; }
+    header { background: var(--navy); color: #fff; padding: 24px clamp(16px, 5vw, 48px); }
+    header h1 { margin: 0 0 4px; font-size: 1.6rem; }
+    header p { margin: 0; opacity: 0.85; }
+    main { max-width: 960px; margin: 0 auto; padding: 24px clamp(16px, 5vw, 48px) 64px; display: grid; gap: 20px; }
+    section { background: #fff; border: 1px solid var(--rule); border-radius: 10px; padding: 18px 20px; }
+    h2 { margin: 0 0 4px; font-size: 1.15rem; }
+    .what { margin: 0 0 12px; color: #4A6475; font-size: 0.95rem; }
+    button { font: inherit; font-weight: 600; color: #fff; background: var(--teal); border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: default; }
+    button.quiet { background: #fff; color: var(--teal); border: 1px solid var(--teal); }
+    input, select { font: inherit; padding: 7px 10px; border: 1px solid var(--rule); border-radius: 6px; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+    pre { margin: 0; padding: 12px; background: var(--paper); border-radius: 6px; overflow: auto; max-height: 260px; font-size: 0.85rem; white-space: pre-wrap; }
+    progress { width: 100%; height: 14px; }
+    .chat { list-style: none; margin: 0 0 10px; padding: 10px; background: var(--paper); border-radius: 6px; min-height: 80px; max-height: 220px; overflow: auto; }
+    .chat li { margin-bottom: 6px; }
+    .error { color: var(--red); }
+    :focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Renovation Revolution API demo</h1>
+    <p>The Chapter 4 examples from the browser's side. Everything here talks to the example server you're running.</p>
+  </header>
+  <main>
+    <section aria-labelledby="who-title">
+      <h2 id="who-title">Signed in as</h2>
+      <p class="what">The server's demo tokens. Every request below sends this one.</p>
+      <div class="row">
+        <label for="token">Token</label>
+        <select id="token">
+          <option value="contractor-token">Acme Renovations (contractor)</option>
+          <option value="second-contractor-token">Bright Kitchen &amp; Bath (contractor)</option>
+          <option value="homeowner-token">Hana Okafor (homeowner)</option>
+        </select>
+      </div>
+    </section>
+
+    <section aria-labelledby="rest-title">
+      <h2 id="rest-title">REST: create a profile, safe to retry</h2>
+      <p class="what">POST /api/contractors with an Idempotency-Key. "Send it again" repeats the exact request, the way an app does after a dropped connection: the server returns the first response, marked as a replay, instead of a 409.</p>
+      <div class="row">
+        <button id="rest-create" type="button">Create my profile</button>
+        <button id="rest-retry" type="button" class="quiet" disabled>Send it again</button>
+      </div>
+      <pre id="rest-output" aria-live="polite">Nothing sent yet.</pre>
+    </section>
+
+    <section aria-labelledby="graphql-title">
+      <h2 id="graphql-title">GraphQL: search the directory</h2>
+      <p class="what">One query asks for exactly the fields this list shows, and nothing else.</p>
+      <form id="graphql-form" class="row">
+        <label for="graphql-service">Service</label>
+        <input id="graphql-service" value="Painting">
+        <button type="submit">Search</button>
+      </form>
+      <pre id="graphql-output" aria-live="polite">No search yet.</pre>
+    </section>
+
+    <section aria-labelledby="events-title">
+      <h2 id="events-title">Server-sent events: analyze 40 photos</h2>
+      <p class="what">The upload answers 202 right away. Progress then arrives over one open connection, from the image analysis service, through the queue and event bus.</p>
+      <div class="row"><button id="events-start" type="button">Upload 40 photos</button></div>
+      <progress id="events-progress" max="40" value="0" aria-label="Photos analyzed"></progress>
+      <pre id="events-output" aria-live="polite">No upload yet.</pre>
+    </section>
+
+    <section aria-labelledby="socket-title">
+      <h2 id="socket-title">WebSocket: talk to your contractor</h2>
+      <p class="what">One connection both ways. Open this page in a second window as the other person to see messages arrive without a refresh.</p>
+      <div class="row">
+        <button id="socket-connect" type="button">Join the conversation</button>
+      </div>
+      <ul id="socket-messages" class="chat" aria-live="polite"></ul>
+      <form id="socket-form" class="row">
+        <label for="socket-text">Message</label>
+        <input id="socket-text" value="Should the cabinets stay?" disabled>
+        <button id="socket-send" type="submit" disabled>Send</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="polling-title">
+      <h2 id="polling-title">Polling: track a delivery</h2>
+      <p class="what">Asks every 3 seconds, sending back the last ETag. Most answers are 304 Not Modified, with no body.</p>
+      <div class="row">
+        <button id="polling-start" type="button">Start polling</button>
+        <button id="polling-stop" type="button" class="quiet" disabled>Stop</button>
+      </div>
+      <pre id="polling-output" aria-live="polite">Not polling.</pre>
+    </section>
+  </main>
+
+  <script>
+    function currentToken() {
+      return document.getElementById("token").value;
+    }
+
+    function authorizationHeaders() {
+      return { "Authorization": "Bearer " + currentToken() };
+    }
+
+    function show(elementId, text, isError) {
+      const element = document.getElementById(elementId);
+      element.textContent = text;
+      element.classList.toggle("error", Boolean(isError));
+    }
+
+    // ---------- REST ----------
+    let lastCreate = null;
+
+    async function sendCreate(createRequest) {
+      const response = await fetch("/api/contractors", {
+        method: "POST",
+        headers: Object.assign({ "Content-Type": "application/json", "Idempotency-Key": createRequest.idempotencyKey }, authorizationHeaders()),
+        body: JSON.stringify(createRequest.body),
+      });
+      const replayed = response.headers.get("Idempotent-Replayed") === "true";
+      const responseBody = await response.json();
+      show("rest-output", response.status + (replayed ? " (Idempotent-Replayed: true)" : "") + "\n" + JSON.stringify(responseBody, null, 2), !response.ok);
+    }
+
+    document.getElementById("rest-create").addEventListener("click", function () {
+      lastCreate = {
+        idempotencyKey: crypto.randomUUID(),
+        body: { companyName: "My Renovation Co.", services: ["Painting"], serviceArea: "Los Angeles, CA", availability: "OPEN" },
+      };
+      document.getElementById("rest-retry").disabled = false;
+      sendCreate(lastCreate);
+    });
+
+    document.getElementById("rest-retry").addEventListener("click", function () {
+      sendCreate(lastCreate);
+    });
+
+    // ---------- GraphQL ----------
+    document.getElementById("graphql-form").addEventListener("submit", async function (submitEvent) {
+      submitEvent.preventDefault();
+      const query = "query Directory($service: String) { contractorProfiles(service: $service) { contractorProfiles { companyName serviceArea availability } nextPageToken } }";
+      const response = await fetch("/graphql", {
+        method: "POST",
+        headers: Object.assign({ "Content-Type": "application/json" }, authorizationHeaders()),
+        body: JSON.stringify({ query: query, variables: { service: document.getElementById("graphql-service").value } }),
+      });
+      const result = await response.json();
+      if (result.errors) {
+        show("graphql-output", result.errors[0].extensions.code + ": " + result.errors[0].message, true);
+        return;
+      }
+      const profiles = result.data.contractorProfiles.contractorProfiles;
+      show("graphql-output", profiles.length === 0
+        ? "No contractors offer that yet. Create a profile above first."
+        : profiles.map(function (profile) { return profile.companyName + ", " + profile.serviceArea + ", " + profile.availability; }).join("\n"));
+    });
+
+    // ---------- Server-sent events ----------
+    document.getElementById("events-start").addEventListener("click", async function () {
+      const startButton = document.getElementById("events-start");
+      startButton.disabled = true;
+      const response = await fetch("/api/rooms/r_42/photo-batches", {
+        method: "POST",
+        headers: Object.assign({ "Content-Type": "application/json" }, authorizationHeaders()),
+        body: JSON.stringify({ photoLocation: "s3://renovation-uploads/rooms/r_42/demo/", photoCount: 40 }),
+      });
+      const accepted = await response.json();
+      show("events-output", response.status + " " + accepted.status + ", batch " + accepted.batchId);
+      // EventSource can't send headers, so the token goes in the URL.
+      const eventSource = new EventSource(accepted.eventsUrl + "?token=" + encodeURIComponent(currentToken()));
+      eventSource.addEventListener("progress", function (message) {
+        const progress = JSON.parse(message.data);
+        document.getElementById("events-progress").value = progress.analyzed;
+        show("events-output", "Analyzed " + progress.analyzed + " of " + progress.total + " photos");
+      });
+      eventSource.addEventListener("completed", function (message) {
+        const completed = JSON.parse(message.data);
+        document.getElementById("events-progress").value = 40;
+        show("events-output", "Done. Found:\n" + completed.findings.map(function (finding) {
+          return finding.condition + " " + finding.material + " " + finding.component;
+        }).join("\n"));
+        eventSource.close();
+        startButton.disabled = false;
+      });
+    });
+
+    // ---------- WebSocket ----------
+    let socket = null;
+
+    function addMessage(text, isError) {
+      const item = document.createElement("li");
+      item.textContent = text;
+      if (isError) {
+        item.className = "error";
+      }
+      document.getElementById("socket-messages").appendChild(item);
+    }
+
+    document.getElementById("socket-connect").addEventListener("click", function () {
+      const address = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws/conversations/conv_1";
+      socket = new WebSocket(address);
+      socket.addEventListener("open", function () {
+        // Browsers can't add headers to a WebSocket, so the token comes in the first message.
+        socket.send(JSON.stringify({ type: "authenticate", token: currentToken() }));
+        document.getElementById("socket-text").disabled = false;
+        document.getElementById("socket-send").disabled = false;
+        document.getElementById("socket-connect").disabled = true;
+        addMessage("Connected.");
+      });
+      socket.addEventListener("message", function (message) {
+        const frame = JSON.parse(message.data);
+        if (frame.type === "message") {
+          addMessage(frame.senderName + ": " + frame.text);
+        } else {
+          addMessage(frame.code + ": " + frame.message, true);
+        }
+      });
+      socket.addEventListener("close", function (closeEvent) {
+        addMessage("Connection closed (" + closeEvent.code + ").");
+        document.getElementById("socket-text").disabled = true;
+        document.getElementById("socket-send").disabled = true;
+        document.getElementById("socket-connect").disabled = false;
+      });
+    });
+
+    document.getElementById("socket-form").addEventListener("submit", function (submitEvent) {
+      submitEvent.preventDefault();
+      const textInput = document.getElementById("socket-text");
+      socket.send(JSON.stringify({ type: "send", text: textInput.value }));
+      textInput.value = "";
+    });
+
+    // ---------- Polling ----------
+    let pollingTimer = null;
+    let lastEntityTag = null;
+    let pollLog = [];
+
+    async function pollOnce() {
+      const headers = authorizationHeaders();
+      if (lastEntityTag) {
+        headers["If-None-Match"] = lastEntityTag;
+      }
+      const response = await fetch("/api/orders/o_1001/delivery", { headers: headers });
+      let line = new Date().toLocaleTimeString() + "  " + response.status;
+      if (response.status === 200) {
+        lastEntityTag = response.headers.get("ETag");
+        const delivery = await response.json();
+        line = line + "  " + delivery.status;
+      } else if (response.status === 304) {
+        line = line + "  Not Modified (no body)";
+      }
+      pollLog = [line].concat(pollLog).slice(0, 8);
+      show("polling-output", pollLog.join("\n"));
+    }
+
+    document.getElementById("polling-start").addEventListener("click", function () {
+      pollOnce();
+      pollingTimer = setInterval(pollOnce, 3000);
+      document.getElementById("polling-start").disabled = true;
+      document.getElementById("polling-stop").disabled = false;
+    });
+
+    document.getElementById("polling-stop").addEventListener("click", function () {
+      clearInterval(pollingTimer);
+      document.getElementById("polling-start").disabled = false;
+      document.getElementById("polling-stop").disabled = true;
+    });
+  </script>
+</body>
+</html>

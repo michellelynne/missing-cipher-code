@@ -1,0 +1,87 @@
+"""
+Every request needs a signed-in user. Send the token as an HTTP header:
+  Authorization: Bearer <token>
+
+To make createContractorProfile or createReview safe to retry, send any unique string as an
+Idempotency-Key header. A retry with the same key and the same request gets the first result back.
+
+Errors come back in the response's errors list with extensions.code set to one of the same six cases
+as the REST and gRPC versions: BAD_USER_INPUT, UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, ALREADY_EXISTS,
+IDEMPOTENCY_KEY_REUSED. For BAD_USER_INPUT, extensions.fieldErrors names each field that failed.
+"""
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+enum Availability {
+  OPEN
+  LIMITED
+  BOOKED
+}
+
+type ContractorProfile {
+  contractorId: ID!
+  companyName: String!
+  services: [String!]!
+  serviceArea: String!
+  availability: Availability!
+  insuranceExpiresOn: String
+  reviews: [Review!]!
+}
+
+type Review {
+  authorName: String!
+  body: String
+  rating: Int!
+}
+
+"One page of contractor profiles."
+type ContractorProfilePage {
+  contractorProfiles: [ContractorProfile!]!
+  "Pass this as pageToken to get the next page. Null on the last page."
+  nextPageToken: String
+}
+
+type Query {
+  contractorProfile(contractorId: ID!): ContractorProfile
+  "pageSize is 1 to 50, and 20 if left out."
+  contractorProfiles(
+    service: String
+    serviceArea: String
+    availability: Availability
+    pageSize: Int
+    pageToken: String
+  ): ContractorProfilePage!
+}
+
+type Mutation {
+  createContractorProfile(input: CreateContractorProfileInput!): ContractorProfile!
+  "Fields left out of the input stay as they are."
+  updateContractorProfile(contractorId: ID!, input: UpdateContractorProfileInput!): ContractorProfile!
+  "Returns the ID of the deleted profile."
+  deleteContractorProfile(contractorId: ID!): ID!
+  "The reviewer comes from sign-in."
+  createReview(contractorId: ID!, input: CreateReviewInput!): Review!
+}
+
+input CreateContractorProfileInput {
+  companyName: String!
+  services: [String!]!
+  serviceArea: String!
+  availability: Availability!
+  insuranceExpiresOn: String
+}
+
+input UpdateContractorProfileInput {
+  companyName: String
+  services: [String!]
+  serviceArea: String
+  availability: Availability
+  insuranceExpiresOn: String
+}
+
+input CreateReviewInput {
+  rating: Int!
+  body: String
+}

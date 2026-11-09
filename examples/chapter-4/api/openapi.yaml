@@ -1,0 +1,642 @@
+openapi: 3.1.0
+info:
+  title: Renovation Revolution API (Chapter 4 examples)
+  version: 1.0.0
+  description: >
+    The REST examples from Chapter 4, written so tools can check them the way protoc checks the gRPC
+    version. The Contractors calls match the gRPC and GraphQL versions call for call. The Orders, Rooms,
+    and Webhooks calls belong to the server-to-client and system-to-system examples.
+servers:
+  - url: http://localhost:8000
+    description: The example server in server/
+security:
+  - signedIn: []
+tags:
+  - name: Contractors
+  - name: Orders
+    description: Polling for a delivery status
+  - name: Rooms
+    description: Photo analysis through a queue, with progress sent back as server-sent events
+  - name: Webhooks
+    description: Calls from other companies' systems
+
+paths:
+  /api/contractors:
+    post:
+      tags: [Contractors]
+      operationId: createContractorProfile
+      summary: Create Contractor Profile
+      description: >
+        The email and phone number aren't in the request. They belong to the person, not the profile,
+        so they live in users and come from sign-in. Each user can have one contractor profile.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContractorProfileRequest"
+            example:
+              companyName: Acme Renovations
+              services: [Painting, Flooring]
+              serviceArea: Los Angeles, CA
+              availability: OPEN
+              insuranceExpiresOn: "2027-03-31"
+      responses:
+        "201":
+          description: Created, or the saved response to a retry with the same Idempotency-Key
+          headers:
+            Location:
+              description: The new profile's address
+              schema:
+                type: string
+              example: /api/contractors/c_8f3a2b
+            Idempotent-Replayed:
+              $ref: "#/components/headers/IdempotentReplayed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractorProfile"
+              example:
+                contractorId: c_8f3a2b
+                companyName: Acme Renovations
+                services: [Painting, Flooring]
+                serviceArea: Los Angeles, CA
+                availability: OPEN
+                insuranceExpiresOn: "2027-03-31"
+                reviews: []
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          $ref: "#/components/responses/NotSignedIn"
+        "409":
+          $ref: "#/components/responses/AlreadyExists"
+        "422":
+          $ref: "#/components/responses/IdempotencyKeyReused"
+    get:
+      tags: [Contractors]
+      operationId: listContractorProfiles
+      summary: List Contractors for the Directory
+      description: Takes the same filters the directory offers, which is why those columns are indexed.
+      parameters:
+        - name: service
+          in: query
+          schema:
+            type: string
+          example: Kitchen Remodel
+        - name: serviceArea
+          in: query
+          schema:
+            type: string
+          example: Los Angeles, CA
+        - name: availability
+          in: query
+          schema:
+            $ref: "#/components/schemas/Availability"
+        - name: pageSize
+          in: query
+          description: How many profiles to return. Defaults to 20.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+        - name: pageToken
+          in: query
+          description: The nextPageToken from the previous response. Leave it out for the first page.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: One page of matching profiles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractorProfilePage"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          $ref: "#/components/responses/NotSignedIn"
+
+  /api/contractors/{contractorId}:
+    parameters:
+      - name: contractorId
+        in: path
+        required: true
+        schema:
+          type: string
+        example: c_8f3a2b
+    get:
+      tags: [Contractors]
+      operationId: getContractorProfile
+      summary: Get Contractor Profile
+      responses:
+        "200":
+          description: The profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractorProfile"
+        "401":
+          $ref: "#/components/responses/NotSignedIn"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Contractors]
+      operationId: updateContractorProfile
+      summary: Update Contractor Profile
+      description: >
+        Send only the fields to change (JSON Merge Patch). Fields you leave out stay as they are.
+        Send insuranceExpiresOn as null to clear it. Only the profile's owner can change it.
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: "#/components/schemas/UpdateContractorProfileRequest"
+            example:
+              availability: LIMITED
+      responses:
+        "200":
+          description: The updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractorProfile"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          $ref: "#/components/responses/NotSignedIn"
+        "403":
+          $ref: "#/components/responses/NotAllowed"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Contractors]
+      operationId: deleteContractorProfile
+      summary: Delete Contractor Profile
+      description: Only the profile's owner can delete it.
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          $ref: "#/components/responses/NotSignedIn"
+        "403":
+          $ref: "#/components/responses/NotAllowed"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/contractors/{contractorId}/reviews:
+    parameters:
+      - name: contractorId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags: [Contractors]
+      operationId: createReview
+      summary: Create Review
+      description: The reviewer comes from sign-in. Contractors can't review themselves.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewRequest"
+            example:
+              rating: 5
+              body: They found the leak behind the tile and fixed it the same day.
+      responses:
+        "201":
+          description: Created, or the saved response to a retry with the same Idempotency-Key
+          headers:
+            Idempotent-Replayed:
+              $ref: "#/components/headers/IdempotentReplayed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          $ref: "#/components/responses/NotSignedIn"
+        "403":
+          $ref: "#/components/responses/NotAllowed"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/IdempotencyKeyReused"
+
+  /api/orders/{orderId}/delivery:
+    get:
+      tags: [Orders]
+      operationId: getDeliveryStatus
+      summary: Get Delivery Status (polling)
+      description: >
+        Clients ask again on a timer. Send the ETag from the last response as If-None-Match, and the
+        server answers 304 with no body when nothing changed, which keeps most polls cheap.
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: o_1001
+        - name: If-None-Match
+          in: header
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The current status
+          headers:
+            ETag:
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeliveryStatus"
+        "304":
+          description: Nothing changed since the ETag you sent
+        "401":
+          $ref: "#/components/responses/NotSignedIn"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/rooms/{roomId}/photo-batches:
+    post:
+      tags: [Rooms]
+      operationId: analyzePhotoBatch
+      summary: Analyze a Batch of Photos
+      description: >
+        Answers right away with 202 Accepted. The room service puts a command on the image analysis
+        queue, and the homeowner follows progress through eventsUrl instead of waiting on this request.
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: r_42
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhotoBatchRequest"
+            example:
+              photoLocation: s3://renovation-uploads/rooms/r_42/batch-7/
+              photoCount: 40
+      responses:
+        "202":
+          description: Queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhotoBatch"
+        "400":
+          $ref: "#/components/responses/ValidationFailed"
+        "401":
+          $ref: "#/components/responses/NotSignedIn"
+
+  /api/rooms/{roomId}/photo-batches/{batchId}/events:
+    get:
+      tags: [Rooms]
+      operationId: streamPhotoBatchEvents
+      summary: Follow a Batch's Progress (server-sent events)
+      description: >
+        Keeps one HTTP connection open and sends a progress event as each photo is analyzed, then a
+        completed event with what was found. EventSource in the browser reconnects on its own.
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: token
+          in: query
+          description: >
+            For EventSource in the browser, which can't send an Authorization header. Use a short-lived
+            token for this in production, since URLs end up in logs.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A stream of progress events, then one completed event
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              example: |
+                event: progress
+                data: {"batchId":"b_7","analyzed":20,"total":40}
+
+                event: completed
+                data: {"batchId":"b_7","findings":[{"component":"cabinets","material":"oak","condition":"worn"}]}
+        "401":
+          $ref: "#/components/responses/NotSignedIn"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /webhooks/payments:
+    post:
+      tags: [Webhooks]
+      operationId: receivePaymentWebhook
+      summary: Payment Processor Webhook
+      description: >
+        The payment processor calls this when a contractor's subscription payment clears. It's signed
+        with the Standard Webhooks scheme instead of a user token. Verify the signature before trusting
+        anything in it, and expect the same webhook-id more than once; repeats are acknowledged and
+        not processed again.
+      security: []
+      parameters:
+        - name: webhook-id
+          in: header
+          required: true
+          schema:
+            type: string
+          example: msg_2Lk8xQ
+        - name: webhook-timestamp
+          in: header
+          required: true
+          description: Seconds since 1970. Calls more than five minutes old are rejected.
+          schema:
+            type: string
+        - name: webhook-signature
+          in: header
+          required: true
+          description: v1, then the base64 HMAC-SHA256 of "id.timestamp.body" with the shared secret
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentWebhook"
+      responses:
+        "204":
+          description: Received (or already received)
+        "400":
+          description: Signed correctly, but not a payload this endpoint understands
+        "401":
+          description: Missing, wrong, or stale signature
+
+components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: >
+        Any unique string, like a UUID, to make the create safe to retry. A retry with the same key and
+        the same body gets the first response back instead of creating a second one. Keys last 24 hours.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
+      example: 5b0f3c1e-8a4d-4f7e-9c2b-1d6e7a8f9b30
+
+  headers:
+    IdempotentReplayed:
+      description: "true when this is the saved response to an earlier request with the same Idempotency-Key"
+      schema:
+        type: string
+        enum: ["true"]
+
+  securitySchemes:
+    signedIn:
+      type: http
+      scheme: bearer
+      description: The token from sign-in. The example server accepts demo tokens listed in server/auth.py.
+
+  responses:
+    ValidationFailed:
+      description: A field is missing or malformed
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          example:
+            type: https://missingcipher.com/problems/validation-failed
+            title: Some fields aren't valid
+            status: 400
+            detail: Fix the fields listed in fieldErrors and send it again.
+            fieldErrors:
+              - field: companyName
+                message: Enter a company name.
+    NotSignedIn:
+      description: No token, or the token isn't valid
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    NotAllowed:
+      description: Signed in, but not allowed to do this
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    NotFound:
+      description: Nothing with that ID
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    AlreadyExists:
+      description: This user already has a contractor profile
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    IdempotencyKeyReused:
+      description: The Idempotency-Key was already used for a different request
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+
+  schemas:
+    Availability:
+      type: string
+      enum: [OPEN, LIMITED, BOOKED]
+    CreateContractorProfileRequest:
+      type: object
+      additionalProperties: false
+      required: [companyName, services, serviceArea, availability]
+      properties:
+        companyName:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        serviceArea:
+          type: string
+        availability:
+          $ref: "#/components/schemas/Availability"
+        insuranceExpiresOn:
+          type: string
+          format: date
+    UpdateContractorProfileRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        companyName:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        serviceArea:
+          type: string
+        availability:
+          $ref: "#/components/schemas/Availability"
+        insuranceExpiresOn:
+          type: [string, "null"]
+          format: date
+    ContractorProfile:
+      type: object
+      required: [contractorId, companyName, services, serviceArea, availability, reviews]
+      properties:
+        contractorId:
+          type: string
+        companyName:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        serviceArea:
+          type: string
+        availability:
+          $ref: "#/components/schemas/Availability"
+        insuranceExpiresOn:
+          type: [string, "null"]
+          format: date
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+    ContractorProfilePage:
+      type: object
+      required: [contractorProfiles, nextPageToken]
+      properties:
+        contractorProfiles:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContractorProfile"
+        nextPageToken:
+          description: Pass this as pageToken to get the next page. Null on the last page.
+          type: [string, "null"]
+    CreateReviewRequest:
+      type: object
+      additionalProperties: false
+      required: [rating]
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        body:
+          type: string
+    Review:
+      type: object
+      required: [authorName, rating]
+      properties:
+        authorName:
+          type: string
+        body:
+          type: [string, "null"]
+        rating:
+          type: integer
+    Problem:
+      description: The error format from RFC 9457 (Problem Details for HTTP APIs)
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+    DeliveryStatus:
+      type: object
+      required: [orderId, status, updatedAt]
+      properties:
+        orderId:
+          type: string
+        status:
+          type: string
+          enum: [ORDERED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED]
+        updatedAt:
+          type: string
+          format: date-time
+    PhotoBatchRequest:
+      type: object
+      additionalProperties: false
+      required: [photoLocation, photoCount]
+      properties:
+        photoLocation:
+          description: Where the uploaded photos are stored. Messages carry this, not the photos.
+          type: string
+        photoCount:
+          type: integer
+          minimum: 1
+          maximum: 200
+    PhotoBatch:
+      type: object
+      required: [batchId, status, eventsUrl]
+      properties:
+        batchId:
+          type: string
+        status:
+          type: string
+          enum: [QUEUED]
+        eventsUrl:
+          type: string
+    PaymentWebhook:
+      type: object
+      required: [type, data]
+      properties:
+        type:
+          type: string
+          enum: [subscription.payment_succeeded]
+        data:
+          type: object
+          required: [contractorId, subscriptionId, amountCents, currency]
+          properties:
+            contractorId:
+              type: string
+            subscriptionId:
+              type: string
+            amountCents:
+              type: integer
+            currency:
+              type: string

@@ -1,0 +1,31 @@
+# Polling: the client asks again on a timer. Order and Delivery Tracking can check every hour, since a
+# package changes status only a handful of times a day. Every response here is what the example server
+# really sends back; server/tests/test_example_files.py checks that.
+
+@baseUrl = http://localhost:8000
+
+### Check the Delivery Status
+# Expect: 200
+GET {{baseUrl}}/api/orders/o_1001/delivery
+Authorization: Bearer homeowner-token
+
+# Response: 200 OK
+# ETag: "b588d6431c467bef"
+# Cache-Control: no-cache
+#
+# {
+#   "orderId": "o_1001",
+#   "status": "SHIPPED",
+#   "updatedAt": "2026-11-08T09:00:00Z"
+# }
+
+### Check Again an Hour Later
+# Send the ETag back as If-None-Match. Nothing changed, so the answer is 304 with no body, which is
+# what keeps polling cheap.
+# Expect: 304
+GET {{baseUrl}}/api/orders/o_1001/delivery
+Authorization: Bearer homeowner-token
+If-None-Match: "b588d6431c467bef"
+
+# Response: 304 Not Modified
+# ETag: "b588d6431c467bef"

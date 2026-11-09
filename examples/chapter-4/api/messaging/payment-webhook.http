@@ -1,0 +1,24 @@
+# A webhook: the payment processor calls this when a contractor's subscription payment clears.
+# It's signed with the Standard Webhooks scheme (standardwebhooks.com): webhook-signature is "v1,"
+# then the base64 HMAC-SHA256 of "webhook-id.webhook-timestamp.body" with the shared secret.
+#
+# This exact request is signed correctly, but its timestamp is fixed, so the server rejects it as
+# stale (401) once it's more than five minutes old. That's the replay protection working. For a call
+# the server accepts, print one with a fresh signature: python3 server/payment_webhooks.py c_8f3a2b
+# server/tests/test_example_files.py checks this signature.
+
+@baseUrl = http://localhost:8000
+
+### Payment Succeeded
+# Expect: 204 (with a fresh timestamp and signature)
+POST {{baseUrl}}/webhooks/payments
+Content-Type: application/json
+webhook-id: msg_2Lk8xQ
+webhook-timestamp: 1794150000
+webhook-signature: v1,OsHW/1aAeB+9h9pREs9mMZTyzlb84dc3Vr4XrzAl0cg=
+
+{"type":"subscription.payment_succeeded","data":{"contractorId":"c_8f3a2b","subscriptionId":"sub_4471","amountCents":4900,"currency":"USD"}}
+
+# Response: 204 No Content
+# The same webhook-id again also gets 204, but isn't processed twice.
+# A wrong or stale signature gets 401, and a payload this endpoint doesn't understand gets 400.
