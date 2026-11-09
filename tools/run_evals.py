@@ -1,13 +1,13 @@
-"""Runs the Editor's evals and, with --summary, writes the results page when they finish.
+"""Runs the Editor's evals, records how much of your Claude plan they used, and writes a results page.
 
 Usage, from the top of the repository:
-    python3 tools/run_evals.py [--summary] [--rerun | --only failed|new] [--dry-run] [-- <eval options>]
+    python3 tools/run_evals.py [--rerun | --only failed|new] [--dry-run] [--no-usage] [-- <eval options>]
 
 Examples:
-    python3 tools/run_evals.py --summary                                  every case, 3 runs each
-    python3 tools/run_evals.py --summary -- --runs 1 --model sonnet       every case, once, lighter
-    python3 tools/run_evals.py --rerun --summary -- --runs 1              only failed and new cases
-    python3 tools/run_evals.py --rerun --dry-run                          list them without running
+    python3 tools/run_evals.py                                  every case, 3 runs each
+    python3 tools/run_evals.py -- --runs 1 --model sonnet       every case, once, lighter on usage
+    python3 tools/run_evals.py --rerun -- --runs 1              only failed and new cases
+    python3 tools/run_evals.py --rerun --dry-run                list them without running
 
 Choosing cases:
     (default)       every case in skills/editor/evals/
@@ -18,8 +18,14 @@ Choosing cases:
     --only failed   (or new) narrows --rerun to one of the two
     --results FILE  compare against one results file instead of every earlier run
 
---summary writes skills/editor/evals/results/eval-summary.html from every run so far (each case's
-latest result) and prints where it is, even if some runs failed.
+Plan usage: on a Claude subscription, the script reads Claude Code's /usage screen before and
+after the run (about a minute in all) and saves the change with the run's results. Needs
+`expect`, which comes with macOS. Don't use Claude for anything else during the run, since that
+counts too. --no-usage skips it.
+
+When the run finishes, it writes skills/editor/evals/results/eval-summary.html from every run so
+far: scores with and without the skill, failed checks, each run's usage, tokens, cost, and time,
+and estimates of what a full run takes. --no-summary skips it.
 
 Everything after `--` goes to `claude plugin eval`. --scaffold, --allow-tools Write Edit Bash, and
 --no-publish are added unless you pass them yourself. Results go to
@@ -28,18 +34,24 @@ skills/editor/evals/results/<time>/.
 import argparse
 import datetime
 import json
+import os
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import eval_summary
+import plan_usage
 
 REPOSITORY_FOLDER = Path(__file__).resolve().parent.parent
 SKILL_FOLDER = REPOSITORY_FOLDER / "skills" / "editor"
 EVALS_FOLDER = SKILL_FOLDER / "evals"
 RESULTS_FOLDER = EVALS_FOLDER / "results"
 SUMMARY_PATH = RESULTS_FOLDER / "eval-summary.html"
+USAGE_FILE_NAME = "plan-usage.json"
+# /usage can lag a little behind the work, so the second reading waits this long.
+USAGE_SETTLE_SECONDS = int(os.environ.get("EVAL_USAGE_SETTLE_SECONDS", "60"))
 # `claude plugin eval` selects only one case at a time with --case, so a rerun copies the chosen
 # cases into this folder and points --eval-dir at it.
 TEMPORARY_EVAL_FOLDER_NAME = "rerun-evals"
@@ -90,14 +102,18 @@ def choose_rerun_cases(cases_in_results, include_failed, include_new):
 
 
 def eval_options(passed_options):
+    """The options for claude plugin eval, and the folder its results will go to."""
     options = list(passed_options)
     for option_name, default_option in DEFAULT_EVAL_OPTIONS.items():
         if option_name not in options:
             options.extend(default_option)
-    if "--output-dir" not in options:
+    if "--output-dir" in options:
+        output_folder = Path(options[options.index("--output-dir") + 1])
+    else:
         run_time = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
-        options.extend(["--output-dir", str(RESULTS_FOLDER / run_time)])
-    return options
+        output_folder = RESULTS_FOLDER / run_time
+        options.extend(["--output-dir", str(output_folder)])
+    return options, output_folder
 
 
 def run_eval_command(command):
@@ -105,12 +121,16 @@ def run_eval_command(command):
     return subprocess.run(command, cwd=REPOSITORY_FOLDER, check=False).returncode
 
 
-def run_every_case(passed_options):
-    command = ["claude", "plugin", "eval", str(SKILL_FOLDER.relative_to(REPOSITORY_FOLDER))] + eval_options(passed_options)
-    return run_eval_command(command)
+def eval_command(options, eval_folder_name=None):
+    command = ["claude", "plugin", "eval", str(SKILL_FOLDER.relative_to(REPOSITORY_FOLDER))]
+    if eval_folder_name:
+        command.extend(["--eval-dir", eval_folder_name])
+    return command + options
 
 
-def run_chosen_cases(chosen, passed_options):
+def run_cases(chosen, rerun, options):
+    if not rerun:
+        return run_eval_command(eval_command(options))
     temporary_folder = SKILL_FOLDER / TEMPORARY_EVAL_FOLDER_NAME
     if temporary_folder.exists():
         shutil.rmtree(temporary_folder)
@@ -118,22 +138,37 @@ def run_chosen_cases(chosen, passed_options):
     try:
         for case_name, _ in chosen:
             shutil.copytree(EVALS_FOLDER / case_name, temporary_folder / case_name)
-        command = ["claude", "plugin", "eval", str(SKILL_FOLDER.relative_to(REPOSITORY_FOLDER)),
-                   "--eval-dir", TEMPORARY_EVAL_FOLDER_NAME] + eval_options(passed_options)
-        return run_eval_command(command)
+        return run_eval_command(eval_command(options, TEMPORARY_EVAL_FOLDER_NAME))
     finally:
         shutil.rmtree(temporary_folder, ignore_errors=True)
 
 
+def read_plan_usage(moment):
+    print("Reading plan usage " + moment + " the run (about 25 seconds)...")
+    usage = plan_usage.measure()
+    if usage["problem"]:
+        print("  Skipping plan usage: " + usage["problem"])
+        return None
+    print("  Week {}%, current session {}%".format(usage["week_percent"], usage["session_percent"]))
+    return usage
+
+
+def save_plan_usage(output_folder, usage_before, usage_after, run_minutes):
+    if usage_before is None or usage_after is None or not output_folder.exists():
+        return
+    record = {"before": usage_before, "after": usage_after, "minutes": run_minutes}
+    (output_folder / USAGE_FILE_NAME).write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    week_change = usage_after["week_percent"] - usage_before["week_percent"]
+    session_change = (usage_after["session_percent"] or 0) - (usage_before["session_percent"] or 0)
+    print("Plan usage: {:+d} points of your week, {:+d} points of the current 5-hour session".format(week_change, session_change))
+
+
 def write_summary():
-    result_paths = earlier_result_paths()
-    if not result_paths:
+    if not earlier_result_paths():
         print("No results to summarize yet.")
         return
-    result_files = [json.loads(result_path.read_text(encoding="utf-8")) for result_path in result_paths]
-    result_files.sort(key=lambda result: result.get("startedAt", ""))
-    SUMMARY_PATH.write_text(eval_summary.build_page(result_files), encoding="utf-8")
-    print("Results page:", SUMMARY_PATH.relative_to(REPOSITORY_FOLDER), "(" + str(len(result_paths)) + " run(s), latest result per case)")
+    SUMMARY_PATH.write_text(eval_summary.build_page(eval_summary.load_runs(RESULTS_FOLDER)), encoding="utf-8")
+    print("Results page:", SUMMARY_PATH.relative_to(REPOSITORY_FOLDER))
 
 
 def main():
@@ -144,7 +179,8 @@ def main():
         passed_options = arguments[separator_index + 1:]
         arguments = arguments[:separator_index]
     parser = argparse.ArgumentParser(description="Run the Editor evals.", epilog="Run with --help-full for every detail.")
-    parser.add_argument("--summary", action="store_true", help="Write the results page when the run finishes")
+    parser.add_argument("--no-usage", action="store_true", help="Don't read /usage before and after the run")
+    parser.add_argument("--no-summary", action="store_true", help="Don't write the results page")
     parser.add_argument("--rerun", action="store_true", help="Run only cases that failed last time, plus new ones")
     parser.add_argument("--only", choices=["failed", "new"], help="With --rerun, only failed cases or only new ones")
     parser.add_argument("--results", help="One aggregate-result.json to compare against (default: every earlier run)")
@@ -159,7 +195,7 @@ def main():
     if rerun:
         result_paths = [Path(settings.results)] if settings.results else earlier_result_paths()
         if not result_paths:
-            raise SystemExit("No earlier results to compare against. Run every case first: python3 tools/run_evals.py --summary")
+            raise SystemExit("No earlier results to compare against. Run every case first: python3 tools/run_evals.py")
         chosen = choose_rerun_cases(latest_case_results(result_paths), settings.only != "new", settings.only != "failed")
         print("Compared with each case's latest result in", len(result_paths), "earlier run(s)")
         if not chosen:
@@ -172,8 +208,16 @@ def main():
     if settings.dry_run:
         return
 
-    exit_status = run_chosen_cases(chosen, passed_options) if rerun else run_every_case(passed_options)
-    if settings.summary:
+    options, output_folder = eval_options(passed_options)
+    usage_before = None if settings.no_usage else read_plan_usage("before")
+    start_seconds = time.time()
+    exit_status = run_cases(chosen, rerun, options)
+    run_minutes = round((time.time() - start_seconds) / 60)
+    if usage_before is not None:
+        print("Waiting {} seconds for usage to catch up...".format(USAGE_SETTLE_SECONDS))
+        time.sleep(USAGE_SETTLE_SECONDS)
+        save_plan_usage(output_folder, usage_before, read_plan_usage("after"), run_minutes)
+    if not settings.no_summary:
         write_summary()
     sys.exit(exit_status)
 

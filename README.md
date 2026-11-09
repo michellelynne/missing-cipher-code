@@ -60,18 +60,19 @@ The Editor is tested the way you'd test any software whose output isn't the same
   novel, an instruction hidden in a chapter. Some cases check for false alarms instead, such as a
   clean chapter that should get a short report.
 - **Every case runs with and without the skill**, so the results show what the skill adds rather
-  than what the model already does. In the first full run (Claude Opus, 8 cases, 3 runs each),
-  89% of checks passed with the Editor and 70% without. The biggest gains were in following a
-  process the model doesn't know on its own: asking setup questions first (+61 points) and working
-  through an editor's returned copy (+44).
-- **The evals changed the product.** That run found that the Google Docs tool couldn't target
+  than what the model already does. Across all 12 cases (the latest result of each, from a full
+  run on Claude Opus and a rerun on Claude Sonnet after fixes), 97% of checks passed with the
+  Editor and 68% without. The biggest gains are in following a process the model doesn't know
+  on its own: asking setup questions first (+82 points), turning approved fixes into a Google Docs
+  batch (+57), and working through an editor's returned copy (+54).
+- **The evals changed the product.** The first run found that the Google Docs tool couldn't target
   one of several identical lines, so the Editor correctly sent that fix to the author by hand. I
   added an `after` option to the fix tools, with tests. It also found checks that were graded
   unfairly (the grader only sees the start and end of a long session), which I fixed so the
   structure case reads the review pack itself.
 - **Tooling around the evals:** one command that runs the evals (all of them, or only failed and
-  new cases) and writes a results page anyone can read, a cost and speed table, and a wrapper that measures how much of a Claude
-  subscription a run uses.
+  new cases), measures how much of a Claude subscription they use, and writes a results page
+  anyone can read, with each run's cost and time and estimates of what a full run takes.
 
 ### The engineering around it
 
@@ -139,22 +140,36 @@ Linux, Claude Code's sandbox also needs `bubblewrap` and `socat` (macOS has what
 run is a full Claude Code session on your account: on a Claude subscription it counts toward your
 plan's usage limits; with an API key it's billed. Run these from the top of the repository.
 
-`tools/run_evals.py` runs the evals; `--summary` writes a results page when they finish.
+`tools/run_evals.py` runs the evals and, when they finish, writes a results page with
+everything in one place.
 
 | To | Run |
 |---|---|
-| Run every case, 3 times each, with and without the Editor | `python3 tools/run_evals.py --summary` |
-| Run every case once, on a lighter model | `python3 tools/run_evals.py --summary -- --runs 1 --model sonnet` |
-| Rerun only cases that failed or are new | `python3 tools/run_evals.py --rerun --summary -- --runs 1` |
+| Run every case, 3 times each, with and without the Editor | `python3 tools/run_evals.py` |
+| Run every case once, on a lighter model | `python3 tools/run_evals.py -- --runs 1 --model sonnet` |
+| Rerun only cases that failed or are new | `python3 tools/run_evals.py --rerun -- --runs 1` |
 | See which cases would run, without running them | add `--dry-run` |
-| Run one case | `python3 tools/run_evals.py --summary -- --case unsupported-format-scrivener --runs 1` |
+| Run one case | `python3 tools/run_evals.py -- --case unsupported-format-scrivener --runs 1` |
 
-The results page is `skills/editor/evals/results/eval-summary.html`. Open it in a browser. It
-explains how to read it, shows each case with and without the Editor, lists the checks that
-failed, and lists what the Editor does that Claude doesn't do on its own. It combines every run
-so far, using each case's latest result. Claude Code's own detailed report for each run is in
-`skills/editor/evals/results/<time>/`. Results are ignored by git, so a run never gets committed
-by accident.
+**The results page** is `skills/editor/evals/results/eval-summary.html`; open it in a browser. It
+explains how to read it and covers every run so far:
+
+- each case's score with and without the Editor (its latest result), and what the Editor adds
+- the checks that failed, and what the Editor does that Claude doesn't do on its own
+- each run's sessions, time, tokens, cost at API prices, and how much of a Claude subscription it
+  used
+- estimates of what a full run takes on each model, including a warning when a run may hit the
+  5-hour usage limit
+
+**Plan usage is measured for you.** On a Claude subscription, the script reads Claude Code's
+`/usage` screen before and after the run (about a minute in all) and saves the change with the
+run. It needs `expect`, which comes with macOS. Don't use Claude for anything else during a run,
+since that counts too. With an API key there's no plan to measure, and the page shows the cost
+instead. Add `--no-usage` to skip it. Want usage measured for something other than the evals?
+[Open an issue](https://github.com/michellelynne/missing-cipher-code/issues).
+
+Claude Code's own detailed report for each run is in `skills/editor/evals/results/<time>/`.
+Results are ignored by git, so a run never gets committed by accident.
 
 **`--rerun`** picks the cases that scored below 100% with the Editor, had a run that errored, or
 were cut off by a cost limit, plus cases with no result yet. Add `--only failed` or `--only new`
@@ -168,18 +183,6 @@ Everything after `--` goes to `claude plugin eval`:
 - The script adds `--scaffold` (copies each case's sample files into a temporary folder),
   `--allow-tools Write Edit Bash` (lets the Editor read and write files in that folder; nothing
   in the repository changes), and `--no-publish` (keeps the report on your computer).
-
-**On a Claude subscription, see how much of your plan a run uses.** Put
-`tools/measure_plan_usage.sh` and a label in front of the command:
-
-```bash
-tools/measure_plan_usage.sh "every case, 1 run, Sonnet" python3 tools/run_evals.py --summary -- --runs 1 --model sonnet
-```
-
-It reads Claude Code's `/usage` screen before and after the run and adds the session and weekly
-percentages to `skills/editor/evals/results/plan-usage.csv`. It needs `expect` (built into
-macOS). Don't use Claude for anything else while it runs, since that counts too. Want usage
-measured for something other than the evals? [Open an issue](https://github.com/michellelynne/missing-cipher-code/issues).
 
 For a cost and speed table from a run's results:
 `python3 tools/eval_cost_report.py skills/editor/evals/results/<time>/aggregate-result.json`.

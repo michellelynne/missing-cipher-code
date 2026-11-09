@@ -1,15 +1,18 @@
 """Turns eval results into a short, readable HTML page anyone can follow.
 
-Usage: python3 tools/eval_summary.py <aggregate-result.json> [more result files...] [--output page.html]
+Usage: python3 tools/eval_summary.py [<aggregate-result.json> ...] [--output page.html]
 
-`claude plugin eval` writes a detailed report for the person debugging a skill. This page is for
-everyone else: what each test checks, how much the skill helps, which checks fail, and what
-the skill does that the model doesn't do on its own.
+tools/run_evals.py writes this page after every run, so you rarely need to run this yourself.
+With no files, it reads every run in skills/editor/evals/results/ and writes eval-summary.html
+there.
 
-Give several result files (for example a full run and a later rerun of the failed cases) and
-each case's most recent result is used. Without --output, the page is written as
-eval-summary.html next to the last results file.
+The page covers what each test checks, how much the skill helps, which checks fail, each run's
+plan usage, tokens, cost, and time, and estimates of what a full run takes. Plan usage comes from
+the plan-usage.json that run_evals.py saves with each run (or from an older plan-usage.csv in the
+results folder). When several runs include a case, its most recent result is used.
 """
+import csv
+import datetime
 import html
 import json
 import re
@@ -19,6 +22,11 @@ from pathlib import Path
 
 REPOSITORY_FOLDER = Path(__file__).resolve().parent.parent
 EVALS_FOLDER = REPOSITORY_FOLDER / "skills" / "editor" / "evals"
+RESULTS_FOLDER = EVALS_FOLDER / "results"
+USAGE_FILE_NAME = "plan-usage.json"
+OLD_USAGE_LOG_NAME = "plan-usage.csv"
+# The share of a 5-hour session above which an estimate warns that a run may hit the limit.
+SESSION_WARNING_POINTS = 80
 WITH_ARM = "with"
 # Words that should keep their capitals, or read better spelled out, in case and check names.
 NAME_WORDS = {"google": "Google", "docs": "Docs", "word": "Word", "scrivener": "Scrivener", "pov": "POV",
@@ -35,6 +43,11 @@ def readable_name(slug):
         words = words[1:]
     sentence = " ".join(NAME_WORDS.get(word, word) for word in words)
     return sentence[0].upper() + sentence[1:] if sentence else sentence
+
+
+def all_case_names():
+    return sorted(folder.name for folder in EVALS_FOLDER.iterdir()
+                  if folder.is_dir() and ((folder / "prompt.md").exists() or (folder / "case.yaml").exists()))
 
 
 def case_description(case_name):
@@ -60,13 +73,20 @@ def case_description(case_name):
 
 
 def session_events(run):
-    graders = run.get("graders") or []
-    evidence = graders[0].get("evidence", "") if graders else ""
-    for line_text in evidence.splitlines():
-        try:
-            yield json.loads(line_text)
-        except json.JSONDecodeError:
+    """The session record of one run. Graders that read the trace carry it as their evidence."""
+    for grader in run.get("graders") or []:
+        evidence = grader.get("evidence", "")
+        if not evidence.startswith("{"):
             continue
+        events = []
+        for line_text in evidence.splitlines():
+            try:
+                events.append(json.loads(line_text))
+            except json.JSONDecodeError:
+                continue
+        if any(event.get("type") in ("system", "result") for event in events):
+            return events
+    return []
 
 
 def run_tokens(run):
@@ -87,6 +107,8 @@ def run_model(run):
 
 
 def tokens_text(token_count):
+    if token_count == 0:
+        return "n/a"
     if token_count >= 1000000:
         return "{:.1f}M".format(token_count / 1000000)
     return "{:.0f}K".format(token_count / 1000)
@@ -94,6 +116,133 @@ def tokens_text(token_count):
 
 def percent(value):
     return "n/a" if value is None else "{:.0%}".format(value)
+
+
+def started_time(result):
+    started_text = result.get("startedAt", "")
+    try:
+        return datetime.datetime.fromisoformat(started_text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def old_usage_rows(results_folder):
+    """Rows from plan-usage.csv, the log an earlier version of the usage check wrote."""
+    log_path = results_folder / OLD_USAGE_LOG_NAME
+    if not log_path.exists():
+        return []
+    rows = []
+    with open(log_path, encoding="utf-8", newline="") as log_file:
+        for row in csv.DictReader(log_file):
+            try:
+                finished_local = datetime.datetime.strptime(row["date"], "%Y-%m-%d %H:%M").astimezone()
+                rows.append({"finished": finished_local, "minutes": int(row["minutes"] or 0), "usage": {
+                    "before": {"week_percent": int(row["week_before"]), "session_percent": int(row["session_before"] or 0)},
+                    "after": {"week_percent": int(row["week_after"]), "session_percent": int(row["session_after"] or 0)},
+                    "minutes": int(row["minutes"] or 0)}})
+            except (KeyError, ValueError):
+                continue
+    return rows
+
+
+def matching_old_usage(result, rows):
+    """The old log row written when this run finished, if there is one."""
+    started = started_time(result)
+    if started is None:
+        return None
+    finished = started + datetime.timedelta(seconds=result.get("durationSeconds", 0))
+    for row in rows:
+        if started <= row["finished"] <= finished + datetime.timedelta(minutes=10):
+            return row["usage"]
+    return None
+
+
+def load_runs(results_folder=RESULTS_FOLDER, result_paths=None):
+    """Every run's results and plan usage, oldest first."""
+    result_paths = result_paths or sorted(results_folder.glob("*/aggregate-result.json"))
+    old_rows = old_usage_rows(results_folder)
+    runs = []
+    for result_path in result_paths:
+        result = json.loads(result_path.read_text(encoding="utf-8"))
+        usage_path = result_path.with_name(USAGE_FILE_NAME)
+        usage = json.loads(usage_path.read_text(encoding="utf-8")) if usage_path.exists() else matching_old_usage(result, old_rows)
+        runs.append({"result": result, "usage": usage})
+    runs.sort(key=lambda run: run["result"].get("startedAt", ""))
+    return runs
+
+
+def run_sessions(result):
+    """Claude Code sessions that actually started in a run, with and without the skill."""
+    return [run for case in result["cases"] for runs in case["arms"].values() for run in runs
+            if run.get("turns", 0) > 0 or run.get("costUsd", 0) > 0]
+
+
+def describe_run(run):
+    result = run["result"]
+    sessions = run_sessions(result)
+    models = sorted({model for model in (run_model(session) for session in sessions) if model})
+    runs_per_case = max([len(case["arms"].get("with", [])) for case in result["cases"]] or [0])
+    usage = run["usage"]
+    week_change = session_change = None
+    if usage and usage.get("before") and usage.get("after"):
+        week_change = usage["after"]["week_percent"] - usage["before"]["week_percent"]
+        session_change = (usage["after"].get("session_percent") or 0) - (usage["before"].get("session_percent") or 0)
+        if session_change < 0:
+            session_change = None
+    started = started_time(result)
+    return {
+        "started": started.astimezone().strftime("%Y-%m-%d %H:%M") if started else "",
+        "cases": len(result["cases"]),
+        "runs_per_case": str(runs_per_case),
+        "models": models,
+        "sessions": len(sessions),
+        "minutes": round(result.get("durationSeconds", 0) / 60),
+        "tokens": sum(run_tokens(session) for session in sessions),
+        "cost": result.get("costUsd", 0),
+        "week_change": week_change,
+        "session_change": session_change,
+    }
+
+
+def short_model_name(model):
+    for family in ("opus", "sonnet", "haiku"):
+        if family in model:
+            return family.capitalize()
+    return model
+
+
+def estimates(described_runs, case_count):
+    """Plan usage and tokens per session for each model, and what full runs would take."""
+    by_model = {}
+    for described in described_runs:
+        if len(described["models"]) != 1 or described["sessions"] == 0:
+            continue
+        totals = by_model.setdefault(described["models"][0], {"sessions": 0, "tokens": 0, "usage_sessions": 0,
+                                                             "week_points": 0, "session_points": 0, "session_sessions": 0})
+        totals["sessions"] = totals["sessions"] + described["sessions"]
+        totals["tokens"] = totals["tokens"] + described["tokens"]
+        if described["week_change"] is not None:
+            totals["usage_sessions"] = totals["usage_sessions"] + described["sessions"]
+            totals["week_points"] = totals["week_points"] + described["week_change"]
+        if described["session_change"] is not None:
+            totals["session_sessions"] = totals["session_sessions"] + described["sessions"]
+            totals["session_points"] = totals["session_points"] + described["session_change"]
+    rows = []
+    for model, totals in sorted(by_model.items()):
+        tokens_each = totals["tokens"] / totals["sessions"]
+        week_each = totals["week_points"] / totals["usage_sessions"] if totals["usage_sessions"] else None
+        session_each = totals["session_points"] / totals["session_sessions"] if totals["session_sessions"] else None
+        for label, runs_per_case in (("Every case once", 1), ("Every case 3 times (the default)", 3)):
+            sessions = case_count * 2 * runs_per_case
+            rows.append({"model": model, "label": label, "sessions": sessions, "tokens": tokens_each * sessions,
+                         "week": None if week_each is None else week_each * sessions,
+                         "session": None if session_each is None else session_each * sessions,
+                         "measured_sessions": totals["usage_sessions"]})
+    return rows
+
+
+def points_text(value):
+    return "not measured" if value is None else "about {:.0f}".format(value) if value >= 1 else "under 1"
 
 
 def completed(runs):
@@ -176,21 +325,25 @@ def pass_count_text(passed, total):
     return str(passed) + " of " + str(total)
 
 
-def build_page(result_files):
+def build_page(runs):
+    result_files = [run["result"] for run in runs]
+    described_runs = [describe_run(run) for run in runs]
     cases = [summarize_case(case) for case in latest_cases(result_files)]
     with_scores = [case["with_score"] for case in cases if case["with_score"] is not None]
     baseline_scores = [case["baseline_score"] for case in cases if case["baseline_score"] is not None]
     differences = [case["difference"] for case in cases if case["difference"] is not None]
-    models = sorted({model for case in cases for model in case["models"]})
-    total_tokens = sum(case["tokens"] for case in cases)
-    total_cost = sum(case["cost"] for case in cases)
+    models = sorted({model for described in described_runs for model in described["models"]})
+    total_tokens = sum(described["tokens"] for described in described_runs)
+    total_cost = sum(described["cost"] for described in described_runs)
+    total_sessions = sum(described["sessions"] for described in described_runs)
     run_dates = sorted({result.get("startedAt", "")[:10] for result in result_files if result.get("startedAt")})
     unfinished_total = sum(case["unfinished_runs"] for case in cases)
 
     parts = ["<h1>Editor eval results</h1>"]
-    parts.append('<p class="muted">' + escape(", ".join(run_dates)) + " &middot; " + str(len(cases)) + " test cases &middot; model: " +
-                 escape(", ".join(models) or "not recorded") + " &middot; " + tokens_text(total_tokens) +
-                 " tokens (${:.2f} at API prices)".format(total_cost) + "</p>")
+    parts.append('<p class="muted">' + str(len(cases)) + " test cases &middot; " + str(len(described_runs)) + " run(s) on " +
+                 escape(", ".join(run_dates)) + " &middot; " + escape(", ".join(short_model_name(model) for model in models) or "model not recorded") +
+                 " &middot; " + str(total_sessions) + " sessions, " + tokens_text(total_tokens) +
+                 " tokens (${:.2f} at API prices) in all</p>".format(total_cost))
 
     parts.append("""<div class="explain"><strong>How to read this page.</strong> Each test case gives the Editor a
 realistic request, such as &ldquo;review chapter 3,&rdquo; with sample files that have problems planted on purpose.
@@ -200,7 +353,7 @@ A score is the share of those checks that passed. <em>Adds</em> is the score wit
 score without it: what the skill contributes beyond what the model already does.</div>""")
     if unfinished_total:
         parts.append('<p class="notice">' + str(unfinished_total) + " run(s) errored or were stopped by the cost limit. "
-                     "They are left out of the scores. Rerun them with <code>python3 tools/run_evals.py --rerun --summary</code>.</p>")
+                     "They are left out of the scores. Rerun them with <code>python3 tools/run_evals.py --rerun</code>.</p>")
 
     average_difference = statistics.mean(differences) if differences else None
     parts.append('<div class="totals">')
@@ -222,6 +375,41 @@ score without it: what the skill contributes beyond what the model already does.
     parts.append("</table>")
     parts.append('<p class="muted small">Tokens: everything the runs read and wrote, '
                  "for both. On a Claude subscription, runs count toward your plan&rsquo;s usage limits instead of being billed.</p>")
+
+    parts.append("<h2>Runs and plan usage</h2><table><tr><th>Started</th><th>What ran</th><th>Sessions</th><th>Minutes</th>"
+                 "<th>Tokens</th><th>At API prices</th><th>Weekly limit</th><th>5-hour session</th></tr>")
+    for described in described_runs:
+        what_ran = (str(described["cases"]) + " cases &times; " + described["runs_per_case"] + " run(s), " +
+                    escape(", ".join(short_model_name(model) for model in described["models"]) or "model not recorded"))
+        week_text = "&mdash;" if described["week_change"] is None else "{:+d} points".format(described["week_change"])
+        session_text = "&mdash;" if described["session_change"] is None else "{:+d} points".format(described["session_change"])
+        parts.append('<tr><td class="value">' + escape(described["started"]) + "</td><td>" + what_ran + "</td><td>" +
+                     str(described["sessions"]) + "</td><td>" + str(described["minutes"]) + "</td><td>" +
+                     tokens_text(described["tokens"]) + "</td><td>${:.2f}".format(described["cost"]) + "</td><td>" +
+                     week_text + "</td><td>" + session_text + "</td></tr>")
+    parts.append("</table>")
+    parts.append('<p class="muted small">A session is one Claude Code conversation: one case, run once, with or without '
+                 "the Editor. Weekly limit and 5-hour session show how much of a Claude subscription the run used, read from "
+                 "<code>/usage</code> before and after; &mdash; means it wasn&rsquo;t measured (an API key, or "
+                 "<code>--no-usage</code>). <code>/usage</code> shows whole percentages, so small changes are rough. "
+                 "At API prices is what the same run would cost with an API key; on a subscription it isn&rsquo;t a charge.</p>")
+
+    estimate_rows = estimates(described_runs, len(all_case_names()))
+    if estimate_rows:
+        parts.append("<h2>What a run takes</h2>"
+                     '<p class="muted small">Estimated from the runs above, per model, for all ' + str(len(all_case_names())) +
+                     " cases with and without the Editor.</p><table><tr><th>Model</th><th>Run</th><th>Sessions</th>"
+                     "<th>Tokens</th><th>Weekly limit</th><th>5-hour session</th></tr>")
+        for row in estimate_rows:
+            session_text = points_text(row["session"]) + ("" if row["session"] is None else " points")
+            if row["session"] is not None and row["session"] >= SESSION_WARNING_POINTS:
+                session_text = session_text + ' <span class="warn">may hit the limit; start in a fresh session or use --rerun</span>'
+            parts.append("<tr><td>" + escape(short_model_name(row["model"])) + "</td><td>" + escape(row["label"]) + "</td><td>" +
+                         str(row["sessions"]) + "</td><td>" + tokens_text(row["tokens"]) + "</td><td>" +
+                         points_text(row["week"]) + ("" if row["week"] is None else " points") + "</td><td>" + session_text + "</td></tr>")
+        parts.append("</table>")
+        parts.append('<p class="muted small">Plan estimates use the sessions where usage was measured. They get better with '
+                     "every run, and a model with no measured run shows tokens only.</p>")
 
     parts.append("<h2>Checks that didn&rsquo;t always pass with the Editor</h2>")
     any_failures = False
@@ -268,6 +456,7 @@ th { font-size: 13px; color: #5b6b76; font-weight: 600; }
 .fill { height: 8px; border-radius: 4px; } .value { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .check { border: 1px solid #dde4e9; border-radius: 8px; padding: 4px 14px; margin: 10px 0; }
 blockquote { margin: 8px 0; padding: 6px 12px; background: #f7f9fa; border-left: 3px solid #c6d0d6; font-size: 14px; }
+.warn { color: #a0521a; font-size: 13px; }
 code { background: #eef2f4; padding: 1px 5px; border-radius: 4px; }
 """
     return ('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -281,13 +470,16 @@ def main():
         output_index = arguments.index("--output")
         output_path = Path(arguments[output_index + 1])
         arguments = arguments[:output_index] + arguments[output_index + 2:]
-    if not arguments:
-        raise SystemExit(__doc__)
-    result_paths = [Path(argument) for argument in arguments]
-    result_files = [json.loads(result_path.read_text(encoding="utf-8")) for result_path in result_paths]
-    result_files.sort(key=lambda result: result.get("startedAt", ""))
-    output_path = output_path or result_paths[-1].with_name("eval-summary.html")
-    output_path.write_text(build_page(result_files), encoding="utf-8")
+    if arguments:
+        result_paths = [Path(argument) for argument in arguments]
+        runs = load_runs(result_paths[0].parent.parent, result_paths)
+        output_path = output_path or result_paths[-1].parent.parent / "eval-summary.html"
+    else:
+        runs = load_runs()
+        output_path = output_path or RESULTS_FOLDER / "eval-summary.html"
+    if not runs:
+        raise SystemExit("No results yet. Run: python3 tools/run_evals.py")
+    output_path.write_text(build_page(runs), encoding="utf-8")
     print("Wrote", output_path)
 
 

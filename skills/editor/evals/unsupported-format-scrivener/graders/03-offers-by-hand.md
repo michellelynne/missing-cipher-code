@@ -4,4 +4,4 @@ focus: trace
 weight: 1
 ---
 
-Offers findings with search strings so the author can make the fixes by hand in Scrivener.
+Offers, as one option, that the author makes the fixes themselves in Scrivener, using the search text and replacement that come with each finding.

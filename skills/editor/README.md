@@ -75,13 +75,13 @@ one `claude plugin eval` reads. To run every case, with and without the skill, a
 page, run this from the top of the repository:
 
 ```bash
-python3 tools/run_evals.py --summary
+python3 tools/run_evals.py
 ```
 
 Add `--rerun` to run only the cases that failed or are new, and `-- --runs 1 --model sonnet` for
 a lighter run. The results page is `skills/editor/evals/results/eval-summary.html`. The
 [main README](../../README.md#run-the-evals) has every option, including how to measure how much
-of a Claude plan a run uses.
+of a Claude plan a run uses (the script measures it for you).
 
 Checks that can be verified from files (was a backup made, and is it identical to the original?)
 are checked by script; the rest are judged against the outputs with quoted evidence.
