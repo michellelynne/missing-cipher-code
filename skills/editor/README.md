@@ -89,6 +89,17 @@ which checks only pass with the skill:
 To turn the results into a cost and speed table:
 `python3 tools/eval_cost_report.py skills/editor/evals/results/<run>/aggregate-result.json`.
 
+**On a Claude subscription?** The dollar figures are what the same run would cost at API prices,
+not a charge. To see how much of your plan a run uses, run it through
+`tools/measure_plan_usage.sh`, which reads `/usage` before and after (macOS or Linux, needs
+`expect`) and adds a line to `skills/editor/evals/results/plan-usage.csv`:
+
+```bash
+tools/measure_plan_usage.sh "one run, Sonnet" claude plugin eval skills/editor --runs 1 --model sonnet --scaffold --allow-tools Write Edit Bash --no-publish
+```
+
+Don't use Claude for anything else while it runs, since that counts too.
+
 Checks that can be verified from files (was a backup made, and is it identical to the original?)
 are checked by script; the rest are judged against the outputs with quoted evidence.
 `evals/trigger-queries.json` holds 24 requests for testing when the skill should load, which guide
