@@ -83,7 +83,10 @@ run takes a while and uses your plan or API credit. To try one case first, add
 `--case unsupported-format-scrivener --runs 1`. Results and an HTML report go to
 `skills/editor/evals/results/`. `--scaffold` copies each case's input files into a temporary
 folder, and `--allow-tools` lets the Editor read and write files there; nothing in the repository
-changes. To turn the results into a cost and speed table:
+changes. For a shorter page that shows how much the skill adds, which checks failed and why, and
+which checks only pass with the skill:
+`python3 tools/eval_summary.py skills/editor/evals/results/<run>/aggregate-result.json`.
+To turn the results into a cost and speed table:
 `python3 tools/eval_cost_report.py skills/editor/evals/results/<run>/aggregate-result.json`.
 
 Checks that can be verified from files (was a backup made, and is it identical to the original?)
