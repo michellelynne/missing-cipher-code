@@ -5,3 +5,4 @@ __pycache__/
 node_modules/
 dist/
 skills/*/evals/results/
+skills/editor/rerun-evals/

@@ -89,6 +89,13 @@ which checks only pass with the skill:
 To turn the results into a cost and speed table:
 `python3 tools/eval_cost_report.py skills/editor/evals/results/<run>/aggregate-result.json`.
 
+**Rerun only what needs it.** After a full run, this reruns just the cases that failed or didn't
+finish, plus any new cases, and gives one report. Add `--dry-run` to see the list first:
+
+```bash
+python3 tools/rerun_evals.py -- --runs 1 --model sonnet
+```
+
 **On a Claude subscription?** The dollar figures are what the same run would cost at API prices,
 not a charge. To see how much of your plan a run uses, run it through
 `tools/measure_plan_usage.sh`, which reads `/usage` before and after (macOS or Linux, needs
