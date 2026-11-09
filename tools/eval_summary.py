@@ -200,7 +200,7 @@ A score is the share of those checks that passed. <em>Adds</em> is the score wit
 score without it: what the skill contributes beyond what the model already does.</div>""")
     if unfinished_total:
         parts.append('<p class="notice">' + str(unfinished_total) + " run(s) errored or were stopped by the cost limit. "
-                     "They are left out of the scores. Rerun them with <code>python3 tools/rerun_evals.py</code>.</p>")
+                     "They are left out of the scores. Rerun them with <code>python3 tools/run_evals.py --rerun --summary</code>.</p>")
 
     average_difference = statistics.mean(differences) if differences else None
     parts.append('<div class="totals">')

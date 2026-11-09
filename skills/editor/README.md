@@ -71,41 +71,17 @@ report.
 
 Each case lives in `evals/<case>/`: the request (`prompt.md`), the expected outcome
 (`case.yaml`), one file per check (`graders/`), and the input files (`files/`). The layout is the
-one `claude plugin eval` reads, so with Claude Code you can run every case, with and without the
-skill, from the top of the repository:
+one `claude plugin eval` reads. To run every case, with and without the skill, and get a results
+page, run this from the top of the repository:
 
 ```bash
-claude plugin eval skills/editor --scaffold --allow-tools Write Edit Bash --no-publish
+python3 tools/run_evals.py --summary
 ```
 
-Each case runs 3 times with the skill and 3 times without it, on your own Claude account, so a full
-run takes a while and uses your plan or API credit. To try one case first, add
-`--case unsupported-format-scrivener --runs 1`. Results and an HTML report go to
-`skills/editor/evals/results/`. `--scaffold` copies each case's input files into a temporary
-folder, and `--allow-tools` lets the Editor read and write files there; nothing in the repository
-changes. For a shorter page that shows how much the skill adds, which checks failed and why, and
-which checks only pass with the skill:
-`python3 tools/eval_summary.py skills/editor/evals/results/<run>/aggregate-result.json`.
-To turn the results into a cost and speed table:
-`python3 tools/eval_cost_report.py skills/editor/evals/results/<run>/aggregate-result.json`.
-
-**Rerun only what needs it.** After a full run, this reruns just the cases that failed or didn't
-finish, plus any new cases, and gives one report. Add `--dry-run` to see the list first:
-
-```bash
-python3 tools/rerun_evals.py -- --runs 1 --model sonnet
-```
-
-**On a Claude subscription?** The dollar figures are what the same run would cost at API prices,
-not a charge. To see how much of your plan a run uses, run it through
-`tools/measure_plan_usage.sh`, which reads `/usage` before and after (macOS or Linux, needs
-`expect`) and adds a line to `skills/editor/evals/results/plan-usage.csv`:
-
-```bash
-tools/measure_plan_usage.sh "one run, Sonnet" claude plugin eval skills/editor --runs 1 --model sonnet --scaffold --allow-tools Write Edit Bash --no-publish
-```
-
-Don't use Claude for anything else while it runs, since that counts too.
+Add `--rerun` to run only the cases that failed or are new, and `-- --runs 1 --model sonnet` for
+a lighter run. The results page is `skills/editor/evals/results/eval-summary.html`. The
+[main README](../../README.md#run-the-evals) has every option, including how to measure how much
+of a Claude plan a run uses.
 
 Checks that can be verified from files (was a backup made, and is it identical to the original?)
 are checked by script; the rest are judged against the outputs with quoted evidence.

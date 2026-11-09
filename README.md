@@ -69,8 +69,8 @@ The Editor is tested the way you'd test any software whose output isn't the same
   added an `after` option to the fix tools, with tests. It also found checks that were graded
   unfairly (the grader only sees the start and end of a long session), which I fixed so the
   structure case reads the review pack itself.
-- **Tooling around the evals:** a readable results page for anyone, a command that reruns only
-  failed and new cases, a cost and speed table, and a wrapper that measures how much of a Claude
+- **Tooling around the evals:** one command that runs the evals (all of them, or only failed and
+  new cases) and writes a results page anyone can read, a cost and speed table, and a wrapper that measures how much of a Claude
   subscription a run uses.
 
 ### The engineering around it
@@ -134,35 +134,55 @@ and settings. Check your tool's privacy or data settings before sharing an unpub
 
 ### Run the evals
 
-You need [Claude Code](https://code.claude.com/docs) installed and signed in. Each run is a full
-Claude Code session on your account: on a Claude subscription it counts toward your plan's usage
-limits; with an API key it's billed. Run these from the top of the repository.
+You need [Claude Code](https://code.claude.com/docs) installed and signed in, and Python 3. On
+Linux, Claude Code's sandbox also needs `bubblewrap` and `socat` (macOS has what it needs). Each
+run is a full Claude Code session on your account: on a Claude subscription it counts toward your
+plan's usage limits; with an API key it's billed. Run these from the top of the repository.
+
+`tools/run_evals.py` runs the evals; `--summary` writes a results page when they finish.
 
 | To | Run |
 |---|---|
-| Try one case, cheaply | `claude plugin eval skills/editor --case unsupported-format-scrivener --runs 1 --model sonnet --scaffold --allow-tools Write Edit Bash --no-publish` |
-| Run every case, 3 times each, with and without the Editor | `claude plugin eval skills/editor --scaffold --allow-tools Write Edit Bash --no-publish` |
-| Rerun only cases that failed or are new | `python3 tools/rerun_evals.py -- --runs 1 --model sonnet` (add `--dry-run` to see the list first) |
-| Make a readable results page | `python3 tools/eval_summary.py skills/editor/evals/results/*/aggregate-result.json` |
-| Make a cost and speed table | `python3 tools/eval_cost_report.py skills/editor/evals/results/<run>/aggregate-result.json` |
-| See how much of your Claude plan a run uses | `tools/measure_plan_usage.sh "label" <any command above>` |
+| Run every case, 3 times each, with and without the Editor | `python3 tools/run_evals.py --summary` |
+| Run every case once, on a lighter model | `python3 tools/run_evals.py --summary -- --runs 1 --model sonnet` |
+| Rerun only cases that failed or are new | `python3 tools/run_evals.py --rerun --summary -- --runs 1` |
+| See which cases would run, without running them | add `--dry-run` |
+| Run one case | `python3 tools/run_evals.py --summary -- --case unsupported-format-scrivener --runs 1` |
 
-What the eval options do:
+The results page is `skills/editor/evals/results/eval-summary.html`. Open it in a browser. It
+explains how to read it, shows each case with and without the Editor, lists the checks that
+failed, and lists what the Editor does that Claude doesn't do on its own. It combines every run
+so far, using each case's latest result. Claude Code's own detailed report for each run is in
+`skills/editor/evals/results/<time>/`. Results are ignored by git, so a run never gets committed
+by accident.
 
-- `--scaffold` copies each case's sample files into a temporary folder for the run.
-- `--allow-tools Write Edit Bash` lets the Editor read and write files in that folder. Nothing in
-  the repository changes.
+**`--rerun`** picks the cases that scored below 100% with the Editor, had a run that errored, or
+were cut off by a cost limit, plus cases with no result yet. Add `--only failed` or `--only new`
+to narrow it. Run `python3 tools/run_evals.py --help-full` for every option.
+
+Everything after `--` goes to `claude plugin eval`:
+
 - `--runs 1` runs each case once instead of three times; `--model sonnet` uses a model that's
   lighter on usage. Both are good for checking a change; use the defaults for scores you publish.
-- `--no-publish` keeps the report on your computer.
+- `--max-cost-usd 10` stops the run at that cost.
+- The script adds `--scaffold` (copies each case's sample files into a temporary folder),
+  `--allow-tools Write Edit Bash` (lets the Editor read and write files in that folder; nothing
+  in the repository changes), and `--no-publish` (keeps the report on your computer).
 
-Results and Claude Code's detailed report go to `skills/editor/evals/results/<time>/`. Results
-are ignored by git, so a run never gets committed by accident.
+**On a Claude subscription, see how much of your plan a run uses.** Put
+`tools/measure_plan_usage.sh` and a label in front of the command:
 
-**Measuring plan usage** (`tools/measure_plan_usage.sh`, macOS or Linux, needs `expect`) reads
-Claude Code's `/usage` screen before and after the command and adds a line to
-`skills/editor/evals/results/plan-usage.csv`. Don't use Claude for anything else while it runs,
-since that counts too.
+```bash
+tools/measure_plan_usage.sh "every case, 1 run, Sonnet" python3 tools/run_evals.py --summary -- --runs 1 --model sonnet
+```
+
+It reads Claude Code's `/usage` screen before and after the run and adds the session and weekly
+percentages to `skills/editor/evals/results/plan-usage.csv`. It needs `expect` (built into
+macOS). Don't use Claude for anything else while it runs, since that counts too. Want usage
+measured for something other than the evals? [Open an issue](https://github.com/michellelynne/missing-cipher-code/issues).
+
+For a cost and speed table from a run's results:
+`python3 tools/eval_cost_report.py skills/editor/evals/results/<time>/aggregate-result.json`.
 
 **How a case is built:** each case folder in [skills/editor/evals/](skills/editor/evals/) has the
 request (`prompt.md`), the expected outcome (`case.yaml`), one file per check (`graders/`), and
@@ -194,7 +214,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before adding or changing a skill.
 |---|---|
 | [`skills/`](skills/) | The 60 book skills, one folder each, and the [skills index](skills/README.md) |
 | [`skills/editor/`](skills/editor/) | The Editor: `SKILL.md`, the review guides in `references/`, the fix tools in `scripts/`, their tests in `tests/`, and the eval cases in `evals/` |
-| [`tools/`](tools/) | Scripts that check the skills, build the plugin catalog and release ZIPs, rerun evals, and summarize eval results and plan usage |
+| [`tools/`](tools/) | Scripts that check the skills, build the plugin catalog and release ZIPs, run the evals, and summarize eval results and plan usage |
 | [`.claude-plugin/`](.claude-plugin/) | The Claude Code plugin catalog, generated by `tools/build_catalog.py` |
 | [`.github/workflows/`](.github/workflows/) | Tests on every push, releases on every skill change, and evals on demand |
 | [DESIGN.md](DESIGN.md) | The decisions behind the skills and the Editor |
