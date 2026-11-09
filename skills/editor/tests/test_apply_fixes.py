@@ -67,6 +67,23 @@ class ApplyFixesTest(unittest.TestCase):
         self.assertIn("GONE", output)
         self.assertNotIn("ALREADY APPLIED", output)
 
+    def test_after_picks_out_a_repeated_line(self):
+        chapter_text = ("[START CHAPTER]\n\nThe first section.\n\nCount it twice.\n\nThe second section ends here.\n\n"
+                        "Count it twice.\n\nThe third section.\n\nCount it twice.\n\n[END CHAPTER]\n")
+        with open(self.chapter_path, "w", encoding="utf-8") as chapter_file:
+            chapter_file.write(chapter_text)
+        fixes = [{"id": "second-refrain", "doc": CHAPTER_NAME, "find": "Count it twice.", "replace": "Count it again.",
+                  "after": "The second section ends here."},
+                 {"id": "missing-anchor", "doc": CHAPTER_NAME, "find": "Count it twice.", "replace": "Count it again.",
+                  "after": "No such text."}]
+        checked = self.run_batch("check", fixes)
+        self.assertIn("READY: second-refrain", checked)
+        self.assertIn("NOT FOUND", checked)
+        self.run_batch("apply", fixes)
+        changed_text = open(self.chapter_path, encoding="utf-8").read()
+        self.assertEqual(changed_text, chapter_text.replace("here.\n\nCount it twice.", "here.\n\nCount it again."))
+        self.assertIn("ALREADY APPLIED: second-refrain", self.run_batch("apply", fixes))
+
 
 if __name__ == "__main__":
     unittest.main()

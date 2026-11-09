@@ -213,7 +213,50 @@ var EditorEngine = (function () {
   // Fix kinds: status (writes nothing) and apply
   // ---------------------------------------------------------------------------------------
 
+  /** Where a match sits in the chapter, so two matches can be put in order. */
+  function positionOf(body, match) {
+    return { block: topLevelIndex(body, match.getElement()), offset: match.getStartOffset() };
+  }
+
+  function comesBefore(first, second) {
+    return first.block < second.block || (first.block === second.block && first.offset < second.offset);
+  }
+
+  /**
+   * A replace with "after": the first match of find in a paragraph after the one holding the
+   * after text. For identical lines, such as a refrain that appears three times, "after" names
+   * text that appears once, in an earlier paragraph, to pick out the right one.
+   */
+  function replaceAfterStatus(fix, body, range) {
+    var anchors = matches(body, fix.after, range);
+    if (anchors.length !== 1) {
+      return anchors.length === 0
+        ? { state: 'NOT FOUND (the "after" text has changed; fix by hand)' }
+        : { state: 'FOUND "after" ' + anchors.length + ' TIMES (skipped; make the "after" text longer, or fix by hand)' };
+    }
+    var anchorBlock = topLevelIndex(body, anchors[0].getElement());
+    var laterFinds = matches(body, fix.find, range).filter(function (match) { return positionOf(body, match).block > anchorBlock; });
+    var laterReplacements = fix.replace === '' ? [] : matches(body, fix.replace, range).filter(function (match) { return positionOf(body, match).block > anchorBlock; });
+    var firstFind = laterFinds.length > 0 ? positionOf(body, laterFinds[0]) : null;
+    var firstReplacement = laterReplacements.length > 0 ? positionOf(body, laterReplacements[0]) : null;
+    var replacementComesFirst = firstReplacement !== null && (firstFind === null || comesBefore(firstReplacement, firstFind)
+      || (firstFind.block === firstReplacement.block && firstFind.offset === firstReplacement.offset && fix.replace.indexOf(fix.find) === 0));
+    if (replacementComesFirst) {
+      return { state: 'ALREADY APPLIED' };
+    }
+    if (firstFind !== null) {
+      return { state: 'READY', match: laterFinds[0] };
+    }
+    if (fix.replace === '') {
+      return { state: 'GONE (already deleted, or the text never matched; check by hand)' };
+    }
+    return { state: 'NOT FOUND (the text has changed; fix by hand)' };
+  }
+
   function replaceStatus(fix, body, range) {
+    if (fix.after) {
+      return replaceAfterStatus(fix, body, range);
+    }
     var found = matches(body, fix.find, range);
     if (found.length === 1) {
       return { state: 'READY', match: found[0] };
@@ -281,7 +324,7 @@ var EditorEngine = (function () {
   var KINDS = {
     replace: {
       status: replaceStatus,
-      describe: function (fix) { return '"' + fix.find + '"\n      becomes "' + fix.replace + '"'; },
+      describe: function (fix) { return '"' + fix.find + '"' + (fix.after ? ' (the first one after "' + fix.after + '")' : '') + '\n      becomes "' + fix.replace + '"'; },
       apply: function (fix, status) {
         var match = status.match;
         replaceRangeMinimally(match.getElement().asText(), match.getStartOffset(), match.getEndOffsetInclusive(), fix.replace);

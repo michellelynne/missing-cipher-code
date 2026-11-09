@@ -24,6 +24,8 @@ fixes.json uses the same fields as the Google Docs FIX_BATCH:
 Folders are relative to the fixes file. Kinds: replace (the default; the text must appear exactly
 once in the chapter), replaceAll, insertAfter (adds "text" as a new paragraph after the paragraph
 that is exactly "after"), and deleteParagraph (removes the paragraph that is exactly "text").
+A replace can also give "after": text that appears once, in an earlier paragraph. The fix then
+changes the first match after that paragraph, for lines repeated word for word.
 
 "check" changes nothing. "apply" copies each chapter to the backups folder as
 "Name_YYYY-MM-DD_HH-MM.md" before its first change. Running "apply" twice changes nothing.
@@ -63,8 +65,44 @@ def paragraphs_exactly(chapter_text, wanted_text):
     return [block for block in blocks if block.strip() == wanted_text.strip()]
 
 
+def text_after_anchor(chapter_text, anchor_text):
+    """Where the paragraph holding anchor_text ends, or a status when the anchor isn't found exactly once."""
+    anchor_count = count_in(chapter_text, anchor_text)
+    if anchor_count == 0:
+        return None, "NOT FOUND (the \"after\" text has changed; fix by hand)"
+    if anchor_count > 1:
+        return None, "FOUND \"after\" %d TIMES (skipped; make the \"after\" text longer, or fix by hand)" % anchor_count
+    anchor_end = chapter_text.find(anchor_text) + len(anchor_text)
+    paragraph_end = chapter_text.find("\n\n", anchor_end)
+    if paragraph_end == -1:
+        paragraph_end = len(chapter_text)
+    return paragraph_end, None
+
+
+def replace_after_status(fix, chapter_text):
+    region_start, problem = text_after_anchor(chapter_text, fix["after"])
+    if problem is not None:
+        return problem
+    region = chapter_text[region_start:]
+    find_position = region.find(fix["find"])
+    replace_position = region.find(fix["replace"]) if fix["replace"] != "" else -1
+    if find_position == -1:
+        if replace_position != -1:
+            return "ALREADY APPLIED"
+        if fix["replace"] == "":
+            return "GONE (already deleted, or the text never matched; check by hand)"
+        return "NOT FOUND (the text has changed; fix by hand)"
+    if replace_position != -1 and replace_position < find_position:
+        return "ALREADY APPLIED"
+    if replace_position == find_position and fix["replace"].startswith(fix["find"]):
+        return "ALREADY APPLIED"
+    return "READY"
+
+
 def fix_status(fix, chapter_text):
     kind = fix.get("kind", "replace")
+    if kind == "replace" and fix.get("after"):
+        return replace_after_status(fix, chapter_text)
     if kind == "replace":
         found = count_in(chapter_text, fix["find"])
         if found == 1:
@@ -95,6 +133,12 @@ def fix_status(fix, chapter_text):
 
 def apply_fix(fix, chapter_text):
     kind = fix.get("kind", "replace")
+    if kind == "replace" and fix.get("after"):
+        region_start, _ = text_after_anchor(chapter_text, fix["after"])
+        region = chapter_text[region_start:]
+        find_position = region.find(fix["find"])
+        changed_region = region[:find_position] + fix["replace"] + region[find_position + len(fix["find"]):]
+        return chapter_text[:region_start] + changed_region
     if kind == "replace":
         return chapter_text.replace(fix["find"], fix["replace"], 1)
     if kind == "replaceAll":

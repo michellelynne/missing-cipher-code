@@ -64,6 +64,35 @@ const again = states('apply');
 assert.strictEqual(again.replace, 'ALREADY APPLIED', 'running twice changes nothing');
 assert.strictEqual(tools.backups.length, 1, 'no backup when nothing changes');
 
+// A line repeated as its own paragraph can't be made unique by adding words, so "after" picks it out.
+const refrainName = 'Refrain Chapter';
+const refrainLines = ['[START CHAPTER]', 'The first section.', 'Count it twice.', 'The second section ends here.',
+  'Count it twice.', 'The third section.', 'Count it twice.', '[END CHAPTER]'];
+tools.DOCS[refrainName] = { body: new tools.Body(refrainLines), file: tools.makeFile(refrainName) };
+const refrainBatch = { name: 'refrain', fixes: [
+  { id: 'second-refrain', doc: refrainName, find: 'Count it twice.', replace: 'Count it again.', after: 'The second section ends here.' },
+  { id: 'missing-anchor', doc: refrainName, find: 'Count it twice.', replace: 'Count it again.', after: 'No such text.' }
+] };
+function refrainStates(mode) {
+  tools.output.length = 0;
+  tools.EditorEngine.runFixes(refrainBatch, mode);
+  const result = {};
+  tools.output.join('\n').split('\n').forEach(function (line) {
+    const match = line.match(/^([A-Z][A-Z0-9 ]+?)(?: \(.*\))?: (\S+)$/);
+    if (match) { result[match[2]] = match[1]; }
+  });
+  return result;
+}
+const refrainChecked = refrainStates('check');
+assert.strictEqual(refrainChecked['second-refrain'], 'READY');
+assert.strictEqual(refrainChecked['missing-anchor'], 'NOT FOUND', 'a missing "after" text is reported, never guessed');
+const refrainApplied = refrainStates('apply');
+assert.strictEqual(refrainApplied['second-refrain'], 'APPLIED');
+const refrainBody = tools.DOCS[refrainName].body;
+const refrainTexts = [2, 4, 6].map(function (index) { return refrainBody.getChild(index).getText(); });
+assert.deepStrictEqual(refrainTexts, ['Count it twice.', 'Count it again.', 'Count it twice.'], 'only the line after the "after" text changes');
+assert.strictEqual(refrainStates('apply')['second-refrain'], 'ALREADY APPLIED', 'running twice changes nothing');
+
 const body = tools.DOCS[chapterName].body;
 assert.ok(body.getChild(0).getText().indexOf('delve') !== -1, 'notes above the start marker are untouched');
 assert.strictEqual(tools.WordCountTool.countWords("It's a well-known co-op's rule."), 5);

@@ -17,6 +17,9 @@
  *                    An empty replace ('') deletes the text. Include a few words on each side
  *                    (find 'costs. Now that we... pricing. The', replace 'costs. The') so the
  *                    check can tell a finished deletion from text that never matched.
+ *                    When the same text appears more than once and can't be made longer (a
+ *                    line repeated as its own paragraph), add after: text that appears once,
+ *                    in an earlier paragraph. The fix changes the first match after it.
  *   replaceAll       find -> replace everywhere in the chapter.
  *   insertAfter      adds a new paragraph, text, after the paragraph whose whole text is after.
  *   deleteParagraph  removes the paragraph whose whole text is text.
