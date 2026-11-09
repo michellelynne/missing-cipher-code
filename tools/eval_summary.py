@@ -33,6 +33,28 @@ def readable_name(slug):
     return sentence[0].upper() + sentence[1:] if sentence else sentence
 
 
+def run_tokens(run):
+    """Tokens one run used, read from its session record. Returns 0 when the record has no usage."""
+    graders = run.get("graders") or []
+    evidence = graders[0].get("evidence", "") if graders else ""
+    for line_text in evidence.splitlines():
+        try:
+            event = json.loads(line_text)
+        except json.JSONDecodeError:
+            continue
+        if event.get("type") == "result" and "usage" in event:
+            usage = event["usage"]
+            return (usage.get("input_tokens", 0) + usage.get("output_tokens", 0) +
+                    usage.get("cache_read_input_tokens", 0) + usage.get("cache_creation_input_tokens", 0))
+    return 0
+
+
+def tokens_text(token_count):
+    if token_count >= 1000000:
+        return "{:.1f}M".format(token_count / 1000000)
+    return "{:.0f}K".format(token_count / 1000)
+
+
 def completed(runs):
     return [run for run in runs if not run.get("error")]
 
@@ -91,6 +113,7 @@ def summarize_case(case):
         "runs": len(all_runs),
         "errored_runs": sum(1 for run in all_runs if run.get("error")),
         "cost": sum(run.get("costUsd", 0) for run in all_runs),
+        "tokens": sum(run_tokens(run) for run in all_runs),
         "checks": checks,
     }
 
@@ -121,7 +144,8 @@ def build_page(result):
     parts.append("<h1>Eval results</h1>")
     parts.append('<p class="muted">' + escape(result.get("startedAt", "")[:10]) + " &middot; Claude Code " +
                  escape(result.get("claudeVersion", "")) + " &middot; " +
-                 "{:.0f} minutes".format(result.get("durationSeconds", 0) / 60) + " &middot; ${:.2f}".format(result.get("costUsd", 0)) + "</p>")
+                 "{:.0f} minutes".format(result.get("durationSeconds", 0) / 60) + " &middot; " +
+                 tokens_text(sum(case["tokens"] for case in cases)) + " tokens (${:.2f} at API prices)".format(result.get("costUsd", 0)) + "</p>")
     for notice in notices:
         parts.append('<p class="notice">' + notice + "</p>")
 
@@ -133,12 +157,12 @@ def build_page(result):
                  "</span>points the skill adds</div>")
     parts.append("</div>")
 
-    parts.append("<h2>By case</h2><table><tr><th>Case</th><th>With the skill</th><th>Without</th><th>Adds</th><th>Runs</th><th>Cost</th></tr>")
+    parts.append("<h2>By case</h2><table><tr><th>Case</th><th>With the skill</th><th>Without</th><th>Adds</th><th>Runs</th><th>Tokens</th><th>At API prices</th></tr>")
     for case in cases:
         difference_text = "n/a" if case["difference"] is None else "{:+.0f}".format(case["difference"] * 100)
         parts.append("<tr><td>" + escape(readable_name(case["name"])) + "</td><td>" + score_bar(case["with_score"], "#177E89") +
                      "</td><td>" + score_bar(case["baseline_score"], "#9aa5ad") + "</td><td>" + difference_text +
-                     "</td><td>" + str(case["runs"]) + "</td><td>${:.2f}</td></tr>".format(case["cost"]))
+                     "</td><td>" + str(case["runs"]) + "</td><td>" + tokens_text(case["tokens"]) + "</td><td>${:.2f}</td></tr>".format(case["cost"]))
     parts.append("</table>")
 
     parts.append("<h2>Checks that failed with the skill</h2>")
