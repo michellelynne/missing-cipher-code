@@ -58,19 +58,20 @@ jobs:
         run: python tools/build_release.py
 
   oldest-python:
-    # macOS still ships Python 3.9, so the scripts authors run must work on it.
+    # macOS still ships Python 3.9, so the scripts authors run must work on it. GitHub's newest
+    # runners no longer offer 3.9 through setup-python, so uv installs it.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
+      - uses: astral-sh/setup-uv@v6
 
       - name: Scripts run on Python 3.9
         run: |
-          python -m compileall -q tools skills/editor/scripts skills/editor/evals/tools
-          python tools/check_skills.py
-          python tools/build_catalog.py --check
-          python tools/run_evals.py --dry-run
-          python -m unittest discover --start-directory skills/editor/tests --pattern "test_*.py"
+          uv python install 3.9
+          python_39="$(uv python find 3.9)"
+          "$python_39" -m compileall -q tools skills/editor/scripts skills/editor/evals/tools
+          "$python_39" tools/check_skills.py
+          "$python_39" tools/build_catalog.py --check
+          "$python_39" tools/run_evals.py --dry-run
+          "$python_39" -m unittest discover --start-directory skills/editor/tests --pattern "test_*.py"
