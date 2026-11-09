@@ -1,6 +1,8 @@
 ---
 type: llm
-focus: trace
+focus:
+  source: file
+  path: Chapter 4 review pack/findings.md
 weight: 1
 ---
 

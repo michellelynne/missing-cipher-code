@@ -14,6 +14,6 @@ Setup answers so you don't need to ask:
 - My known habit: too many rhetorical questions.
 - The file uses [START CHAPTER] and [END CHAPTER] markers. Anything outside them is my notes.
 - No direct edits. Findings with search strings only. No backups needed since nothing is edited.
-- Run it all at once, with the findings exported as an offline review pack.
+- Run it all at once, with the findings exported as an offline review pack. Save the pack in a folder called "Chapter 4 review pack" next to the chapter. Put a plain-text copy of all the findings in that folder too, as findings.md, so I can print it.
 
 Input files: Chapter 4 What Earns a Place on the Menu.md, Style guide.md
