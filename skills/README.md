@@ -181,7 +181,8 @@ share and adapt these skills, including at work, as long as you give credit. Ple
 > Quill & Coin.
 
 Keep that line in any skill you copy or adapt, and note if you changed it. See
-[LICENSE](../LICENSE) for the full terms.
+[LICENSE-CC-BY-4.0](../LICENSE-CC-BY-4.0) for the full terms. The Editor's code is MIT; see
+[its license](editor/LICENSE.md).
 
 ## If you are adding a skill
 

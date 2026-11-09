@@ -2,12 +2,14 @@
 
 [![Tests](https://github.com/michellelynne/missing-cipher-code/actions/workflows/tests.yml/badge.svg)](https://github.com/michellelynne/missing-cipher-code/actions/workflows/tests.yml)
 [![Case study reference](https://github.com/michellelynne/missing-cipher-code/actions/workflows/examples.yml/badge.svg)](https://github.com/michellelynne/missing-cipher-code/actions/workflows/examples.yml)
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](LICENSE)
+[![Code: MIT](https://img.shields.io/badge/Code-MIT-blue.svg)](LICENSE)
+[![Writing: CC BY 4.0](https://img.shields.io/badge/Writing-CC%20BY%204.0-lightgrey.svg)](LICENSE-CC-BY-4.0)
 
 Companion code for *The Missing Cipher: The Field Guide for Senior Software Engineers* by
 Michelle Brenner (Packt): 60 AI skills for engineers, the Editor, an AI skill that reviews any
 book manuscript, and working code and infrastructure for the book's case study. Everything is
-free to use under [CC BY 4.0](LICENSE).
+free to use: the code under [MIT](LICENSE) and the skills and writing under
+[CC BY 4.0](LICENSE-CC-BY-4.0). See [License and credit](#license-and-credit).
 
 - [What I built](#what-i-built)
 - [How to use it](#how-to-use-it): install the skills, use the Editor, run the case study, run the evals, run the checks
@@ -259,7 +261,16 @@ never paste secrets or proprietary code into a public model, and review the work
 
 ## License and credit
 
-Licensed under [CC BY 4.0](LICENSE). Please credit:
+Two licenses, one for code and one for writing, since Creative Commons licenses aren't meant for
+software:
+
+- **Code: [MIT](LICENSE).** Everything in [`case-study-reference/`](case-study-reference/) and
+  [`tools/`](tools/), the Editor's fix tools, page templates, and tests (`skills/editor/scripts/`,
+  `skills/editor/assets/`, `skills/editor/tests/`), and the workflows and config files.
+- **Writing: [CC BY 4.0](LICENSE-CC-BY-4.0).** Everything else: the skills themselves
+  (`SKILL.md` files and their references), the eval cases, and the documentation.
+
+Either way, please credit:
 
 > From *The Missing Cipher: The Field Guide for Senior Software Engineers* by Michelle Brenner,
 > Quill & Coin.

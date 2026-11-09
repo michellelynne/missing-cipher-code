@@ -48,5 +48,5 @@ python3 -m unittest discover --start-directory skills/editor/tests --pattern "te
 
 ## Credit
 
-Everything here is CC BY 4.0. By contributing, you agree your contribution is shared under the
-same license.
+Code here is MIT and writing is CC BY 4.0; [the README](README.md#license-and-credit) lists which
+is which. By contributing, you agree your contribution is shared under the license for its part.

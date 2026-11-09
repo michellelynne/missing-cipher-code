@@ -2,6 +2,15 @@
 
 Releases are named by date. Each entry lists what changed for people using the skills.
 
+## 2026-11-09
+
+### Everything
+
+- **Code is now MIT; the skills and writing stay CC BY 4.0.** Creative Commons licenses aren't
+  meant for software, so the case study reference, the tools, and the Editor's fix tools, page
+  templates, and tests are under the MIT License. The README lists which is which. The credit
+  line is the same for both.
+
 ## 2026-11-08
 
 ### The Editor

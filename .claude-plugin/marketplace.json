@@ -81,14 +81,14 @@
         "./skills/wireframe-tool-scout",
         "./skills/workflow-process-mapping"
       ],
+      "license": "CC-BY-4.0",
       "source": "./",
       "author": {
         "name": "Michelle Brenner",
         "url": "https://www.michellebrenner.com"
       },
       "homepage": "https://themissingcipher.com/resources/skills/",
-      "repository": "https://github.com/michellelynne/missing-cipher-code",
-      "license": "CC-BY-4.0"
+      "repository": "https://github.com/michellelynne/missing-cipher-code"
     },
     {
       "name": "book-editor",
@@ -105,14 +105,14 @@
       "skills": [
         "./skills/editor"
       ],
+      "license": "MIT AND CC-BY-4.0",
       "source": "./",
       "author": {
         "name": "Michelle Brenner",
         "url": "https://www.michellebrenner.com"
       },
       "homepage": "https://themissingcipher.com/resources/skills/",
-      "repository": "https://github.com/michellelynne/missing-cipher-code",
-      "license": "CC-BY-4.0"
+      "repository": "https://github.com/michellelynne/missing-cipher-code"
     }
   ]
 }

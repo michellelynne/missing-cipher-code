@@ -80,3 +80,11 @@ python3 tools/check_examples.py
 
 Set `DATABASE_URL` to a PostgreSQL you can throw away to run the database tests too. Tools that
 aren't installed are skipped and listed at the end, so you can run what you have.
+
+## License
+
+The code and infrastructure here are under the [MIT License](LICENSE), so you can use them in your
+own projects, including at work. Please keep the copyright notice and credit:
+
+> From *The Missing Cipher: The Field Guide for Senior Software Engineers* by Michelle Brenner,
+> Quill & Coin.

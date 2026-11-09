@@ -30,7 +30,7 @@ changes the first match after that paragraph, for lines repeated word for word.
 "check" changes nothing. "apply" copies each chapter to the backups folder as
 "Name_YYYY-MM-DD_HH-MM.md" before its first change. Running "apply" twice changes nothing.
 
-From The Missing Cipher by Michelle Brenner, Quill & Coin. Licensed under CC BY 4.0.
+From The Missing Cipher by Michelle Brenner, Quill & Coin. MIT License; see skills/editor/LICENSE.md.
 """
 import datetime
 import json
