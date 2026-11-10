@@ -2,6 +2,31 @@
 
 Releases are named by date. Each entry lists what changed for people using the skills.
 
+## 2026-11-10
+
+### Case study reference
+
+- **A smaller, locked-down container image.** The Dockerfile builds in stages: libraries are
+  installed and the gRPC code is generated at build time, then only what the server needs is
+  copied onto a distroless Python base pinned by digest. The image has no shell, pip, or
+  grpcio-tools, runs as a regular user, and Compose starts it read-only with no Linux
+  capabilities. It went from 345 MB to 170 MB.
+- **A health check** at `GET /health`, used by Docker and the update script.
+- **Tests run in their own image:** `docker compose run --rm tests` (it was
+  `docker compose run --rm api python -m pytest`).
+- **The server's requirements are split.** `requirements.txt` is what the server runs on;
+  `requirements-test.txt` adds the test libraries and grpcio-tools. To run from source, install
+  `requirements-test.txt`.
+- **A signed, published image.** A new Container image workflow builds the image on every change,
+  fails on fixable HIGH or CRITICAL vulnerabilities (Trivy), saves an SBOM (Syft), and runs the
+  tests inside it. On main it publishes to `ghcr.io/michellelynne/renovation-revolution`, signs the
+  digest with Cosign (keyless), attaches the SBOM as a signed attestation, adds GitHub build
+  provenance, and verifies all three before it finishes.
+- **Run the signed image by digest** with `compose.published.yaml`, after checking it with
+  `cosign verify`. The case study README has the commands.
+- **Update with rollback:** `ops/update.py` finds the newest signed image, refuses unsigned
+  ones, starts it, and goes back to the previous digest if the health check fails.
+
 ## 2026-11-09
 
 ### Everything

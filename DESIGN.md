@@ -1,7 +1,8 @@
 # Design notes
 
-Why the skills, and especially the Editor, work the way they do. Each section is a decision, the
-reason for it, and what was given up.
+Why the skills, and especially the Editor, work the way they do, and how the case study's
+container image is built and shipped. Each section is a decision, the reason for it, and what was
+given up.
 
 ## Skills are plain folders in the open Agent Skills format
 
@@ -97,3 +98,55 @@ Three layers, cheapest first:
 3. **Before an Editor release, model evals:** each case gives the Editor a realistic request and
    a chapter with problems planted on purpose, runs it with and without the skill, and checks the
    result against specific statements. They cost money, so they run when started by hand.
+
+## The case study's container image
+
+**Base image: distroless Python on Debian 13.** The image that runs holds Python, the server's
+libraries, and the server, and nothing else: no shell, no package manager, no pip. Fewer packages
+means fewer vulnerabilities to patch and less for an attacker to use if they get in. The
+alternatives considered: `python:3.13-slim`, the old base, is easier to debug (it has a shell),
+but the old image built on it had 87 Debian packages to this one's 38, and seven HIGH or CRITICAL
+vulnerabilities with fixes available. Chainguard's free Python image has the fewest known
+vulnerabilities, but its free tier only offers the newest Python (3.15 when this was written),
+while the server and its CI are on 3.13; changing Python versions should be its own change.
+Distroless uses Debian's Python 3.13, so the builder stage uses Debian 13 too, and the virtual
+environment it builds runs unchanged. Trade-off: with no shell, debugging a running container
+means attaching a debug container that has one, or running the test image, which has the same
+base plus the tests.
+
+**gRPC code is generated at build time.** The server used to run protoc on startup and write the
+result into its own folder, which needed grpcio-tools in the image and a writable filesystem. Now
+the Dockerfile generates it in a separate stage and copies in only the output, with a SHA-256 of
+`contractor.proto` beside it. On startup the server uses the generated code if the fingerprint
+matches, and generates it again if not, so running from source still picks up changes to the
+`.proto`.
+
+**Pinned by digest, everywhere it runs.** The base images in the Dockerfile, PostgreSQL in
+Compose, and the published image are all referred to by `sha256` digest. A tag is a pointer that
+can be moved; a digest is the hash of the bytes. Signing, verifying, and running the same digest
+means what passed the scan and tests is exactly what runs. Tags are still pushed, to find images
+by date or commit. The cost is that updates don't arrive by themselves: someone changes the digest,
+and CI scans and tests the result.
+
+**Keyless signing.** CI signs with Cosign using its GitHub OIDC token: Sigstore issues a
+certificate that lasts minutes and names the workflow, branch, and commit, and records the
+signature in its public transparency log. There's no private key to store, rotate, or leak.
+Verifying checks that identity, not just that some signature exists, since anyone can get a
+Sigstore certificate for their own workflow. Trade-off: verifying needs Sigstore's public trust
+root and log. A team on a network with no internet access would sign with a key pair instead
+(`cosign generate-key-pair`, ideally held in a KMS or HSM), mirror images and signatures into an
+internal registry, and verify with `--key` against their own transparency log, or with
+`--insecure-ignore-tlog` if they have none, accepting that there's no public record of what was
+signed. `ops/update.py` takes `--key` and `--ignore-tlog` for that case.
+
+**The scan gates the signature.** CI scans the image before pushing it and again by digest after,
+and only signs if both pass. It fails on HIGH or CRITICAL problems that have a fix, and reports the
+rest without failing, since a vulnerability with no fixed version can't be acted on by rebuilding.
+The full report is kept with each run.
+
+**Updates go by digest, with rollback on a failed health check.** `ops/update.py` resolves the
+newest dated tag to a digest, verifies that digest, and runs that digest, so a tag moved halfway
+through doesn't matter. It refuses unsigned images, and if the new image doesn't pass its health
+check it starts the previous digest again. It's a small script for one machine running Compose; on
+Kubernetes the same ideas are an admission policy that only admits signed images and a rollout that
+rolls back on failed readiness checks.
