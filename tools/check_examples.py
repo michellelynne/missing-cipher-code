@@ -18,7 +18,7 @@ It does two things.
 
    Install them with:
      pip install python-hcl2 ansible ansible-lint cfn-lint graphql-core openapi-spec-validator
-     pip install -r case-study-reference/code/server/requirements.txt
+     pip install -r case-study-reference/code/server/requirements-test.txt
      npm install
    Terraform itself comes from https://developer.hashicorp.com/terraform/install
 
@@ -167,7 +167,7 @@ def check_api_server():
         import starlette  # noqa: F401
     except ImportError as missing_module:
         skipped.append("API server tests (" + str(missing_module) + ")")
-        print("  skip API server tests (pip install -r case-study-reference/code/server/requirements.txt)")
+        print("  skip API server tests (pip install -r case-study-reference/code/server/requirements-test.txt)")
         return
     completed = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider"],
                                cwd=server_folder, capture_output=True, text=True)

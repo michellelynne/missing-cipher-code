@@ -154,7 +154,12 @@ and settings. Check your tool's privacy or data settings before sharing an unpub
 
 `docker compose up` in [case-study-reference/code/](case-study-reference/code/), then open
 `http://localhost:8000/demo`. The [case study README](case-study-reference/README.md) covers running
-it without Docker, the demo sign-in tokens, and the infrastructure files. Download it all as
+it without Docker, the demo sign-in tokens, and the infrastructure files.
+
+The server also ships as a container image, built in stages on a distroless base, scanned with
+Trivy, and signed with Cosign along with its SBOM and build provenance. The case study README shows
+how to [verify and run the signed image](case-study-reference/README.md#run-the-signed-image) by
+digest, and how to update it with automatic rollback. Download it all as
 [case-study-reference.zip](https://github.com/michellelynne/missing-cipher-code/releases/latest/download/case-study-reference.zip).
 
 ### Run the evals
