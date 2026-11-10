@@ -1,0 +1,274 @@
+# Builds the case study server's container image and checks it before anyone can run it.
+#
+# On every push and pull request that changes the server, its image, or this file:
+#   build the image, scan it with Trivy (fails on HIGH or CRITICAL problems that have a fix), list
+#   what's inside it as an SBOM with Syft, and run every test inside the test image against PostgreSQL.
+#
+# On a push to main (or a manual run on main), after those pass:
+#   push the image to ghcr.io/michellelynne/renovation-revolution, scan the pushed image again, then
+#   sign it by digest with Cosign (keyless: no key to store or leak), attach the SBOM as a signed
+#   attestation, add GitHub's build provenance, and verify all of it. A signature that doesn't verify
+#   fails the build. An image that fails the scan is never signed, and unsigned images never run.
+#
+# Third-party actions are pinned to a full commit SHA, with the version in a comment, so a moved
+# tag can't change what runs here.
+name: Container image
+
+on:
+  push:
+    paths:
+      - "case-study-reference/code/**"
+      - ".github/workflows/container.yml"
+  pull_request:
+    paths:
+      - "case-study-reference/code/**"
+      - ".github/workflows/container.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  IMAGE_NAME: ghcr.io/michellelynne/renovation-revolution
+  # The only workflow allowed to sign: this file, on main. cosign checks the certificate against it.
+  SIGNER_IDENTITY_PATTERN: ^https://github\.com/michellelynne/missing-cipher-code/\.github/workflows/container\.yml@refs/heads/main$
+  SIGNER_ISSUER: https://token.actions.githubusercontent.com
+
+jobs:
+  check:
+    name: Build, scan, SBOM, and test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 15
+    defaults:
+      run:
+        working-directory: case-study-reference/code
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build the runtime image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: case-study-reference/code
+          target: runtime
+          load: true
+          tags: renovation:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build the test image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: case-study-reference/code
+          target: test
+          load: true
+          tags: renovation:ci-test
+          cache-from: type=gha
+
+      - name: Every test, inside the test image, against PostgreSQL
+        run: docker run --rm --network host --read-only --tmpfs /tmp
+          --env DATABASE_URL=postgresql://postgres@localhost:5432/postgres renovation:ci-test
+
+      - name: The runtime image starts locked down and passes its health check
+        run: |
+          docker run --detach --name renovation-smoke --read-only --tmpfs /tmp --cap-drop ALL \
+            --security-opt no-new-privileges:true --publish 127.0.0.1:8000:8000 renovation:ci
+          health_status="starting"
+          for attempt_number in $(seq 1 30); do
+            health_status="$(docker inspect --format '{{.State.Health.Status}}' renovation-smoke)"
+            echo "Check $attempt_number: $health_status"
+            if [ "$health_status" = "healthy" ]; then break; fi
+            sleep 2
+          done
+          docker logs renovation-smoke
+          [ "$health_status" = "healthy" ]
+          curl -fsS -H "Authorization: Bearer homeowner-token" http://localhost:8000/api/contractors
+          echo
+          # No shell in the runtime image: this must fail
+          if docker exec renovation-smoke sh -c true > /dev/null 2>&1; then
+            echo "The runtime image has a shell; it shouldn't"
+            exit 1
+          fi
+          docker rm --force renovation-smoke
+
+      - name: The Compose files are valid
+        run: |
+          docker compose --profile test config --quiet
+          RENOVATION_IMAGE="$IMAGE_NAME@sha256:$(printf '0%.0s' $(seq 1 64))" \
+            docker compose -f compose.published.yaml config --quiet
+
+      - name: Scan for known vulnerabilities (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: renovation:ci
+          severity: CRITICAL,HIGH
+          # Fail only on problems an update can fix today. The full list, unfixed ones included, is in
+          # the report uploaded below.
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Full vulnerability report, every severity
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: renovation:ci
+          format: json
+          output: trivy-report.json
+          exit-code: "0"
+          skip-setup-trivy: true
+
+      - name: List what's in the image (SBOM, SPDX JSON, with Syft)
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          image: renovation:ci
+          format: spdx-json
+          output-file: sbom.spdx.json
+          upload-artifact: false
+
+      - name: Keep the SBOM and the vulnerability report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: image-sbom-and-scan
+          path: |
+            sbom.spdx.json
+            trivy-report.json
+          if-no-files-found: warn
+
+  publish:
+    name: Publish, sign, attest, and verify
+    needs: check
+    # Only from main, never from a pull request, so only reviewed code is ever signed
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # push to GitHub Container Registry
+      id-token: write # the OIDC token that keyless signing turns into a short-lived certificate
+      attestations: write # GitHub's build provenance
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Name the tags
+        id: tags
+        run: |
+          # Dated tags sort by time as text (ops/update.py picks the newest), and the commit tag says
+          # exactly which code is inside. Tags are for finding an image; run it by digest.
+          dated_tag="$(date -u +%Y-%m-%d.%H%M%S)"
+          echo "dated=$dated_tag" >> "$GITHUB_OUTPUT"
+          {
+            echo "list<<END_OF_TAGS"
+            echo "$IMAGE_NAME:$dated_tag"
+            echo "$IMAGE_NAME:sha-$GITHUB_SHA"
+            echo "$IMAGE_NAME:latest"
+            echo "END_OF_TAGS"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: case-study-reference/code
+          target: runtime
+          push: true
+          tags: ${{ steps.tags.outputs.list }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=renovation-revolution
+            org.opencontainers.image.description=The Renovation Revolution case study server from The Missing Cipher
+            org.opencontainers.image.licenses=MIT
+          # Provenance comes from GitHub's attestation below, and the SBOM from Syft, both signed
+          # and stored beside the image, so BuildKit's own unsigned versions are left off.
+          provenance: false
+          sbom: false
+          cache-from: type=gha
+
+      - name: Scan the pushed image by digest (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: SBOM of the pushed image (Syft)
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          image: ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          format: spdx-json
+          output-file: sbom.spdx.json
+          upload-artifact: false
+
+      - name: Sign the image by digest, and attach the signed SBOM (Cosign, keyless)
+        env:
+          IMAGE_REFERENCE: ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+        run: |
+          # By digest, never by tag: a tag can be moved after signing, a digest can't.
+          cosign sign --yes "$IMAGE_REFERENCE"
+          cosign attest --yes --type spdxjson --predicate sbom.spdx.json "$IMAGE_REFERENCE"
+
+      - name: Record build provenance (GitHub attestation)
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+      - name: Verify the signature, the SBOM, and the provenance, the way a reader would
+        env:
+          IMAGE_REFERENCE: ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cosign verify "$IMAGE_REFERENCE" \
+            --certificate-identity-regexp "$SIGNER_IDENTITY_PATTERN" \
+            --certificate-oidc-issuer "$SIGNER_ISSUER" > /dev/null
+          cosign verify-attestation "$IMAGE_REFERENCE" --type spdxjson \
+            --certificate-identity-regexp "$SIGNER_IDENTITY_PATTERN" \
+            --certificate-oidc-issuer "$SIGNER_ISSUER" > /dev/null
+          gh attestation verify "oci://$IMAGE_REFERENCE" --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/container.yml"
+          echo "Signature, SBOM attestation, and build provenance all verified for $IMAGE_REFERENCE"
+
+      - name: Summary
+        env:
+          IMAGE_REFERENCE: ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          DATED_TAG: ${{ steps.tags.outputs.dated }}
+        run: |
+          {
+            echo "### Published and signed"
+            echo ""
+            echo "Run it by digest:"
+            echo ""
+            echo "\`$IMAGE_REFERENCE\`"
+            echo ""
+            echo "Tags: \`$DATED_TAG\`, \`sha-$GITHUB_SHA\`, \`latest\`"
+          } >> "$GITHUB_STEP_SUMMARY"
