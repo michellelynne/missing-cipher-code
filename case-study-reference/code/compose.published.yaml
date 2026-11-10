@@ -1,0 +1,39 @@
+# Runs the signed image that CI published, by digest, instead of building it here. From this folder:
+#   export RENOVATION_IMAGE=ghcr.io/michellelynne/renovation-revolution@sha256:<digest>
+#   cosign verify "$RENOVATION_IMAGE" ...      check the signature first (the README has the full command)
+#   docker compose -f compose.published.yaml up -d
+#
+# Or let ops/update.py find the newest signed image, verify it, start it, and roll back if it isn't
+# healthy: python3 ops/update.py
+#
+# RENOVATION_IMAGE has to be a digest (@sha256:...), not a tag. A tag can be moved to point at
+# different bytes; a digest can't, so what you verified is what runs.
+
+name: renovation-published
+
+services:
+  api:
+    image: ${RENOVATION_IMAGE:?Set RENOVATION_IMAGE to ghcr.io/michellelynne/renovation-revolution@sha256:<digest>. See the README.}
+    # A digest names exact bytes, so a copy pulled earlier is safe to reuse
+    pull_policy: missing
+    ports:
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:50051:50051"
+    environment:
+      DATABASE_URL: postgresql://postgres@database:5432/postgres
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # The same PostgreSQL as compose.yaml
+  database:
+    extends:
+      file: compose.yaml
+      service: database
