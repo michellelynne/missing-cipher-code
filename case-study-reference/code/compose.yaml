@@ -1,25 +1,60 @@
 # Runs the example server and a PostgreSQL with the schema and seed data loaded. From this folder:
 #   docker compose up                               the server, then open http://localhost:8000/demo
-#   docker compose run --rm api python -m pytest    every test, database ones included
+#   docker compose run --rm tests                   every test, database ones included
+#   docker compose run --rm tests python -m pytest -q tests/test_rest.py    one test file
 #   docker compose exec database psql -U postgres -d renovation -f /queries.sql
+#
+# This builds the image from the Dockerfile here. To run the signed image CI published instead,
+# see compose.published.yaml.
 #
 # For your own machine only: the ports are open to localhost alone, and the database trusts every
 # connection instead of asking for a password, so no password has to live in this file.
 
 services:
   api:
-    build: .
+    build:
+      context: .
+      target: runtime
     ports:
       - "127.0.0.1:8000:8000"
       - "127.0.0.1:50051:50051"
     environment:
       DATABASE_URL: postgresql://postgres@database:5432/postgres
+    # Locked down: nothing in the image can be changed, no Linux capabilities, and no way to gain
+    # more privileges. /tmp is the one writable place, in memory.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # The test image: the same runtime base with pytest and the tests added. Only starts when named,
+  # as in docker compose run --rm tests.
+  tests:
+    build:
+      context: .
+      target: test
+    profiles: ["test"]
+    environment:
+      DATABASE_URL: postgresql://postgres@database:5432/postgres
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       database:
         condition: service_healthy
 
   database:
-    image: postgres:18
+    image: postgres:18@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42
     environment:
       POSTGRES_DB: renovation
       POSTGRES_HOST_AUTH_METHOD: trust

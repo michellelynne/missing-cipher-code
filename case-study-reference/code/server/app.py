@@ -5,9 +5,10 @@
   GraphQL              http://localhost:8000/graphql     (schema.graphql; open it in a browser to try queries)
   WebSocket            ws://localhost:8000/ws/conversations/conv_1   (messaging/asyncapi.yaml)
   gRPC                 localhost:50051                   (contractor.proto)
+  Health check         http://localhost:8000/health      (for Docker and load balancers, not part of the API)
 
 Start it from this folder:
-    pip install -r requirements.txt
+    pip install -r requirements-test.txt
     python3 app.py
 
 A profile created through one style can be read through the other two, since they're three doors
@@ -21,7 +22,7 @@ from pathlib import Path
 
 import uvicorn
 from starlette.applications import Starlette
-from starlette.responses import FileResponse, RedirectResponse
+from starlette.responses import FileResponse, JSONResponse, RedirectResponse
 from starlette.routing import Route
 
 import conversations
@@ -47,6 +48,12 @@ async def go_to_demo(request):
     return RedirectResponse("/demo")
 
 
+async def health(request):
+    """Answers 200 while the web server is up. Docker's health check and the update script call it.
+    It needs no sign-in and says nothing about the data, so it's safe to leave open."""
+    return JSONResponse({"status": "ok"})
+
+
 def build_app(directory=None, seconds_per_analysis_update=0.5):
     """Builds the web app. Tests pass their own directory and a zero delay."""
     directory = directory if directory is not None else ContractorDirectory()
@@ -66,6 +73,7 @@ def build_app(directory=None, seconds_per_analysis_update=0.5):
             Route("/graphql", build_graphql_app(), methods=["GET", "POST"]),
             Route("/demo", demo_page, methods=["GET"]),
             Route("/", go_to_demo, methods=["GET"]),
+            Route("/health", health, methods=["GET"]),
         ],
         lifespan=lifespan,
     )

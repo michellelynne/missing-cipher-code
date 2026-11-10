@@ -1,5 +1,6 @@
 """The gRPC version of the Contractors API. The message and service code is generated from
-contractor.proto by generate_grpc.py, so the server can't drift from the .proto beside it."""
+contractor.proto by generate_grpc.py, so the server can't drift from the .proto beside it. It is
+generated again whenever contractor.proto changes."""
 
 import sys
 from concurrent import futures
@@ -12,11 +13,11 @@ from grpc_status import rpc_status
 from auth import user_from_authorization_header
 from directory import (AlreadyExists, DirectoryError, IdempotencyKeyReused, NotAllowed, NotFound, NotSignedIn,
                        PROFILE_FIELDS, ValidationFailed)
-from generate_grpc import GENERATED_FOLDER, generate_grpc_code
+from generate_grpc import GENERATED_FOLDER, make_sure_grpc_code_is_current
 
-generate_grpc_code()
+make_sure_grpc_code_is_current()
 sys.path.insert(0, str(GENERATED_FOLDER))
-import contractor_pb2  # noqa: E402  (generated just above)
+import contractor_pb2  # noqa: E402  (generated, or checked as current, just above)
 import contractor_pb2_grpc  # noqa: E402
 
 STATUS_CODES = {

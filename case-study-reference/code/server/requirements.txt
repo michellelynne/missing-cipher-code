@@ -1,16 +1,7 @@
+# What the running server imports. The Docker image installs exactly this list.
 starlette==1.7.0
 uvicorn[standard]==0.54.0
 ariadne==1.1.1
 grpcio==1.85.1
-grpcio-tools==1.85.1
 grpcio-status==1.85.1
 googleapis-common-protos>=1.66
-# For the tests
-pytest>=8
-httpx==0.28.1
-jsonschema>=4.23
-referencing>=0.35
-pyyaml>=6
-# For tests/test_database.py, which runs when DATABASE_URL points at a PostgreSQL
-psycopg[binary]>=3.2
-# For tests/test_demo_page.py (optional): pip install playwright, then python3 -m playwright install chromium

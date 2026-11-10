@@ -1,0 +1,14 @@
+# Everything to run the server from source and run its tests: pip install -r requirements-test.txt
+-r requirements.txt
+# Turns contractor.proto into Python code (generate_grpc.py). The Docker image does this while it
+# builds, so the image itself doesn't need it.
+grpcio-tools==1.85.1
+# For the tests
+pytest>=8
+httpx==0.28.1
+jsonschema>=4.23
+referencing>=0.35
+pyyaml>=6
+# For tests/test_database.py, which runs when DATABASE_URL points at a PostgreSQL
+psycopg[binary]>=3.2
+# For tests/test_demo_page.py (optional): pip install playwright, then python3 -m playwright install chromium
