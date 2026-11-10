@@ -6,3 +6,5 @@ node_modules/
 dist/
 skills/*/evals/results/
 skills/editor/rerun-evals/
+.pytest_cache/
+case-study-reference/code/server/generated/

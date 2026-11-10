@@ -62,4 +62,5 @@ the markers only, and a new document lists the counts and the total. Nothing cha
 ---
 
 *From* The Missing Cipher: The Field Guide for Senior Software Engineers *by Michelle Brenner,
-Quill & Coin. Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).*
+Quill & Coin. The code is MIT and this guide is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); see
+[the Editor's license](../../LICENSE.md).*

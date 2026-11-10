@@ -1,0 +1,8 @@
+---
+# The collections the playbook uses, pinned to the major versions it was checked against.
+# Install them with: ansible-galaxy collection install -r requirements.yml
+collections:
+  - name: amazon.aws
+    version: ">=11.0.0,<12.0.0"
+  - name: community.aws
+    version: ">=11.0.0,<12.0.0"

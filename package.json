@@ -2,12 +2,13 @@
   "name": "missing-cipher-code",
   "private": true,
   "description": "Checks for the AI skills and code from The Missing Cipher",
-  "license": "CC-BY-4.0",
+  "license": "(MIT AND CC-BY-4.0)",
   "scripts": {
     "lint": "eslint . && markdownlint-cli2 \"**/*.md\"",
     "test": "node skills/editor/tests/google-docs.test.cjs"
   },
   "devDependencies": {
+    "@asyncapi/parser": "^3.6.6",
     "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",

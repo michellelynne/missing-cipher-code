@@ -1,0 +1,97 @@
+// contractor.proto
+syntax = "proto3";
+package renovationrevolution.contractors.v1;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+// Every call needs a signed-in user. Send the token as call metadata:
+//   authorization: Bearer <token>
+//
+// To make a create safe to retry, send any unique string as idempotency-key metadata. A retry with the
+// same key and the same request gets the first response back, with idempotent-replayed: true.
+//
+// Errors use the standard gRPC status codes, the same six cases as the REST and GraphQL versions:
+//   INVALID_ARGUMENT     a field is missing or malformed; the message names the field
+//   UNAUTHENTICATED      no token, or the token isn't valid
+//   PERMISSION_DENIED    signed in, but not allowed, like editing someone else's profile
+//   NOT_FOUND            no profile with that ID
+//   ALREADY_EXISTS       this user already has a contractor profile
+//   FAILED_PRECONDITION  the idempotency key was already used for a different request
+service ContractorProfileService {
+  rpc CreateContractorProfile (CreateContractorProfileRequest) returns (ContractorProfile);
+  rpc GetContractorProfile (GetContractorProfileRequest) returns (ContractorProfile);
+  rpc ListContractorProfiles (ListContractorProfilesRequest) returns (ListContractorProfilesResponse);
+  rpc UpdateContractorProfile (UpdateContractorProfileRequest) returns (ContractorProfile);
+  rpc DeleteContractorProfile (DeleteContractorProfileRequest) returns (google.protobuf.Empty);
+  rpc CreateReview (CreateReviewRequest) returns (Review);
+}
+
+enum Availability {
+  AVAILABILITY_UNSPECIFIED = 0;
+  OPEN = 1;
+  LIMITED = 2;
+  BOOKED = 3;
+}
+
+message CreateContractorProfileRequest {
+  string company_name = 1;
+  repeated string services = 2;
+  string service_area = 3;
+  Availability availability = 4;
+  optional string insurance_expires_on = 5;
+}
+
+message GetContractorProfileRequest {
+  string contractor_id = 1;
+}
+
+message ListContractorProfilesRequest {
+  string service = 1;
+  string service_area = 2;
+  Availability availability = 3;
+  // How many profiles to return, from 1 to 50. Zero means the default of 20.
+  int32 page_size = 4;
+  // The next_page_token from the previous response. Empty for the first page.
+  string page_token = 5;
+}
+
+message ListContractorProfilesResponse {
+  repeated ContractorProfile contractor_profiles = 1;
+  // Pass this as page_token to get the next page. Empty on the last page.
+  string next_page_token = 2;
+}
+
+message UpdateContractorProfileRequest {
+  // The profile with its new values. contractor_id says which profile to change.
+  ContractorProfile contractor_profile = 1;
+  // The fields to change, like "availability" or "services". Fields not listed stay as they are.
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message DeleteContractorProfileRequest {
+  string contractor_id = 1;
+}
+
+message CreateReviewRequest {
+  // The reviewer comes from sign-in, so the request only says which contractor and what they thought.
+  string contractor_id = 1;
+  int32 rating = 2;
+  optional string body = 3;
+}
+
+message ContractorProfile {
+  string contractor_id = 1;
+  string company_name = 2;
+  repeated string services = 3;
+  string service_area = 4;
+  Availability availability = 5;
+  optional string insurance_expires_on = 6;
+  repeated Review reviews = 7;
+}
+
+message Review {
+  string author_name = 1;
+  optional string body = 2;
+  int32 rating = 3;
+}

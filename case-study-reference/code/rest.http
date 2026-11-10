@@ -1,0 +1,368 @@
+# The Contractors API in REST. Every request here runs against the example server in server/,
+# and every response is what it really sends back; server/tests/test_example_files.py checks that.
+#
+# Run them in order with the REST Client extension for VS Code, or any tool that reads .http files.
+# Start the server first (python3 server/app.py). The IDs c_8f3a2b and c_51d2e0 stand for the two
+# profiles the first two requests create; put in the IDs your server sends back.
+
+@baseUrl = http://localhost:8000
+
+### Create Contractor Profile
+# The email and phone number aren't in the request. They belong to the person, not the profile,
+# so they live in users and come from sign-in.
+# Expect: 201
+POST {{baseUrl}}/api/contractors
+Authorization: Bearer contractor-token
+Content-Type: application/json
+
+{
+  "companyName": "Acme Renovations",
+  "services": ["Painting", "Flooring"],
+  "serviceArea": "Los Angeles, CA",
+  "availability": "OPEN",
+  "insuranceExpiresOn": "2027-03-31"
+}
+
+# Response: 201 Created
+# Location: /api/contractors/c_8f3a2b
+# Content-Type: application/json
+#
+# {
+#   "contractorId": "c_8f3a2b",
+#   "companyName": "Acme Renovations",
+#   "services": ["Painting", "Flooring"],
+#   "serviceArea": "Los Angeles, CA",
+#   "availability": "OPEN",
+#   "insuranceExpiresOn": "2027-03-31",
+#   "reviews": []
+# }
+
+### Create a Second Profile
+# Signed in as a different contractor, so the directory has two profiles to list.
+# Expect: 201
+POST {{baseUrl}}/api/contractors
+Authorization: Bearer second-contractor-token
+Content-Type: application/json
+
+{
+  "companyName": "Bright Kitchen & Bath",
+  "services": ["Kitchen Remodel", "Bathroom Remodel"],
+  "serviceArea": "Los Angeles, CA",
+  "availability": "OPEN"
+}
+
+# Response: 201 Created
+# Location: /api/contractors/c_51d2e0
+# Content-Type: application/json
+#
+# {
+#   "contractorId": "c_51d2e0",
+#   "companyName": "Bright Kitchen & Bath",
+#   "services": ["Kitchen Remodel", "Bathroom Remodel"],
+#   "serviceArea": "Los Angeles, CA",
+#   "availability": "OPEN",
+#   "insuranceExpiresOn": null,
+#   "reviews": []
+# }
+
+### Get Contractor Profile
+# Expect: 200
+GET {{baseUrl}}/api/contractors/c_8f3a2b
+Authorization: Bearer homeowner-token
+
+# Response: 200 OK
+# Content-Type: application/json
+#
+# {
+#   "contractorId": "c_8f3a2b",
+#   "companyName": "Acme Renovations",
+#   "services": ["Painting", "Flooring"],
+#   "serviceArea": "Los Angeles, CA",
+#   "availability": "OPEN",
+#   "insuranceExpiresOn": "2027-03-31",
+#   "reviews": []
+# }
+
+### List Contractors for the Directory
+# Takes the same filters the directory offers, which is why those columns are indexed.
+# Expect: 200
+GET {{baseUrl}}/api/contractors?service=Kitchen%20Remodel&serviceArea=Los%20Angeles%2C%20CA&availability=OPEN
+Authorization: Bearer homeowner-token
+
+# Response: 200 OK
+# Content-Type: application/json
+#
+# {
+#   "contractorProfiles": [
+#     {
+#       "contractorId": "c_51d2e0",
+#       "companyName": "Bright Kitchen & Bath",
+#       "services": ["Kitchen Remodel", "Bathroom Remodel"],
+#       "serviceArea": "Los Angeles, CA",
+#       "availability": "OPEN",
+#       "insuranceExpiresOn": null,
+#       "reviews": []
+#     }
+#   ],
+#   "nextPageToken": null
+# }
+
+### List One Page at a Time
+# pageSize sets the page length. nextPageToken comes back until the last page, where it's null.
+# Expect: 200
+GET {{baseUrl}}/api/contractors?serviceArea=Los%20Angeles%2C%20CA&pageSize=1
+Authorization: Bearer homeowner-token
+
+# Response: 200 OK
+# Content-Type: application/json
+#
+# {
+#   "contractorProfiles": [
+#     {
+#       "contractorId": "c_8f3a2b",
+#       "companyName": "Acme Renovations",
+#       "services": ["Painting", "Flooring"],
+#       "serviceArea": "Los Angeles, CA",
+#       "availability": "OPEN",
+#       "insuranceExpiresOn": "2027-03-31",
+#       "reviews": []
+#     }
+#   ],
+#   "nextPageToken": "b2Zmc2V0OjE="
+# }
+
+### Get the Next Page
+# Send the nextPageToken from the previous response as pageToken.
+# Expect: 200
+GET {{baseUrl}}/api/contractors?serviceArea=Los%20Angeles%2C%20CA&pageSize=1&pageToken=b2Zmc2V0OjE%3D
+Authorization: Bearer homeowner-token
+
+# Response: 200 OK
+# Content-Type: application/json
+#
+# {
+#   "contractorProfiles": [
+#     {
+#       "contractorId": "c_51d2e0",
+#       "companyName": "Bright Kitchen & Bath",
+#       "services": ["Kitchen Remodel", "Bathroom Remodel"],
+#       "serviceArea": "Los Angeles, CA",
+#       "availability": "OPEN",
+#       "insuranceExpiresOn": null,
+#       "reviews": []
+#     }
+#   ],
+#   "nextPageToken": null
+# }
+
+### Update Contractor Profile
+# Send only the fields to change (JSON Merge Patch). Send insuranceExpiresOn as null to clear it.
+# Expect: 200
+PATCH {{baseUrl}}/api/contractors/c_8f3a2b
+Authorization: Bearer contractor-token
+Content-Type: application/merge-patch+json
+
+{
+  "availability": "LIMITED"
+}
+
+# Response: 200 OK
+# Content-Type: application/json
+#
+# {
+#   "contractorId": "c_8f3a2b",
+#   "companyName": "Acme Renovations",
+#   "services": ["Painting", "Flooring"],
+#   "serviceArea": "Los Angeles, CA",
+#   "availability": "LIMITED",
+#   "insuranceExpiresOn": "2027-03-31",
+#   "reviews": []
+# }
+
+### Create Review
+# The reviewer comes from sign-in. The Idempotency-Key makes it safe to retry: any unique string works,
+# like a UUID, and a retry with the same key and body gets this same response back.
+# Expect: 201
+POST {{baseUrl}}/api/contractors/c_8f3a2b/reviews
+Authorization: Bearer homeowner-token
+Idempotency-Key: 5b0f3c1e-8a4d-4f7e-9c2b-1d6e7a8f9b30
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "body": "They found the leak behind the tile and fixed it the same day."
+}
+
+# Response: 201 Created
+# Content-Type: application/json
+#
+# {
+#   "authorName": "Hana Okafor",
+#   "body": "They found the leak behind the tile and fixed it the same day.",
+#   "rating": 5
+# }
+
+### Retry the Same Review
+# The connection dropped before the response arrived, so the app sends the same request again. The
+# server sends back the saved response, marked Idempotent-Replayed, and doesn't add a second review.
+# Expect: 201
+POST {{baseUrl}}/api/contractors/c_8f3a2b/reviews
+Authorization: Bearer homeowner-token
+Idempotency-Key: 5b0f3c1e-8a4d-4f7e-9c2b-1d6e7a8f9b30
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "body": "They found the leak behind the tile and fixed it the same day."
+}
+
+# Response: 201 Created
+# Idempotent-Replayed: true
+# Content-Type: application/json
+#
+# {
+#   "authorName": "Hana Okafor",
+#   "body": "They found the leak behind the tile and fixed it the same day.",
+#   "rating": 5
+# }
+
+### Error: A Field Is Missing or Malformed
+# Expect: 400
+POST {{baseUrl}}/api/contractors
+Authorization: Bearer homeowner-token
+Content-Type: application/json
+
+{
+  "companyName": "",
+  "services": [],
+  "serviceArea": "Los Angeles, CA",
+  "availability": "SOMETIMES"
+}
+
+# Response: 400 Bad Request
+# Content-Type: application/problem+json
+#
+# {
+#   "type": "https://missingcipher.com/problems/validation-failed",
+#   "title": "Some fields aren't valid",
+#   "status": 400,
+#   "detail": "Fix the fields listed in fieldErrors and send it again.",
+#   "fieldErrors": [
+#     {
+#       "field": "companyName",
+#       "message": "This field is required."
+#     },
+#     {
+#       "field": "services",
+#       "message": "This field is required."
+#     },
+#     {
+#       "field": "availability",
+#       "message": "Use OPEN, LIMITED, or BOOKED."
+#     }
+#   ]
+# }
+
+### Error: Not Signed In
+# Expect: 401
+GET {{baseUrl}}/api/contractors/c_8f3a2b
+
+# Response: 401 Unauthorized
+# Content-Type: application/problem+json
+#
+# {
+#   "type": "https://missingcipher.com/problems/not-signed-in",
+#   "title": "Sign in first",
+#   "status": 401,
+#   "detail": "Sign in first. Send your token as Authorization: Bearer <token>."
+# }
+
+### Error: Not Allowed
+# Signed in as the other contractor, who doesn't own this profile.
+# Expect: 403
+PATCH {{baseUrl}}/api/contractors/c_8f3a2b
+Authorization: Bearer second-contractor-token
+Content-Type: application/merge-patch+json
+
+{
+  "availability": "BOOKED"
+}
+
+# Response: 403 Forbidden
+# Content-Type: application/problem+json
+#
+# {
+#   "type": "https://missingcipher.com/problems/not-allowed",
+#   "title": "You can't do that",
+#   "status": 403,
+#   "detail": "Only the profile's owner can change it."
+# }
+
+### Error: Not Found
+# Expect: 404
+GET {{baseUrl}}/api/contractors/c_000000
+Authorization: Bearer homeowner-token
+
+# Response: 404 Not Found
+# Content-Type: application/problem+json
+#
+# {
+#   "type": "https://missingcipher.com/problems/not-found",
+#   "title": "Not found",
+#   "status": 404,
+#   "detail": "There's no contractor profile with the ID c_000000."
+# }
+
+### Error: Already Exists
+# Each user can have one contractor profile.
+# Expect: 409
+POST {{baseUrl}}/api/contractors
+Authorization: Bearer contractor-token
+Content-Type: application/json
+
+{
+  "companyName": "Acme Renovations West",
+  "services": ["Painting"],
+  "serviceArea": "Pasadena, CA",
+  "availability": "OPEN"
+}
+
+# Response: 409 Conflict
+# Content-Type: application/problem+json
+#
+# {
+#   "type": "https://missingcipher.com/problems/already-exists",
+#   "title": "It already exists",
+#   "status": 409,
+#   "detail": "You already have a contractor profile: c_8f3a2b."
+# }
+
+### Error: Idempotency Key Reused
+# The same key with a different request. Use a new key for each new request.
+# Expect: 422
+POST {{baseUrl}}/api/contractors/c_8f3a2b/reviews
+Authorization: Bearer homeowner-token
+Idempotency-Key: 5b0f3c1e-8a4d-4f7e-9c2b-1d6e7a8f9b30
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "body": "They found the leak behind the tile and fixed it the same day."
+}
+
+# Response: 422 Unprocessable Content
+# Content-Type: application/problem+json
+#
+# {
+#   "type": "https://missingcipher.com/problems/idempotency-key-reused",
+#   "title": "That idempotency key was already used",
+#   "status": 422,
+#   "detail": "This idempotency key was already used for a different request. Use a new key for each new request."
+# }
+
+### Delete Contractor Profile
+# Expect: 204
+DELETE {{baseUrl}}/api/contractors/c_51d2e0
+Authorization: Bearer second-contractor-token
+
+# Response: 204 No Content

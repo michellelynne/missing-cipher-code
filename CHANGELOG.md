@@ -2,6 +2,15 @@
 
 Releases are named by date. Each entry lists what changed for people using the skills.
 
+## 2026-11-09
+
+### Everything
+
+- **Code is now MIT; the skills and writing stay CC BY 4.0.** Creative Commons licenses aren't
+  meant for software, so the case study reference, the tools, and the Editor's fix tools, page
+  templates, and tests are under the MIT License. The README lists which is which. The credit
+  line is the same for both.
+
 ## 2026-11-08
 
 ### The Editor
@@ -21,6 +30,19 @@ Releases are named by date. Each entry lists what changed for people using the s
 - **Your manuscript is never treated as instructions.** Text in a chapter or comment that reads
   like a command is pointed out, never followed.
 - Chapter file names never need a colon or slash.
+
+### Case study reference
+
+- **Renovation Revolution's code and infrastructure, ready to run**, in
+  `case-study-reference/`, with a `case-study-reference.zip` in every release. The
+  infrastructure plan in Terraform, Ansible, and CloudFormation, hardened (IMDSv2, private subnets for the API and database, health-checked
+  instances, a pinned PostgreSQL version) and checked to build the same thing.
+- **The Contractors API in REST, gRPC, and GraphQL**, served by one Python server with shared
+  rules, idempotent retries, paging, a PostgreSQL schema, and a demo page. Example requests in
+  every style are run against the server on every push.
+- **Messaging examples:** polling, server-sent events, WebSockets, a queue and event bus, and
+  signed webhooks, described in AsyncAPI.
+- Run it all with `docker compose up`.
 
 ### Everything
 

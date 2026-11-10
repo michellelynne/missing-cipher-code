@@ -32,7 +32,6 @@ def build_catalog():
         "author": AUTHOR,
         "homepage": HOMEPAGE_URL,
         "repository": REPOSITORY_URL,
-        "license": "CC-BY-4.0",
     }
     return {
         "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
@@ -47,6 +46,7 @@ def build_catalog():
                 "category": "productivity",
                 "keywords": ["career", "senior engineer", "system design", "incident response", "documentation"],
                 "skills": book_skill_paths,
+                "license": "CC-BY-4.0",
             }, **shared_fields),
             dict({
                 "name": "book-editor",
@@ -55,6 +55,8 @@ def build_catalog():
                 "category": "writing",
                 "keywords": ["editing", "manuscript", "book", "proofreading", "style guide"],
                 "skills": ["./skills/" + EDITOR_FOLDER_NAME],
+                # The skill is writing; its fix tools are code.
+                "license": "MIT AND CC-BY-4.0",
             }, **shared_fields),
         ],
     }

@@ -1,0 +1,54 @@
+# Photo analysis: the upload is answered right away, and progress comes back as server-sent events.
+# Every response here is what the example server really sends back (with b_7 standing in for the batch
+# ID it makes up); server/tests/test_example_files.py checks that.
+
+@baseUrl = http://localhost:8000
+
+### Upload a Batch of Photos
+# 202 Accepted means "queued, not done". The room service has put an AnalyzePhotos command on the
+# image analysis queue (see asyncapi.yaml), so nobody waits on this request.
+# Expect: 202
+POST {{baseUrl}}/api/rooms/r_42/photo-batches
+Authorization: Bearer homeowner-token
+Content-Type: application/json
+
+{
+  "photoLocation": "s3://renovation-uploads/rooms/r_42/batch-7/",
+  "photoCount": 25
+}
+
+# Response: 202 Accepted
+#
+# {
+#   "batchId": "b_7",
+#   "status": "QUEUED",
+#   "eventsUrl": "/api/rooms/r_42/photo-batches/b_7/events"
+# }
+
+### Follow the Progress
+# One HTTP connection stays open, and the server sends an event as each group of photos is done.
+# In a browser: new EventSource(eventsUrl + "?token=..."), since EventSource can't send headers.
+# Expect: 200
+GET {{baseUrl}}/api/rooms/r_42/photo-batches/b_7/events
+Authorization: Bearer homeowner-token
+
+# Response: 200 OK
+# Content-Type: text/event-stream
+#
+# retry: 3000
+#
+# id: 1
+# event: progress
+# data: {"batchId": "b_7", "analyzed": 0, "total": 25}
+#
+# id: 2
+# event: progress
+# data: {"batchId": "b_7", "analyzed": 10, "total": 25}
+#
+# id: 3
+# event: progress
+# data: {"batchId": "b_7", "analyzed": 20, "total": 25}
+#
+# id: 4
+# event: completed
+# data: {"batchId": "b_7", "findings": [{"component": "cabinets", "material": "oak", "condition": "worn"}, {"component": "countertop", "material": "laminate", "condition": "chipped"}]}

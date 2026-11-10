@@ -19,6 +19,15 @@ node skills/editor/tests/google-docs.test.cjs
 python3 -m unittest discover --start-directory skills/editor/tests --pattern "test_*.py"
 ```
 
+## Changing the case study reference
+
+- Run `python3 tools/check_examples.py`. [case-study-reference/README.md](case-study-reference/README.md#check-your-changes)
+  lists what to install; anything missing is skipped and named at the end.
+- Change Terraform, Ansible, and CloudFormation together. The check fails when they stop
+  building the same thing.
+- The example request files are checked against the real server, so update them when a
+  response changes.
+
 ## Adding or changing a skill
 
 - A skill is a folder in `skills/` named exactly like the `name` in its `SKILL.md`.
@@ -39,5 +48,5 @@ python3 -m unittest discover --start-directory skills/editor/tests --pattern "te
 
 ## Credit
 
-Everything here is CC BY 4.0. By contributing, you agree your contribution is shared under the
-same license.
+Code here is MIT and writing is CC BY 4.0; [the README](README.md#license-and-credit) lists which
+is which. By contributing, you agree your contribution is shared under the license for its part.

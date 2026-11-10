@@ -1,13 +1,14 @@
 name: Release
 
-# Every push to main that changes a skill publishes a release named by date, with one ZIP per
-# skill, an all-skills ZIP, and checksums. Download links use /releases/latest/download/<name>.zip,
+# Every push to main that changes a skill or the case study reference publishes a release named by
+# date, with one ZIP per skill, an all-skills ZIP, the case study ZIP, and checksums. Download links use /releases/latest/download/<name>.zip,
 # so they always point at the newest release.
 on:
   push:
     branches: [main]
     paths:
       - "skills/**"
+      - "case-study-reference/**"
       - "tools/build_release.py"
   workflow_dispatch:
 
@@ -49,6 +50,6 @@ jobs:
             release_number=$((release_number + 1))
           done
           gh release create "$release_tag" dist/*.zip dist/SHA256SUMS.txt \
-            --title "Skills $release_tag" \
-            --notes "Skills as of $release_tag. Download one skill, all of them (all-skills.zip), or the Editor (editor.zip). See CHANGELOG.md for what changed." \
+            --title "Release $release_tag" \
+            --notes "Skills and the case study reference as of $release_tag. Download one skill, all of them (all-skills.zip), the Editor (editor.zip), or the case study's code and infrastructure (case-study-reference.zip). See CHANGELOG.md for what changed." \
             --latest

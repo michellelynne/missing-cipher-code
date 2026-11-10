@@ -1,0 +1,356 @@
+asyncapi: 3.1.0
+info:
+  title: Renovation Revolution messaging (case study reference)
+  version: 1.0.0
+  description: >
+    The messages that aren't request and response: a queue for commands, an event bus for results,
+    and a WebSocket for conversations between a homeowner and their contractor. Commands go on queues,
+    and results go on the event bus. The example server in server/ runs all three in one process, with
+    an in-memory queue and event bus standing in for SQS and SNS.
+
+servers:
+  queue:
+    host: sqs.us-east-1.amazonaws.com
+    protocol: sqs
+    description: The image analysis queue. Each message is handled once, by one consumer.
+  eventBus:
+    host: sns.us-east-1.amazonaws.com
+    protocol: sns
+    description: Every subscriber gets its own copy of each event.
+  website:
+    host: localhost:8000
+    protocol: ws
+    description: The example server's WebSocket endpoint
+
+channels:
+  imageAnalysisCommands:
+    address: image-analysis-commands
+    servers:
+      - $ref: "#/servers/queue"
+    messages:
+      analyzePhotos:
+        $ref: "#/components/messages/AnalyzePhotos"
+  imageAnalysisEvents:
+    address: image-analysis-events
+    servers:
+      - $ref: "#/servers/eventBus"
+    messages:
+      photoAnalysisProgressed:
+        $ref: "#/components/messages/PhotoAnalysisProgressed"
+      photosAnalyzed:
+        $ref: "#/components/messages/PhotosAnalyzed"
+  conversation:
+    address: /ws/conversations/{conversationId}
+    servers:
+      - $ref: "#/servers/website"
+    parameters:
+      conversationId:
+        description: One conversation between a homeowner and a contractor
+    messages:
+      authenticate:
+        $ref: "#/components/messages/Authenticate"
+      sendMessage:
+        $ref: "#/components/messages/SendMessage"
+      messagePosted:
+        $ref: "#/components/messages/MessagePosted"
+      conversationError:
+        $ref: "#/components/messages/ConversationError"
+
+operations:
+  queuePhotoAnalysis:
+    action: send
+    summary: The room service asks for a batch of photos to be analyzed.
+    channel:
+      $ref: "#/channels/imageAnalysisCommands"
+    messages:
+      - $ref: "#/channels/imageAnalysisCommands/messages/analyzePhotos"
+  analyzePhotos:
+    action: receive
+    summary: >
+      The image analysis service takes commands off the queue, one per worker. Delivery is at least
+      once, so a command seen before is skipped.
+    channel:
+      $ref: "#/channels/imageAnalysisCommands"
+    messages:
+      - $ref: "#/channels/imageAnalysisCommands/messages/analyzePhotos"
+  announcePhotoAnalysis:
+    action: send
+    summary: >
+      The image analysis service publishes progress as it works and what it found when it's done,
+      without knowing who will read either.
+    channel:
+      $ref: "#/channels/imageAnalysisEvents"
+    messages:
+      - $ref: "#/channels/imageAnalysisEvents/messages/photoAnalysisProgressed"
+      - $ref: "#/channels/imageAnalysisEvents/messages/photosAnalyzed"
+  recordPhotoAnalysis:
+    action: receive
+    summary: >
+      The room service subscribes, saves the findings on the room, and passes progress on to the
+      homeowner's open server-sent events stream.
+    channel:
+      $ref: "#/channels/imageAnalysisEvents"
+    messages:
+      - $ref: "#/channels/imageAnalysisEvents/messages/photoAnalysisProgressed"
+      - $ref: "#/channels/imageAnalysisEvents/messages/photosAnalyzed"
+  receiveConversationMessage:
+    action: receive
+    summary: The first message must be authenticate; after that, sendMessage.
+    channel:
+      $ref: "#/channels/conversation"
+    messages:
+      - $ref: "#/channels/conversation/messages/authenticate"
+      - $ref: "#/channels/conversation/messages/sendMessage"
+  sendConversationMessage:
+    action: send
+    summary: Every open connection in the conversation gets each new message.
+    channel:
+      $ref: "#/channels/conversation"
+    messages:
+      - $ref: "#/channels/conversation/messages/messagePosted"
+      - $ref: "#/channels/conversation/messages/conversationError"
+
+components:
+  messages:
+    AnalyzePhotos:
+      name: AnalyzePhotos
+      title: Analyze photos (command)
+      summary: Says where a batch of photos is stored. Messages carry the location, never the photos.
+      contentType: application/cloudevents+json
+      payload:
+        $ref: "#/components/schemas/AnalyzePhotosCommand"
+      examples:
+        - name: fortyKitchenPhotos
+          payload:
+            specversion: "1.0"
+            id: cmd_5c1e
+            source: /services/rooms
+            type: com.renovationrevolution.imageanalysis.analyze-photos.v1
+            time: "2026-11-08T15:04:05Z"
+            data:
+              roomId: r_42
+              batchId: b_7
+              photoLocation: s3://renovation-uploads/rooms/r_42/batch-7/
+              photoCount: 40
+    PhotoAnalysisProgressed:
+      name: PhotoAnalysisProgressed
+      title: Photo analysis progressed (event)
+      contentType: application/cloudevents+json
+      payload:
+        $ref: "#/components/schemas/PhotoAnalysisProgressedEvent"
+      examples:
+        - name: halfway
+          payload:
+            specversion: "1.0"
+            id: evt_90f2
+            source: /services/image-analysis
+            type: com.renovationrevolution.imageanalysis.photo-analysis-progressed.v1
+            time: "2026-11-08T15:05:30Z"
+            data:
+              roomId: r_42
+              batchId: b_7
+              analyzed: 20
+              total: 40
+    PhotosAnalyzed:
+      name: PhotosAnalyzed
+      title: Photos analyzed (event)
+      contentType: application/cloudevents+json
+      payload:
+        $ref: "#/components/schemas/PhotosAnalyzedEvent"
+      examples:
+        - name: kitchenFindings
+          payload:
+            specversion: "1.0"
+            id: evt_91aa
+            source: /services/image-analysis
+            type: com.renovationrevolution.imageanalysis.photos-analyzed.v1
+            time: "2026-11-08T15:06:40Z"
+            data:
+              roomId: r_42
+              batchId: b_7
+              findings:
+                - component: cabinets
+                  material: oak
+                  condition: worn
+                - component: countertop
+                  material: laminate
+                  condition: chipped
+    Authenticate:
+      name: Authenticate
+      summary: Browsers can't add headers to a WebSocket, so the token comes in the first message.
+      payload:
+        $ref: "#/components/schemas/AuthenticateFrame"
+      examples:
+        - payload:
+            type: authenticate
+            token: homeowner-token
+    SendMessage:
+      name: SendMessage
+      payload:
+        $ref: "#/components/schemas/SendMessageFrame"
+      examples:
+        - payload:
+            type: send
+            text: Should the cabinets stay?
+    MessagePosted:
+      name: MessagePosted
+      payload:
+        $ref: "#/components/schemas/MessagePostedFrame"
+      examples:
+        - payload:
+            type: message
+            messageId: m_3
+            senderName: Hana Okafor
+            text: Should the cabinets stay?
+            sentAt: "2026-11-08T15:10:00Z"
+    ConversationError:
+      name: ConversationError
+      summary: Sent before the server closes the connection
+      payload:
+        $ref: "#/components/schemas/ErrorFrame"
+      examples:
+        - payload:
+            type: error
+            code: UNAUTHENTICATED
+            message: The first message must be authenticate, with a valid token.
+
+  schemas:
+    CloudEventEnvelope:
+      description: The CloudEvents 1.0 envelope, so every service reads the same outer fields.
+      type: object
+      required: [specversion, id, source, type, time, data]
+      properties:
+        specversion:
+          const: "1.0"
+        id:
+          description: Unique per message; consumers use it to skip repeats.
+          type: string
+        source:
+          type: string
+        type:
+          type: string
+        time:
+          type: string
+          format: date-time
+        data:
+          type: object
+    AnalyzePhotosCommand:
+      allOf:
+        - $ref: "#/components/schemas/CloudEventEnvelope"
+        - type: object
+          properties:
+            type:
+              const: com.renovationrevolution.imageanalysis.analyze-photos.v1
+            data:
+              type: object
+              additionalProperties: false
+              required: [roomId, batchId, photoLocation, photoCount]
+              properties:
+                roomId:
+                  type: string
+                batchId:
+                  type: string
+                photoLocation:
+                  type: string
+                photoCount:
+                  type: integer
+                  minimum: 1
+    PhotoAnalysisProgressedEvent:
+      allOf:
+        - $ref: "#/components/schemas/CloudEventEnvelope"
+        - type: object
+          properties:
+            type:
+              const: com.renovationrevolution.imageanalysis.photo-analysis-progressed.v1
+            data:
+              type: object
+              additionalProperties: false
+              required: [roomId, batchId, analyzed, total]
+              properties:
+                roomId:
+                  type: string
+                batchId:
+                  type: string
+                analyzed:
+                  type: integer
+                  minimum: 0
+                total:
+                  type: integer
+                  minimum: 1
+    PhotosAnalyzedEvent:
+      allOf:
+        - $ref: "#/components/schemas/CloudEventEnvelope"
+        - type: object
+          properties:
+            type:
+              const: com.renovationrevolution.imageanalysis.photos-analyzed.v1
+            data:
+              type: object
+              additionalProperties: false
+              required: [roomId, batchId, findings]
+              properties:
+                roomId:
+                  type: string
+                batchId:
+                  type: string
+                findings:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: false
+                    required: [component, material, condition]
+                    properties:
+                      component:
+                        type: string
+                      material:
+                        type: string
+                      condition:
+                        type: string
+    AuthenticateFrame:
+      type: object
+      additionalProperties: false
+      required: [type, token]
+      properties:
+        type:
+          const: authenticate
+        token:
+          type: string
+    SendMessageFrame:
+      type: object
+      additionalProperties: false
+      required: [type, text]
+      properties:
+        type:
+          const: send
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+    MessagePostedFrame:
+      type: object
+      additionalProperties: false
+      required: [type, messageId, senderName, text, sentAt]
+      properties:
+        type:
+          const: message
+        messageId:
+          type: string
+        senderName:
+          type: string
+        text:
+          type: string
+        sentAt:
+          type: string
+          format: date-time
+    ErrorFrame:
+      type: object
+      additionalProperties: false
+      required: [type, code, message]
+      properties:
+        type:
+          const: error
+        code:
+          type: string
+          enum: [UNAUTHENTICATED, FORBIDDEN, BAD_MESSAGE]
+        message:
+          type: string

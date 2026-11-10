@@ -1,0 +1,26 @@
+# A WebSocket conversation between a homeowner and their contractor, frame by frame. The frames are
+# the messages in asyncapi.yaml, and this is what the example server really sends (with the sentAt
+# times fixed); server/tests/test_example_files.py checks that.
+#
+# To try it, start the server (python3 server/app.py) and connect two terminals with a WebSocket client
+# such as websocat: websocat ws://localhost:8000/ws/conversations/conv_1
+
+# Both open ws://localhost:8000/ws/conversations/conv_1 and send their token first.
+Homeowner  sends     {"type": "authenticate", "token": "homeowner-token"}
+Contractor sends     {"type": "authenticate", "token": "contractor-token"}
+
+# Either side can send at any moment, and everyone connected gets it, including the sender.
+Contractor sends     {"type": "send", "text": "Should the cabinets stay?"}
+Contractor receives  {"type": "message", "messageId": "m_1", "senderName": "Acme Renovations", "text": "Should the cabinets stay?", "sentAt": "2026-11-08T15:10:00Z"}
+Homeowner  receives  {"type": "message", "messageId": "m_1", "senderName": "Acme Renovations", "text": "Should the cabinets stay?", "sentAt": "2026-11-08T15:10:00Z"}
+Homeowner  sends     {"type": "send", "text": "Keep them, but paint them white."}
+Homeowner  receives  {"type": "message", "messageId": "m_2", "senderName": "Hana Okafor", "text": "Keep them, but paint them white.", "sentAt": "2026-11-08T15:10:00Z"}
+Contractor receives  {"type": "message", "messageId": "m_2", "senderName": "Hana Okafor", "text": "Keep them, but paint them white.", "sentAt": "2026-11-08T15:10:00Z"}
+
+# A malformed message gets an error, and the connection stays open.
+Homeowner  sends     {"type": "send", "text": ""}
+Homeowner  receives  {"type": "error", "code": "BAD_MESSAGE", "message": "Send {\"type\": \"send\", \"text\": ...} with 1 to 2,000 characters."}
+
+# Someone who isn't part of the conversation gets an error, and the server closes with code 4403.
+Stranger   sends     {"type": "authenticate", "token": "second-contractor-token"}
+Stranger   receives  {"type": "error", "code": "FORBIDDEN", "message": "You're not part of this conversation."}

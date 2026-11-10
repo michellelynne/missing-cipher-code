@@ -9,7 +9,7 @@ Attribute VB_Name = "EditorTools"
 '                      chapter's folder. Changes nothing.
 ' The fixes themselves live in the EditorBatch module, which each review replaces.
 '
-' From The Missing Cipher by Michelle Brenner, Quill & Coin. Licensed under CC BY 4.0.
+' From The Missing Cipher by Michelle Brenner, Quill & Coin. MIT License; see skills/editor/LICENSE.md.
 
 Option Explicit
 

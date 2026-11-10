@@ -1,14 +1,18 @@
 # The Missing Cipher: code and AI skills
 
 [![Tests](https://github.com/michellelynne/missing-cipher-code/actions/workflows/tests.yml/badge.svg)](https://github.com/michellelynne/missing-cipher-code/actions/workflows/tests.yml)
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](LICENSE)
+[![Case study reference](https://github.com/michellelynne/missing-cipher-code/actions/workflows/examples.yml/badge.svg)](https://github.com/michellelynne/missing-cipher-code/actions/workflows/examples.yml)
+[![Code: MIT](https://img.shields.io/badge/Code-MIT-blue.svg)](LICENSE)
+[![Writing: CC BY 4.0](https://img.shields.io/badge/Writing-CC%20BY%204.0-lightgrey.svg)](LICENSE-CC-BY-4.0)
 
 Companion code for *The Missing Cipher: The Field Guide for Senior Software Engineers* by
-Michelle Brenner (Packt): 60 AI skills for engineers, plus the Editor, an AI skill that reviews
-any book manuscript. Everything is free to use under [CC BY 4.0](LICENSE).
+Michelle Brenner (Packt): 60 AI skills for engineers, the Editor, an AI skill that reviews any
+book manuscript, and working code and infrastructure for the book's case study. Everything is
+free to use: the code under [MIT](LICENSE) and the skills and writing under
+[CC BY 4.0](LICENSE-CC-BY-4.0). See [License and credit](#license-and-credit).
 
 - [What I built](#what-i-built)
-- [How to use it](#how-to-use-it): install the skills, use the Editor, run the evals, run the checks
+- [How to use it](#how-to-use-it): install the skills, use the Editor, run the case study, run the evals, run the checks
 - [What's in this repository](#whats-in-this-repository)
 
 ## What I built
@@ -50,6 +54,19 @@ What makes it more than a prompt:
   finding Fix, Skip, or Done and sends the marks back to be applied.
 
 The decisions behind it, and what each one gave up, are in [DESIGN.md](DESIGN.md).
+
+### Case study reference: code and infrastructure
+
+Renovation Revolution, the app the book's case study builds, as working code:
+
+- **The same infrastructure in Terraform, Ansible, and CloudFormation**, hardened (IMDSv2, private
+  subnets for the API and database, health-checked instances, a pinned PostgreSQL version). A
+  check compares 50 settings across the three and fails if one drifts.
+- **The Contractors Directory API in REST, gRPC, and GraphQL**, served by one Python server with
+  shared rules, idempotent retries, paging, and a PostgreSQL schema. Every example request in the
+  repository is sent to a fresh server on every push, and the answers must match.
+- **Messaging:** polling, server-sent events, WebSockets, a queue and event bus, and signed
+  webhooks, described in AsyncAPI.
 
 ### Evals that measure what the Editor adds
 
@@ -133,6 +150,13 @@ More about what the Editor checks is in [its README](skills/editor/README.md).
 **Privacy:** many AI tools can use conversations to train future models, depending on your plan
 and settings. Check your tool's privacy or data settings before sharing an unpublished manuscript.
 
+### Run the case study
+
+`docker compose up` in [case-study-reference/code/](case-study-reference/code/), then open
+`http://localhost:8000/demo`. The [case study README](case-study-reference/README.md) covers running
+it without Docker, the demo sign-in tokens, and the infrastructure files. Download it all as
+[case-study-reference.zip](https://github.com/michellelynne/missing-cipher-code/releases/latest/download/case-study-reference.zip).
+
 ### Run the evals
 
 You need [Claude Code](https://code.claude.com/docs) installed and signed in, and Python 3. On
@@ -212,7 +236,10 @@ node skills/editor/tests/google-docs.test.cjs
 python3 -m unittest discover --start-directory skills/editor/tests --pattern "test_*.py"
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) before adding or changing a skill.
+The case study reference has its own checks: `python3 tools/check_examples.py`, with setup in
+[its README](case-study-reference/README.md#check-your-changes).
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) before adding or changing a skill or the case study.
 
 ## What's in this repository
 
@@ -220,9 +247,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before adding or changing a skill.
 |---|---|
 | [`skills/`](skills/) | The 60 book skills, one folder each, and the [skills index](skills/README.md) |
 | [`skills/editor/`](skills/editor/) | The Editor: `SKILL.md`, the review guides in `references/`, the fix tools in `scripts/`, their tests in `tests/`, and the eval cases in `evals/` |
-| [`tools/`](tools/) | Scripts that check the skills, build the plugin catalog and release ZIPs, run the evals, and summarize eval results and plan usage |
+| [`case-study-reference/`](case-study-reference/) | The case study's code (`code/`) and infrastructure (`infrastructure/`), with a [README](case-study-reference/README.md) |
+| [`tools/`](tools/) | Scripts that check the skills and the case study, build the plugin catalog and release ZIPs, run the evals, and summarize eval results and plan usage |
 | [`.claude-plugin/`](.claude-plugin/) | The Claude Code plugin catalog, generated by `tools/build_catalog.py` |
-| [`.github/workflows/`](.github/workflows/) | Tests on every push, releases on every skill change, and evals on demand |
+| [`.github/workflows/`](.github/workflows/) | Tests on every push, case study checks on every case study change, releases on every skill or case study change, and evals on demand |
 | [DESIGN.md](DESIGN.md) | The decisions behind the skills and the Editor |
 | [CHANGELOG.md](CHANGELOG.md) | What changed, by date |
 
@@ -233,7 +261,16 @@ never paste secrets or proprietary code into a public model, and review the work
 
 ## License and credit
 
-Licensed under [CC BY 4.0](LICENSE). Please credit:
+Two licenses, one for code and one for writing, since Creative Commons licenses aren't meant for
+software:
+
+- **Code: [MIT](LICENSE).** Everything in [`case-study-reference/`](case-study-reference/) and
+  [`tools/`](tools/), the Editor's fix tools, page templates, and tests (`skills/editor/scripts/`,
+  `skills/editor/assets/`, `skills/editor/tests/`), and the workflows and config files.
+- **Writing: [CC BY 4.0](LICENSE-CC-BY-4.0).** Everything else: the skills themselves
+  (`SKILL.md` files and their references), the eval cases, and the documentation.
+
+Either way, please credit:
 
 > From *The Missing Cipher: The Field Guide for Senior Software Engineers* by Michelle Brenner,
 > Quill & Coin.

@@ -1,0 +1,214 @@
+---
+# Renovation Revolution infrastructure (Figure 4.5 without the API gateway), the same plan as the
+# Terraform and CloudFormation examples. Needs the amazon.aws and community.aws collections, pinned
+# in requirements.yml the way the Terraform pins its AWS provider:
+#   ansible-galaxy collection install -r requirements.yml
+# Run it with:
+#   ansible-playbook playbook.yml
+# It asks for the database password, so the file contains no passwords at all.
+
+- name: Provision the Renovation Revolution infrastructure
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    aws_region: us-east-1
+    vpc_id: vpc-0123456789abcdef0
+    # The load balancer faces the internet; the API tier and database stay private
+    public_subnet_ids:
+      - subnet-0123456789abcdef0
+      - subnet-0fedcba9876543210
+    private_subnet_ids:
+      - subnet-0aa11bb22cc33dd44
+      - subnet-0ee55ff66aa77bb88
+    api_image_id: ami-0123456789abcdef0
+    certificate_arn: arn:aws:acm:us-east-1:123456789012:certificate/00000000-0000-0000-0000-000000000000
+
+  # The database password comes from outside the code, never from the file itself
+  vars_prompt:
+    - name: database_password
+      prompt: Database password
+      private: true
+
+  tasks:
+    # Load balancer security group: accepts web traffic from anywhere
+    - name: Create the load balancer security group
+      amazon.aws.ec2_security_group:
+        name: load-balancer
+        description: Accepts web traffic from anywhere
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            ports: [443]
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            ports: [80]
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+      register: load_balancer_security_group
+
+    # API security group: accepts traffic only from the load balancer
+    - name: Create the API security group
+      amazon.aws.ec2_security_group:
+        name: api
+        description: Accepts traffic only from the load balancer
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            ports: [8080]
+            group_id: "{{ load_balancer_security_group.group_id }}"
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+      register: api_security_group
+
+    # Database security group: accepts PostgreSQL traffic only from the API tier
+    - name: Create the database security group
+      amazon.aws.ec2_security_group:
+        name: database
+        description: Accepts PostgreSQL traffic only from the API tier
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            ports: [5432]
+            group_id: "{{ api_security_group.group_id }}"
+        rules_egress: []
+      register: database_security_group
+
+    # The group of API instances the load balancer sends traffic to, checked for health
+    - name: Create the API target group
+      community.aws.elb_target_group:
+        name: api-instances
+        protocol: HTTP
+        port: 8080
+        vpc_id: "{{ vpc_id }}"
+        target_type: instance
+        health_check_protocol: HTTP
+        health_check_path: /health
+        region: "{{ aws_region }}"
+        state: present
+      register: api_target_group
+
+    # Load balancer in the public subnets that spreads requests across the API instances, with two listeners:
+    # HTTPS forwards to the API instances, and plain HTTP redirects to the HTTPS address
+    - name: Create the application load balancer
+      amazon.aws.elb_application_lb:
+        name: api-load-balancer
+        scheme: internet-facing
+        subnets: "{{ public_subnet_ids }}"
+        security_groups:
+          - "{{ load_balancer_security_group.group_id }}"
+        listeners:
+          - Protocol: HTTPS
+            Port: 443
+            SslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+            Certificates:
+              - CertificateArn: "{{ certificate_arn }}"
+            DefaultActions:
+              - Type: forward
+                TargetGroupArn: "{{ api_target_group.target_group_arn }}"
+          - Protocol: HTTP
+            Port: 80
+            DefaultActions:
+              - Type: redirect
+                RedirectConfig:
+                  Protocol: HTTPS
+                  Port: "443"
+                  StatusCode: HTTP_301
+        region: "{{ aws_region }}"
+        state: present
+
+    # Blueprint for each API instance
+    - name: Create the API launch template
+      amazon.aws.ec2_launch_template:
+        template_name: api
+        image_id: "{{ api_image_id }}"
+        instance_type: t3.micro
+        security_group_ids:
+          - "{{ api_security_group.group_id }}"
+        # Require IMDSv2 tokens, so a forged request through the app can't read the instance's credentials
+        metadata_options:
+          http_tokens: required
+        region: "{{ aws_region }}"
+        state: present
+      register: api_launch_template
+
+    # API tier in the private subnets: two to six instances, replaced if they fail the health check
+    - name: Create the API autoscaling group
+      amazon.aws.autoscaling_group:
+        name: api
+        min_size: 2
+        max_size: 6
+        desired_capacity: 2
+        vpc_zone_identifier: "{{ private_subnet_ids }}"
+        health_check_type: ELB
+        health_check_period: 300
+        target_group_arns:
+          - "{{ api_target_group.target_group_arn }}"
+        launch_template:
+          launch_template_id: "{{ api_launch_template.template.launch_template_id }}"
+          version: $Latest
+        region: "{{ aws_region }}"
+        state: present
+
+    # Scaling rule: add or remove instances to keep average CPU near 60 percent
+    - name: Create the API CPU scaling policy
+      community.aws.autoscaling_policy:
+        name: api-cpu
+        asg_name: api
+        policy_type: TargetTrackingScaling
+        target_tracking_config:
+          predefined_metric_spec:
+            predefined_metric_type: ASGAverageCPUUtilization
+          target_value: 60
+        region: "{{ aws_region }}"
+        state: present
+
+    # Private subnets the database runs in, the same ones as the API tier
+    - name: Create the database subnet group
+      amazon.aws.rds_subnet_group:
+        name: database
+        description: Private subnets the database runs in
+        subnets: "{{ private_subnet_ids }}"
+        region: "{{ aws_region }}"
+        state: present
+
+    # Primary PostgreSQL database, which handles every write
+    - name: Create the primary database
+      amazon.aws.rds_instance:
+        db_instance_identifier: renovation-primary
+        engine: postgres
+        engine_version: "18"
+        db_instance_class: db.t3.micro
+        allocated_storage: 20
+        db_name: renovation
+        master_username: app_admin
+        master_user_password: "{{ database_password }}"
+        db_subnet_group_name: database
+        vpc_security_group_ids:
+          - "{{ database_security_group.group_id }}"
+        backup_retention_period: 7
+        storage_encrypted: true
+        skip_final_snapshot: true # sandbox only; keep a final snapshot in production
+        region: "{{ aws_region }}"
+        state: present
+      no_log: true
+
+    # Read replica that takes read traffic off the primary
+    - name: Create the read replica
+      amazon.aws.rds_instance:
+        db_instance_identifier: renovation-replica
+        read_replica: true
+        source_db_instance_identifier: renovation-primary
+        db_instance_class: db.t3.micro
+        vpc_security_group_ids:
+          - "{{ database_security_group.group_id }}"
+        skip_final_snapshot: true
+        region: "{{ aws_region }}"
+        state: present

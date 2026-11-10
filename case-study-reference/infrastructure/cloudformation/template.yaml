@@ -1,0 +1,213 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Renovation Revolution infrastructure (Figure 4.5 without the API gateway), the same plan as the
+  Terraform and Ansible examples. Deploy with:
+  aws cloudformation deploy --template-file template.yaml --stack-name renovation-revolution
+  --parameter-overrides DatabasePassword=...
+
+Parameters:
+  # The database password comes from outside the code, never from the file itself
+  DatabasePassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+
+Resources:
+  # Load balancer security group: accepts web traffic from anywhere
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: load-balancer
+      GroupDescription: Accepts web traffic from anywhere
+      VpcId: vpc-0123456789abcdef0
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  # API security group: accepts traffic only from the load balancer
+  ApiSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: api
+      GroupDescription: Accepts traffic only from the load balancer
+      VpcId: vpc-0123456789abcdef0
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          SourceSecurityGroupId: !GetAtt LoadBalancerSecurityGroup.GroupId
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  # Database security group: accepts PostgreSQL traffic only from the API tier
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: database
+      GroupDescription: Accepts PostgreSQL traffic only from the API tier
+      VpcId: vpc-0123456789abcdef0
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !GetAtt ApiSecurityGroup.GroupId
+      # CloudFormation adds an allow-all outbound rule unless you give one. This rule only allows
+      # traffic to the instance itself, so the database has no outbound access, like the Terraform
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 127.0.0.1/32
+
+  # Load balancer in the public subnets that spreads requests across the API instances
+  ApiLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: api-load-balancer
+      Scheme: internet-facing
+      Type: application
+      Subnets:
+        - subnet-0123456789abcdef0
+        - subnet-0fedcba9876543210
+      SecurityGroups:
+        - !GetAtt LoadBalancerSecurityGroup.GroupId
+
+  # The group of API instances the load balancer sends traffic to, checked for health
+  ApiTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: api-instances
+      Port: 8080
+      Protocol: HTTP
+      VpcId: vpc-0123456789abcdef0
+      TargetType: instance
+      HealthCheckPath: /health
+
+  # Listener that accepts encrypted traffic and forwards it to the API instances
+  HttpsListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApiLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      SslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+      Certificates:
+        - CertificateArn: arn:aws:acm:us-east-1:123456789012:certificate/00000000-0000-0000-0000-000000000000
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ApiTargetGroup
+
+  # Listener that sends anyone using plain HTTP to the HTTPS address
+  HttpRedirectListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApiLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Port: "443"
+            Protocol: HTTPS
+            StatusCode: HTTP_301
+
+  # Blueprint for each API instance
+  ApiLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: api
+      LaunchTemplateData:
+        ImageId: ami-0123456789abcdef0
+        InstanceType: t3.micro
+        SecurityGroupIds:
+          - !GetAtt ApiSecurityGroup.GroupId
+        # Require IMDSv2 tokens, so a forged request through the app can't read the instance's credentials
+        MetadataOptions:
+          HttpTokens: required
+
+  # API tier in the private subnets: two to six instances, replaced if they fail the health check
+  ApiAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      MinSize: "2"
+      MaxSize: "6"
+      DesiredCapacity: "2"
+      VPCZoneIdentifier:
+        - subnet-0aa11bb22cc33dd44
+        - subnet-0ee55ff66aa77bb88
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
+      TargetGroupARNs:
+        - !Ref ApiTargetGroup
+      LaunchTemplate:
+        LaunchTemplateId: !Ref ApiLaunchTemplate
+        Version: !GetAtt ApiLaunchTemplate.LatestVersionNumber
+
+  # Scaling rule: add or remove instances to keep average CPU near 60 percent
+  ApiCpuScalingPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref ApiAutoScalingGroup
+      PolicyType: TargetTrackingScaling
+      TargetTrackingConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ASGAverageCPUUtilization
+        TargetValue: 60
+
+  # Private subnets the database runs in, the same ones as the API tier
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: database
+      DBSubnetGroupDescription: Private subnets the database runs in
+      SubnetIds:
+        - subnet-0aa11bb22cc33dd44
+        - subnet-0ee55ff66aa77bb88
+
+  # Primary PostgreSQL database, which handles every write
+  PrimaryDatabase:
+    Type: AWS::RDS::DBInstance
+    # cfn-lint suggests reading the password from Secrets Manager instead (W1011). That is the better
+    # choice in production; the parameter here mirrors the Terraform example's sensitive variable.
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - W1011
+    # Sandbox only; use Snapshot in production so deleting the stack keeps a final copy
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      DBInstanceIdentifier: renovation-primary
+      Engine: postgres
+      EngineVersion: "18"
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: "20"
+      DBName: renovation
+      MasterUsername: app_admin
+      MasterUserPassword: !Ref DatabasePassword
+      DBSubnetGroupName: !Ref DatabaseSubnetGroup
+      VPCSecurityGroups:
+        - !GetAtt DatabaseSecurityGroup.GroupId
+      BackupRetentionPeriod: 7
+      StorageEncrypted: true
+
+  # Read replica that takes read traffic off the primary
+  ReplicaDatabase:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      DBInstanceIdentifier: renovation-replica
+      SourceDBInstanceIdentifier: !Ref PrimaryDatabase
+      DBInstanceClass: db.t3.micro
+      VPCSecurityGroups:
+        - !GetAtt DatabaseSecurityGroup.GroupId

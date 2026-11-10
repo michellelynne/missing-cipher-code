@@ -119,9 +119,10 @@ review; the book review does not repeat the chapter checks.
 
 ## License and credit
 
-Copyright (c) 2026 Michelle Brenner, Quill & Coin. Licensed under
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Please keep this credit in any copy or
-adaptation, and note if you changed it:
+Copyright (c) 2026 Michelle Brenner, Quill & Coin. The fix tools, page templates, and tests are
+MIT; the skill and everything else is [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+[LICENSE.md](LICENSE.md) has the details. Please keep this credit in any copy or adaptation, and
+note if you changed it:
 
 > From *The Missing Cipher: The Field Guide for Senior Software Engineers* by Michelle Brenner,
 > Quill & Coin.
